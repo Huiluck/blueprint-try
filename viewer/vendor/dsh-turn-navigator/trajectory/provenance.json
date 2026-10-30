@@ -1,0 +1,18 @@
+{
+  "package": "@deepseek-ai/dsh-client-ui-trajectory",
+  "version": "0.1.5-rc.2",
+  "bundleSha256": "73a878b46046f20d2b28764e33215274cb170f3909681d547d5ed620e19621af",
+  "sources": {
+    "TrajectoryToolbar.css": "7eb18d96b4d98bc54c183b46847a8db538a3ad1222b37967ed10efb475616ecd",
+    "TrajectoryToolbar.js": "5401908778e90cf346f553234557eda4692860d616966ca42b25219b35fa8768",
+    "TrajectoryTimeline.css": "5858a3eb0110e20a886f0e3fd9df8e5b5da73fb38842e37930eebceb7e7ced0e",
+    "TrajectoryTimeline.js": "afcf25729aa7d4c8792a6620f5cfbeab2d4e64f3fdd073a06058eb155ac3a496",
+    "timeline.js": "e30bd72d7ffe1d4eb89419e82ab7ae4d4cc0371a935706945539e82082014c74",
+    "trajectory-record.js": "000ad94a0b375c06fa498fc00cf1664eadcacb494f7e5cdb464a317405547055",
+    "locales.js": "512a23e1e073f986873abeb9a9d3c3efd01f42a9b4166ebd9e1bab9d02da668c",
+    "primitives/Tooltip.tsx": "10f277998fb57f0595fbf7e31a5898cc7e45fd9554033ec17bc863ab7645cde4",
+    "primitives/Tooltip.module.css": "6ee070b9ce1c62eaaddaed1e96be8ff6d59eb4e09df708b219cd4ba3f676ca6b",
+    "primitives/IconSearchOutline16.tsx": "5afceb5123773de2874fccced662b32bb3230a15bf23adf895d13fd3050d12eb",
+    "primitives/index.js": "f88d590d45f16b91a3cb07bcec939df962f0546177ead17efd9ebd3ffe4df3f3"
+  }
+}

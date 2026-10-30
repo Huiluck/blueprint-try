@@ -1,0 +1,57 @@
+{
+  "name": "@blueprint/bundle",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Blueprint 的宿主接线与原生节点 preset，源码和桌面版共用一份组合。",
+  "files": [
+    "cordis.patch.yml",
+    "agent.cordis.yml",
+    "preset.yml",
+    "register-preset.mjs"
+  ],
+  "exports": {
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./agent.cordis.yml": "./agent.cordis.yml",
+    "./preset.yml": "./preset.yml",
+    "./register-preset": "./register-preset.mjs",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@blueprint/context": "0.0.0",
+    "@blueprint/node": "0.0.0",
+    "@deepseek-ai/dsh-subagent-codex": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-subagent-claude-code": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-ask-user": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-subagent": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-subagent-control": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-working-directory": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-experimental-tool-worktree": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-web": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-fs": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-fs-search": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-bash": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-jobs": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-skill": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-command-compact": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-compaction-tool-result-pruner": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-agent-preset-registry": "0.2.1-alpha.2",
+    "yaml": "^2",
+    "@deepseek-ai/dsh-tool-terminal": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-goal": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-ralph": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-workflow-ptc": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-ptc-runtime-node": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-subagent-spawn-in-process": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-todo": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-present": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-plan-mode": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-time-context": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-agent-instructions": "0.2.1-alpha.2"
+  }
+}

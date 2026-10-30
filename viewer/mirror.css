@@ -1,0 +1,430 @@
+/* 节点树的组件样式 —— studio.html 用。token（--st-* 等）由宿主页面定义;
+   本文件只写组件,不写页面家具。
+   视觉裁决见 DESIGN_GUIDE;状态语义（七态判据）见「节点状态灯」定稿 § 6。
+
+   2026-08-28 换血:
+     · 状态不再是贴上去的一块色,是**整张卡** —— 纸、边、字、状态条,四件一起动
+     · 身份格**去色** —— 色相从「不变的身份」手里收回来,全部交给「会变的状态」
+     · 删掉四角色时代的死件:PLAN/GO/RISE/HOLD 配色、判定合并格、会师磁块、
+       档位标、life:'stop' 那一整支 —— 服务端从来没发过那些值
+   ---------------------------------------------------------------- */
+
+/* ---- 执行卡:flex 行,直角,1px 边;格间以 border-left 共线 ---- */
+/* ══ 节点砖（`DESIGN_GUIDE.md` 三）══ 顶栏 ＋ 1–2 条 part 带 ＋ 底栏 ══
+   ⚠️ **类名前缀 `n`（节点）不能去掉。** 光叫 `.brick` 会撞上
+   `studio.html:933` 那张新建项目表单（`<form class="brick np">`）——
+   2026-09-01 真事：`.brick{position:absolute}` 把那张表打成绝对定位，
+   它当场塌了、变窄、滚不动，把「新建项目」按钮吞了。 */
+.nbrick,.ngbrick{position:absolute;display:flex;flex-direction:column;
+      background:var(--surface);border:1px solid var(--ink);cursor:pointer}
+.ngbrick{border-style:dashed;border-color:var(--edge-goal);background:transparent;
+      opacity:.58}
+/* 兑现了才亮起来 —— **全图唯一会虚变实的东西**，它该抢回注意力。 */
+.ngbrick.g-done{opacity:1}
+
+/* 顶栏：号 ＋ 名字。**一块砖只有一个**。
+   **20 高，跟底栏同厚**（DESIGN_GUIDE 3.1／3.6）—— 收窄之后砖上唯一"宽"的
+   东西就是那几条 part 带，那正是该被看见的部分。 */
+.bhead{height:20px;flex:none;display:flex;align-items:center;gap:8px;padding:0 10px;
+       border-bottom:1px solid rgba(23,23,23,.13)}
+.bhead .num{font:600 10px/1 var(--font-mono);font-style:normal;color:var(--ink-2);
+       min-width:20px}
+.bhead .bname{font:600 12px/1 var(--font-ui);color:var(--ink);
+       overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
+/* run 节点在名字右边标一个 run（删 2）：砖的画法和 print 一样，只多这一小签。 */
+.bhead .btype{flex:none;padding:1px 4px;border:1px solid rgba(23,23,23,.2);
+       font:600 9px/1 var(--font-mono);letter-spacing:.2px;color:var(--ink-2)}
+.bhead .node-restart{flex:none;width:22px;height:19px;margin-right:-9px;padding:0;
+       border:0;border-left:1px solid rgba(23,23,23,.13);background:transparent;
+       color:var(--ink-2);font:16px/1 var(--font-ui);cursor:pointer}
+.bhead .node-restart:hover{background:var(--sys-fill);color:var(--ink)}
+.bhead .node-restart:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.bhead .node-restart:disabled{opacity:.45;cursor:wait}
+
+/* part 带。**中缝浅灰，不显眼** —— 它是一块砖内部的分带，不是两块砖之间的边。 */
+.band{height:40px;flex:none;display:flex;border-top:1px solid rgba(23,23,23,.08)}
+.band:first-of-type{border-top:none}
+/* **一律 40，几条带都一样**（2026-09-16 用户：砖太高，够宽松地放下两行就行）。
+   两行正文（16 ＋ 1 ＋ 15）只占 32，上下各余 4。原来单带那一档是 60，
+   里头 27px 是空的 —— 那 20px 白高就是砖看着笨重的原因。
+   ⚠️ 判据仍是「这块砖有几条带」，**不是座位名**（禁令 12）。 */
+.nbrick .band .txt,.ngbrick .band .txt{gap:1px}
+.band>.cell{border-left:1px solid rgba(23,23,23,.08)}
+.band>.cell:first-child{border-left:none}
+.band .pn{width:40px;font:600 10px/1 var(--font-mono);letter-spacing:.2px;color:var(--ink-2)}
+.ngbrick .band .pn{width:40px}
+.band .txt{flex:1;align-items:flex-start;padding:0 10px;gap:2px;min-width:0}
+.band .r1{font:600 12px/16px var(--font-ui);color:var(--ink);
+       overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.band .r2{font:11px/15px var(--font-ui);color:var(--ink-2);
+       overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+
+/* 底栏：左边拍子轨，右边兑现条 */
+.bfoot{height:20px;flex:none;display:flex;align-items:center;gap:6px;padding:0 10px;
+       border-top:1px solid rgba(23,23,23,.08)}
+.bfoot .trk{display:flex;align-items:center;gap:3px}
+.bfoot .pip{width:7px;height:7px;font-style:normal;
+       border:1px solid var(--ink-3);background:transparent}
+.bfoot .pip.on{background:var(--ink-2);border-color:var(--ink-2)}
+.bfoot .sep{width:1px;height:9px;margin:0 4px;background:var(--ink-3);font-style:normal}
+.bfoot .lab{font:10px/1 var(--font-mono);color:var(--ink-2)}
+.bfoot .bar{flex:1;height:4px;background:rgba(23,23,23,.08)}
+.bfoot .bar>b{display:block;height:100%;background:var(--ink-3)}
+
+/* Blueprint 位置：浅灰顶栏 ＋ 中性细边，保持轻微的位置区分。
+   位置边与状态边并排写在 `.o-*` 那一段；状态仍由带的纸面、状态条与外晕表达。 */
+.nroot .bhead{background:var(--sys-head)}
+/* Blueprint 那一格的顶栏印的是 `blueprint` 不是号（渲染器的 `顶号()`）——
+   大写跟 part 名同一条路，走 capitalize，不在 JS 里拼字符串。 */
+.nroot .bhead .num{text-transform:capitalize}
+
+.cell{display:flex;flex-direction:column;align-items:center;justify-content:center;
+      border-left:1px solid currentColor;flex:none}
+
+/* 一格两带:Blueprint 在上、它的 Helm 在下(2026-08-31 用户裁定「折成一张卡」)。
+   **两带是两个真会话** —— 各自的状态类、各自可点、各自高亮;
+   合成一张卡靠的只是把中间那条边收掉,不是把它们合成一个 DOM。
+   下带的顶边由上带的底边充当,所以下带不再画自己的顶边(否则中间是两条线)。 */
+
+/* 状态条:1 个磁块的半步(20px),与卡共边、满卡高。
+   它是整卡那身衣服上最实的一块 —— 缩到 30% 全树只剩它认得出。 */
+.rail{width:20px;font:600 10px/1 var(--font-mono);color:#FFF;
+      overflow:hidden;position:relative}
+.rail>i{font-style:normal;position:relative;z-index:1}
+
+/* part 名那一格:**纸上压暗的一格**,不是一块颜色。跨七个状态永远同一副样子。
+   **Blueprint 不靠它区分** —— Blueprint 位置走浅灰顶栏＋中性细边。
+
+   ── 印什么（DESIGN_GUIDE 3.1，2026-09-03 用户裁定）──
+   **座位 key 原样印，英文，首字母大写**：`Blueprint` / `Helm` / `Course` / `Run`。
+   **一张表都没有** —— 大写靠 `capitalize`，名字靠 key 本身。
+   加一个新座位不用回这儿登记任何东西（禁令 12）。
+   （唯一一条别名 `blueprint → print`，09-03 定的，为了塞进 40px：
+   顶栏已经印了全名 `Blueprint`，带上再印一次就是同一个词上下贴着。
+   ⚠️ 那个 `print` 是把 `blue|print` 截短，**不是座位名** —— 座位 09-18 改叫 `plan` 了，这一条不跟着改。）
+
+   宽度 40 装得下最长的 `Course`（6 字）—— `blueprint` 在这儿印的是缩写 `Print`。
+   ⚠️ 这一格**没有 `overflow:hidden`**：装不下的时候是漫出来压到正文上，不是截断。 */
+.pn{width:40px;font-size:10px;font-weight:600;letter-spacing:.2px;white-space:nowrap;
+     text-transform:capitalize;
+     background:rgba(23,23,23,.05);color:var(--ink-2)}
+.txt{flex:1 1 auto;align-items:stretch;justify-content:center;padding:0 10px;min-width:0}
+
+/* ================= 七个状态:整条 part 带 ＋ 砖的外轮廓 =================
+   判据在服务端,这里一个字都不判断 —— 认的只有 node.状态 那一个字符串。
+   加第八个状态时:这里加两条规则(`.s-` 一条、`.o-` 一条)、宿主加一组 token,
+   渲染器一个字不改。
+
+   **分工只有一句：`.s-` 在带上，管纸 · 状态条 · 文字明度；
+   `.o-` 在砖上，管边宽 · 虚实 · 外晕。**
+   一块砖两条带各画一圈边就成了四个框，而它是一块砖（DESIGN_GUIDE 3.3）。
+   两条带状态不同时 `.o-` 取**视觉重量最重的那一条** —— 算在 `mirror-render.js`
+   的 `砖态()` 里，这儿只认它算出来的那个字符串。 */
+/* 未启动（2026-10-25 用户：没跑过、在等的就是未启动；跑过、在等的是暂停）：现在就是登记在表里、还没派出的块。
+   纯灰纸、灰条、不印字形，整块半透明（`.o-idle`）——跟等其他节点的金纸 ⏸ 分开。DESIGN_GUIDE 3.3。 */
+.s-idle{background:var(--st-idle-paper)}
+.s-idle .rail{background:var(--st-idle-rail);color:#FFF}
+.s-idle .pn{background:rgba(0,0,0,.05);color:#7A7A7A}
+.s-idle .r1{color:#6E6E6E}.s-idle .r2{color:#8E8E8E}
+
+.s-run{background:var(--st-run-paper)}
+.s-run .rail{background:var(--st-run-rail)}
+
+.s-wait{background:var(--st-wait-paper)}
+/* 2026-09-13 从冷灰换成原来「等你回应」那身金（DESIGN_GUIDE 2.2）。
+   正文字色不再压灰 —— 跟原来金纸上一样用默认墨色。 */
+.s-wait .rail{background:var(--st-wait-rail);color:#3A2600}
+
+.s-done{background:var(--st-done-paper)}
+/* 字形取条色上对比度更高的那一端:深条用纸色字形,浅条用墨色字形 */
+.s-done .rail{background:var(--st-done-rail);color:#1C4A38}
+.s-done .r1{color:#4C5A54}.s-done .r2{color:#7E8C86}
+
+.s-ask{background:var(--st-ask-paper)}
+.s-ask .rail{background:var(--st-ask-rail);color:#3A1400}
+
+.s-stop{background:var(--st-stop-paper)}
+.s-stop .rail{background:var(--st-stop-rail)}
+
+.s-dead{background:var(--st-dead-paper)}
+.s-dead>.cell{border-left-color:rgba(255,255,255,.09)}
+.s-dead .rail{background:var(--st-dead-rail);color:#7B838C}
+.s-dead .pn{background:rgba(255,255,255,.06);color:#8C8C8C}
+.s-dead .r1{color:#7B838C}.s-dead .r2{color:#5A616A}
+
+/* 名册去掉的分支保留入口，执行卡与目标镜像整张压灰。 */
+.s-gone{background:#ECEEEF;color:#7B838C}
+.s-gone .rail{background:#A8ADAE;color:#FFF}
+/* 外部 run 的角标（叶 6，2026-10-18 用户选 C）：骑在上边框右侧，一半露在砖外；墨底反白，不加色相。 */
+.nbrick .xtag{position:absolute;right:8px;top:-9px;z-index:2;height:16px;padding:0 6px;display:grid;place-items:center;
+      background:var(--ink);color:var(--surface);font:700 9px/1 var(--font-mono);letter-spacing:.06em;white-space:nowrap}
+.nbrick.o-gone,.ngbrick.g-gone{border:1px solid #A8ADAE;filter:grayscale(1);opacity:.55;box-shadow:none}
+
+/* ── 边线那一半：**落在砖的最外轮廓上**（DESIGN_GUIDE 3.3 那张表的「边」一列）──
+   2026-09-03 补的。原来这七条写在 `.s-*` 里，被文件末尾那两级选择器整体压掉 ——
+   于是**七个状态的边一条都没生效**：砖的外框永远是 `1px solid var(--ink)`，
+   而「等你回应」的外晕挂在带上，读作"半张卡在呼吸"。 */
+.nbrick.o-run{border:1px solid var(--st-run-line)}          /* 全树的基准线 */
+.nbrick.o-wait{border:1px solid var(--st-wait-line)}
+.nbrick.o-done{border:1px solid var(--st-done-line)}
+.nbrick.o-idle{border:1px dashed var(--st-idle-line);opacity:.6;box-shadow:none;background:var(--st-idle-paper)}
+.nbrick.o-idle .bhead .num,.nbrick.o-idle .bhead .bname{color:#7A7A7A}
+.nbrick.o-dead{border:1px solid var(--st-dead-line)}
+.nbrick.o-ask{border:1.5px solid var(--st-ask-line);
+       box-shadow:0 0 0 3px rgba(242,96,28,.22)}
+.nbrick.o-stop{border:1.5px solid var(--st-stop-line);
+        box-shadow:0 0 0 3px rgba(214,69,53,.20)}
+/* Blueprint 位置的中性细边压过状态边 —— 它是**位置**的标记，不是第八种状态。 */
+.nbrick.nroot,.ngbrick.nroot{border-color:var(--sys-border)}
+
+/* ================= 动效预算:两份,形态必须不同 =================
+   ① 运行中 = 三格波。条子正中竖排三格,亮度像水波推过去。
+      **只动 opacity 的连续插值** —— 写成硬开硬关就是一秒四帧的定格,不是动画。
+      它自己会动,所以运行中不印字形:动本身就是字形。 */
+.ld{display:block;position:relative}
+.ld b{background:currentColor;display:block}
+.ld-wave{display:flex;flex-direction:column;gap:2px;width:4px}
+.ld-wave b{width:4px;height:4px;opacity:.26;animation:wave 1.4s ease-in-out infinite}
+.ld-wave b:nth-child(2){animation-delay:.19s}
+.ld-wave b:nth-child(3){animation-delay:.38s}
+@keyframes wave{0%,64%,100%{opacity:.26} 32%{opacity:1}}
+/* 减少动态效果时露出来的兜底字形;只有后代在跑(echo)时也是它 */
+.rail>.fb{display:none}
+.s-run.echo .ld{display:none}
+.s-run.echo .rail>.fb{display:block}
+
+/* ② 等你回应 = **整块砖**外圈的呼吸。有面积、有颜色、会胀会缩。
+      两种动一眼分得出:一个 10px 见方在条子里,一个在砖外面胀缩。
+      2026-09-03 从带挪到砖 —— 3.3 写的是"整卡呼一下",不是半张卡。 */
+@keyframes call{0%,100%{box-shadow:0 0 0 3px rgba(242,96,28,.22)}
+                50%    {box-shadow:0 0 0 5px rgba(242,96,28,.46)}}
+.nbrick.o-ask.live{animation:call 2.8s ease-in-out infinite}
+
+@media (prefers-reduced-motion:reduce){
+  .ld{display:none}
+  .rail>.fb{display:block}
+  .nbrick.o-ask.live{animation:none}
+}
+
+/* ---- 镜像(右半，`DESIGN_GUIDE.md` 3.5，2026-09-29 用户：「镜像表示目标」)：顶栏 ＋ 一格目标 ----
+   虚线 = 这一格还没交差。中性无色相 —— 色相只属于状态。
+   **目标那一格 40 高**，跟砖的带一样：最多两行，再长的悬停读全文。点得开的（有工作文档）给手型。 */
+.ngbrick .bhead{border-bottom-style:dashed}
+.ngbrick .goal{flex:1;min-height:0;padding:4px 10px;font:12px/16px var(--font-ui);color:var(--ink-2);
+      overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;word-break:break-all}
+.ngbrick .goal[data-pos]{cursor:pointer}
+.ngbrick .goal[data-pos]:hover{background:rgba(23,23,23,.04)}
+.ngbrick .goal[data-pos]:focus-visible{outline:1.5px solid var(--selection-line);outline-offset:-3px}
+/* **外框算在砖高里**（2026-09-17 用户报：总节点那圈框底下有一点没包住）。
+   全页 `box-sizing:border-box`，布局给的高 ＝ 顶栏 ＋ 带 × n（＋底栏），**没算上下两道边**；
+   里面的格子又是定高的，于是最底下那一格从边框底下漏出两道边那么厚。
+   竖向照横向办：**带让出这两道边**（镜像的目标格本来就是 `flex:1`），砖的外廓、连线落点一个像素都不动。
+   顶栏、底栏是定高零件，不让。（写在 `.band{flex:none}` 后面，靠先后压过它） */
+.nbrick>.band{flex-shrink:1;min-height:0}
+/* 只跟两件事走 —— **没交差就不许变实**（全图唯一会虚变实的东西） */
+.ngbrick.g-done{border-style:solid;border-color:var(--st-done-line);background:var(--st-done-paper)}
+.ngbrick.g-done .bhead{border-style:solid;border-color:var(--st-done-line)}
+.ngbrick.g-done .goal{color:var(--ink)}
+.ngbrick.g-dead{border-color:#4A5058}
+.ngbrick.g-dead .goal{color:#6E757C}
+
+/* ---- 交互 ---- */
+.pairhi{outline:1.5px solid var(--line-strong);outline-offset:1px}
+/* 选中属于视口，不借用状态色。保留细轮廓与 part 格内嵌框，避免过去被否定的 3px 重黑边。 */
+.sel{outline:1.5px solid var(--selection-line);outline-offset:1px;z-index:3}
+.nbrick .band[data-node]:focus-visible{outline:1.5px solid var(--selection-line);outline-offset:-3px}
+.nbrick .band.s-dead[data-node]:focus-visible{outline-color:#E6E6E6}
+
+/* ── 带只吃「纸色·状态条·文字明度」，**边线与外晕全归砖的最外轮廓**（`.o-*`）──
+   一块砖两条带各画一圈边 ＝ 人眼看见四个框，而它是一块砖。
+   （2026-09-01 用户报：「所有词块边缘都有绿色的框」。）
+   这两条兜底留着：带上任何一条 `border` 都从这儿被清掉，
+   免得以后有人往 `.s-*` 里加边、又悄悄不生效。 */
+.nbrick .band,.ngbrick .band{border:0;border-top:1px solid rgba(23,23,23,.08)}
+.nbrick .band:first-of-type,.ngbrick .band:first-of-type{border-top:0}
+
+/* 选中的是哪一条带 —— **轻标，不画第二个框**（框只在最外轮廓上）。
+
+   ⚠️ **别碰带的纸**（2026-09-05 用户两报，第二报否掉了第一报的做法）。
+   第一次我把整条带压深 6%，面积是大了六倍，但**带的纸就是状态那条通道**
+   （`.s-run` / `.s-done` / `.s-ask`… 每一档一种纸色）—— 洒一层灰上去，
+   等于用"我在看哪一条"盖掉了"它现在怎么样"，拿信息换了个记号。**不划算。**
+
+   小面积靠的是对比度，大面积才靠浓度 —— 一开始拿 12% 洒水去救一个 40×40 的格子，
+   方向就搞反了。试过整格反相（墨底白字），用户否了：一块实心黑压在卡里太重。
+
+   现在是**内嵌一圈细框**：`outline` ＋ 负 offset，框画在格子里面，
+   **不占布局、不改一个像素的盒子**，也不碰任何一块纸 —— 状态色一样不少。
+   读起来像表单的聚焦环：这一格被选中了，而不是这一格变成了别的东西。
+
+   ⚠️ 这不违反「带不画自己的边」那一条：那条说的是**砖的最外轮廓只许有一圈**
+   （两条带各画一圈 ＝ 人眼看见四个框）。这一圈落在词块**里面**，是格子的记号，
+   不是砖的边，也不参与那圈轮廓。
+
+   深纸那一档（`.s-dead`）墨色框看不见，换浅色。 */
+.selband .pn{outline:1.5px solid var(--selection-line);outline-offset:-3px;color:var(--ink)}
+.selband.s-dead .pn{outline-color:#E6E6E6;color:#E6E6E6}
+
+/* ══ PULSE 一条带（`DESIGN_GUIDE.md` 3.8）════════════════════════════════
+   整棵树往前走的那一下的总闸。压在 Blueprint 砖头上，一根引下线接进去。
+
+   **形状是砖的一条 part 带被切下来单用**（2026-09-10 用户在四版里挑的）：
+   三格 `[状态条 20][Pulse 44][ON 76]`，格间 `border-left` 共线 ——
+   跟砖上那两条带一模一样的语法，所以它跟这张脸是一家人。
+
+   ⚠️ **它读不成一个节点，靠四样**：没有顶栏（没有号、没有名字）、没有底栏
+   （没有拍子轨）、只有 40 高（砖最矮 80）、**引下线是直的一根竖线、没有箭头**
+   （砖与砖之间那些是带箭头的贝塞尔）。四样缺一就会被当成树上多了一格。
+
+   **一点色相都没有**（2.1／禁令 5）：它是家具。开关两态靠**明度**说话 ——
+   开着白纸墨字，关着整块反白（`--bad-solid`，那是裁决文件本来就给家具留的令牌）。
+   想给它上绿／上红先回 2.2 回答一句：翡翠已经是「运行中」、珊瑚已经是「停止」，
+   **一个色相两个意思 ＝ 两个都不成立。**
+
+   **也没有动效**（禁令 7，预算三份已满）。给开着那态加一颗跳动的点会跟顶栏那颗
+   呼吸的圆灯撞：一个说"后台有东西在跑"，一个说"心跳开着"，两颗一样的呼吸点
+   读不出区别 —— 那正是禁令 7 的后半句（形态必须不同）。
+
+   ⚠️ **关着比开着重，这是有意的**：关着 ＝ 没有人会被叫醒 ＝ 整棵树一动不动
+   **而且不报错**。安静必须看得见，否则就是装死（图景禁令 3）。 */
+.npz{position:absolute}
+/* ── Model 带（2026-09-15 用户选 A1，`DESIGN_GUIDE.md` 3.8b）──────────────
+   树顶最上面一条**分段按钮**：`[Model 40][模型名 ▾][档位 ▾ 48]`，220 × 32（2026-09-24 用户：跟下面几条一起调小一点点）。
+   跟 PULSE 同一套带的语法（格间共线、`Model` 那格走 part 名那条路），**但没有状态条、没有色相** ——
+   它不是开关，是两个能点的下拉。能点靠三样：每段自带 ▾、悬停整段灰底、点开那段反白＋菜单从它正下方长出来。 */
+.nmodel{position:absolute;display:flex;background:var(--surface);border:1px solid var(--ink);
+  font-family:var(--font-mono);user-select:none}
+.nmodel>div{display:flex;align-items:center;border-left:1px solid rgba(23,23,23,.08)}
+.nmodel>div:first-child{border-left:none}
+.nmodel .pn{width:40px;justify-content:center;font:600 11px/1 var(--font-mono);letter-spacing:.2px;color:var(--ink-2)}
+.nmodel .seg{justify-content:space-between;gap:6px;padding:0 8px;font-size:11px;color:var(--ink);cursor:pointer;min-width:0}
+.nmodel .seg.m{flex:1}
+.nmodel .seg.e{width:48px;padding:0 7px}
+.nmodel .seg span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nmodel .seg i{font-style:normal;font-size:11px;flex:none}
+.nmodel .seg:hover{background:var(--chip)}
+.nmodel .seg:focus-visible{outline:1.5px solid var(--selection-line);outline-offset:-3px}
+.nmodel .seg.open{background:var(--ink);color:var(--surface)}
+.nmodel .seg.open:focus-visible{outline-color:var(--surface)}
+.nmodel .seg.dead{cursor:default;color:var(--ink-3)}
+.nmodel .seg.dead:hover{background:none}
+/* 菜单：从点开那一段正下方长出来，跟那段左对齐、至少同宽；当前那一项反白 */
+.nmenu{position:absolute;z-index:5;background:var(--surface);border:1px solid var(--ink);border-top:none;
+  font:11px/1 var(--font-mono);color:var(--ink)}
+.nmenu div{padding:8px 10px;border-top:1px solid rgba(23,23,23,.06);cursor:pointer;white-space:nowrap}
+.nmenu div:hover{background:var(--chip)}
+.nmenu div:focus-visible{outline:1.5px solid var(--selection-line);outline-offset:-3px}
+.nmenu div.on{background:var(--ink);color:var(--surface)}
+.nmenu div.on:focus-visible{outline-color:var(--surface)}
+.npulse{display:flex;width:144px;height:32px;background:var(--surface);
+      border:1px solid var(--ink);cursor:pointer;user-select:none}
+.npulse>.cell{border-left:1px solid rgba(23,23,23,.08)}
+.npulse>.cell:first-child{border-left:none}
+/* ── 状态条那一格：**全场唯一一件带色相的家具**（2026-09-10 用户裁定，见 2.3 那条例外）──
+   翡翠＝系统自己在推进，珊瑚＝停住了。**跟砖上 `.s-run`／`.s-stop` 是同一个意思**，
+   只是升到了总闸这一层 —— 所以它不是「一个色相两个意思」，判据在 2.3。
+   ⚠️ **实色只许出现在这 20px 上**（2.2 那条），纸、边、字一律不许跟着上色：
+   纸和边还归「关着比开着重」那件事管，颜色一插手，重量就没人扛了。
+   字形取纸色（3.3：深条用纸色字形）—— 两族的条都是深的。 */
+.npulse .rail{width:20px;background:var(--st-run-rail)}
+.npulse .rail i{font-style:normal;font-size:9px;color:var(--st-run-paper)}
+/* `Pulse` 那一格走 mono ＋ `capitalize`，**跟 part 名（`Plan`／`Dock`）同一条路**
+   —— 它在那一格的位置上，就该长成那一格的样子。 */
+.npulse .pn{width:64px;font:600 11px/1 var(--font-mono);letter-spacing:.2px;
+      color:var(--ink-2);text-transform:capitalize}
+.npulse .st{flex:1;font:600 11px/1 var(--font-mono);letter-spacing:1.2px;color:var(--ink)}
+.npulse:hover{background:var(--chip);border-color:var(--ink)}
+.npulse:focus-visible{outline:1.5px solid var(--selection-line);outline-offset:-3px}
+/* 右边那一行是**后果**，不是状态的第二份表示 —— 状态在带里那一格（ON／OFF）。 */
+.npz .psay{position:absolute;left:154px;top:9px;font:11px/15px var(--font-ui);
+      color:var(--ink-3);white-space:nowrap}
+/* 引下线：树上边线那一族的灰（`--edge-live`）。**断了就是断了。** */
+.npz .pdrop{position:absolute;left:80px;top:32px;width:1px;height:20px;
+      background:var(--edge-live)}
+
+/* ── Stop 带：PULSE 正下方，格式全抄 PULSE 开着那一态；状态条恒珊瑚 ── */
+.nkz{position:absolute;z-index:1}
+.nkz .ksay{position:absolute;left:154px;top:9px;font:11px/15px var(--font-ui);
+      color:var(--ink-3);white-space:nowrap}
+.nkill{display:flex;width:144px;height:32px;background:var(--surface);
+      border:1px solid var(--ink);cursor:pointer;user-select:none}
+.nkill>.cell{display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(23,23,23,.08)}
+.nkill>.cell:first-child{border-left:none}
+.nkill .rail{width:20px;background:var(--st-stop-rail)}
+.nkill .rail i{font-style:normal;font-size:9px;color:var(--st-stop-paper)}
+.nkill .pn{width:64px;font:600 11px/1 var(--font-mono);letter-spacing:.2px;
+      color:var(--ink-2);text-transform:capitalize}
+.nkill .st{flex:1;font:600 11px/1 var(--font-mono);letter-spacing:1.2px;color:var(--ink)}
+.nkill:hover{background:var(--bad-solid);border-color:var(--bad-solid)}
+.nkill:hover>.cell{border-left-color:rgba(255,255,255,.12)}
+.nkill:hover .pn{color:#C6C6C6}
+.nkill:hover .st{color:var(--bad-solid-ink)}
+.nkill:focus-visible{outline:1.5px solid var(--selection-line);outline-offset:-3px}
+.nkill:hover:focus-visible{outline-color:var(--bad-solid-ink)}
+.nkill.busy{cursor:progress}
+
+/* ── Start 带：Stop 正下方，格式全抄 Stop；状态条恒翡翠（＝在推进那个意思，跟 PULSE 开着同色）。
+   悬停用中性浅灰；启动语义由状态条表达。 */
+.nstart{display:flex;width:144px;height:32px;background:var(--surface);
+      border:1px solid var(--ink);cursor:pointer;user-select:none}
+.nstart>.cell{display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(23,23,23,.08)}
+.nstart>.cell:first-child{border-left:none}
+.nstart .rail{width:20px;background:var(--st-run-rail)}
+.nstart .rail i{font-style:normal;font-size:9px;color:var(--st-run-paper)}
+.nstart .pn{width:64px;font:600 11px/1 var(--font-mono);letter-spacing:.2px;
+      color:var(--ink-2);text-transform:capitalize}
+.nstart .st{flex:1;font:600 11px/1 var(--font-mono);letter-spacing:1.2px;color:var(--ink)}
+.nstart:hover{background:var(--chip)}
+.nstart:focus-visible{outline:1.5px solid var(--selection-line);outline-offset:-3px}
+.nstart.busy{cursor:progress}
+
+/* ── 三条总闸的「键座」（2026-09-17 用户从六个方案里挑的 C）──
+   底边加厚到 3px 当键座；按下去底边回到 1px、整条下沉 2px、高度少 2px ——
+   **下沿不动，只有键面落下去**，像硬件面板上的键。没有投影、没有 transition（动效预算一格不占）。
+   悬停沿用各自的明度关系（PULSE 与 Start 浅灰底、Stop 整块反白），这里不碰。
+   执行中（`.busy`）保持按下去的样子 ＝ 这一下还没做完。 */
+.npulse,.nkill,.nstart{border-bottom-width:3px}
+.npulse:active,.nkill:active,.nstart:active,.nkill.busy,.nstart.busy{
+  border-bottom-width:1px;height:30px;transform:translateY(2px)}
+
+/* ── 关着：整块反白 ＋ 引下线断开 ── */
+.npulse.off{background:var(--bad-solid);border-color:var(--bad-solid)}
+.npulse.off>.cell{border-left-color:rgba(255,255,255,.12)}
+.npulse.off .rail{background:var(--st-stop-rail)}
+.npulse.off .rail i{color:var(--st-stop-paper)}
+.npulse.off .pn{color:#C6C6C6}
+.npulse.off .st{color:var(--bad-solid-ink)}
+.npulse.off:focus-visible{outline-color:var(--bad-solid-ink)}
+.npz.off .psay{color:var(--bad-ink)}
+/* 断口 ＝ **上下各一截、中间是空的**。只画下半截会读成"一根短线"，
+   而要说的是"这根线断了" —— 两截加一个豁口才是断，一截只是短。 */
+.npz.off .pdrop{background:none;
+      background-image:linear-gradient(var(--bad-line),var(--bad-line)),
+                       linear-gradient(var(--bad-line),var(--bad-line));
+      background-size:1px 6px,1px 6px;
+      background-repeat:no-repeat,no-repeat;
+      background-position:0 0,0 100%}
+
+/* ══ 分叉结（`DESIGN_GUIDE.md` 3.10）══════════════════════════════════
+   **砖的一格**：砖加宽 20、右边让出一条（`.haskn`），这一格画在砖里面（2026-09-17 用户：「变成词块的一部分」）。
+   外框、选中框、光晕全是砖自己的一整圈 —— 第一版画在砖外面去继承那一圈，选中框和光晕在接缝处总差一点。
+   左边那道是砖内部的中缝 —— 跟带与带之间同一个浅灰。
+   折起时整枝计数挂在这一格右边正中（`.nfold`）。家具：无色相，色相只在计数的小方块上。 */
+.nbrick.haskn{padding-right:20px}
+.nknot{position:absolute;right:0;top:0;bottom:0;width:20px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surface);border-left:1px solid rgba(23,23,23,.13);
+  font:9px/1 var(--font-mono);color:var(--ink);cursor:pointer;user-select:none}
+.nknot:hover{background:var(--chip)}
+.nknot:focus-visible{outline:1.5px solid var(--selection-line);outline-offset:-3px}
+.nfold{position:absolute;z-index:2;height:20px;box-sizing:border-box;display:flex;align-items:stretch;
+  background:var(--surface);border:1px solid var(--ink);font:10px/1 var(--font-mono);color:var(--ink);
+  cursor:pointer;user-select:none;white-space:nowrap}
+.nfold>span{display:flex;align-items:center}
+.nfold:hover{background:var(--chip)}
+.nfold:focus-visible{outline:1.5px solid var(--selection-line);outline-offset:-3px}
+.nfold .tot{padding:0 6px;font-weight:600;font-size:11px}
+.nfold .cnt{gap:8px;padding:0 8px;border-left:1px solid rgba(23,23,23,.08);color:var(--ink-2)}
+.nfold .cnt span{display:flex;align-items:center;gap:3px}
+.nfold .cnt i{width:8px;height:8px;flex:none}
+

@@ -1,0 +1,20 @@
+{
+  "implementation": "项目内文风参考与 Node 辅助工具；只复用按维度处理文风冲突和定位模板化表达的领域设计。脚本不执行文学判断或自动改稿。",
+  "sources": [
+    {
+      "repository": "zenstory-ai/oh-story-dsh",
+      "commit": "83cc99046338c9b74b9dd135ff6b2e80bb3cd35e",
+      "license": "MIT",
+      "url": "https://github.com/zenstory-ai/oh-story-dsh/blob/83cc99046338c9b74b9dd135ff6b2e80bb3cd35e/packages/knowledge/oh-story/skills/story-long-write/references/style-resolution.md",
+      "used": "作者明确选择按维度覆盖通用参考，表达偏好与故事事实分开。"
+    },
+    {
+      "repository": "KurohaneKaoruko/DSH-Novelist",
+      "commit": "6d9fb5acb61f0436ac4a48dc80e6d38c2ebf07cc",
+      "license": "MIT",
+      "url": "https://github.com/KurohaneKaoruko/DSH-Novelist/blob/6d9fb5acb61f0436ac4a48dc80e6d38c2ebf07cc/plugins/novel-tools.mjs",
+      "used": "若干常见重复表达作为定位候选；计数与原文位置由纯代码取得。",
+      "adaptation": "没有禁用词、标点配额、AI 分数、保存门禁或预设协调者。"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+/* 常驻画布左侧，展开列表后节点统计仍排在下方；图标沿 Blueprint 三格波。 */
+.bpc-running{position:relative;flex:none;max-width:100%}
+.bpc-running-toggle{display:grid;grid-template-columns:18px minmax(0,1fr) 34px;align-items:center;gap:8px;min-width:136px;height:42px;padding:0 10px;border:1px solid var(--bpc-overlay-line);border-radius:0;background:var(--canvas-overlay-fill,rgba(255,255,255,.72));color:var(--bp-secondary,#59616b);font:500 11px/14px var(--bp-font-mono,ui-monospace,"SF Mono",Menlo,monospace);cursor:pointer}
+.bpc-running-toggle:hover,.bpc-running-toggle[aria-expanded=true]{border-color:rgba(29,35,42,.4);background:rgba(245,247,249,.86);color:var(--bp-ink,#1d232a)}
+.bpc-running-toggle:focus-visible,.bpc-running-main:focus-visible,.bpc-running-stop:focus-visible,.bpc-running-note button:focus-visible{outline:2px solid #1d232a;outline-offset:-2px}
+.bpc-running-label{text-align:left;letter-spacing:.06em}
+.bpc-running-toggle b{display:flex;align-items:center;justify-content:flex-end;min-width:34px;height:20px;margin:0;padding:0 0 0 8px;border-left:1px solid var(--bpc-overlay-divider);color:var(--bp-ink,#1d232a);font:500 14px/20px var(--bp-font-mono,ui-monospace,"SF Mono",Menlo,monospace);font-variant-numeric:tabular-nums}
+.bpc-running-mark{display:flex;flex:none;align-items:center;justify-content:center;gap:2px;width:18px;height:20px;color:#84909b}
+.bpc-running-mark i{display:block;width:3px;height:5px;background:currentColor}
+.bpc-running-mark i:nth-child(2){height:12px}
+.bpc-running-mark i:nth-child(3){height:8px}
+.bpc-running-toggle[data-active] .bpc-running-mark{color:#148867}
+.bpc-running-toggle[data-active] .bpc-running-mark i{animation:bpc-running-wave 1.2s ease-in-out infinite}
+.bpc-running-toggle[data-active] .bpc-running-mark i:nth-child(2){animation-delay:.15s}
+.bpc-running-toggle[data-active] .bpc-running-mark i:nth-child(3){animation-delay:.3s}
+@keyframes bpc-running-wave{0%,70%,100%{background-color:color-mix(in srgb,currentColor 35%,transparent)}35%{background-color:currentColor}}
+.bpc-running-panel{display:flex;flex-direction:column;width:240px;max-width:min(100%,calc(100vw - 48px));max-height:min(440px,max(80px,calc(100vh - var(--bpc-overlay-top,16px) - 284px)));margin-top:8px;border:1px solid #dce1e6;background:#fff;box-shadow:0 4px 16px rgba(24,32,44,.09);color:#303942}
+.bpc-running-panel>header{display:flex;align-items:center;justify-content:space-between;flex:none;gap:8px;padding:10px 12px;border-bottom:1px solid #e3e7eb;font:12px/18px -apple-system,system-ui,"PingFang SC",sans-serif}
+.bpc-running-panel>header b{font-weight:600}
+.bpc-running-panel>header>span{font-size:10px;color:#84909b}
+.bpc-running-list{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.bpc-running-group{display:flex;align-items:center;gap:6px;margin:0;padding:7px 10px 5px;border-bottom:1px solid #edf0f3;background:#f7f9fa;color:#68737d;font:600 10px/16px -apple-system,system-ui,"PingFang SC",sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bpc-running-group>span{flex:none;margin-left:auto;font:500 10px/16px ui-monospace,"SF Mono",Menlo,monospace;color:#84909b}
+.bpc-running-row{display:flex;align-items:center;border-bottom:1px solid #edf0f3;background:#fff}
+.bpc-running-row:last-child{border-bottom:0}
+.bpc-running-main{display:block;flex:1;min-width:0;margin:0;padding:8px 8px 8px 10px;border:0;border-radius:0;background:transparent;color:#303942;text-align:left;font:12px/18px -apple-system,system-ui,"PingFang SC",sans-serif}
+button.bpc-running-main{cursor:pointer}
+button.bpc-running-main:hover{background:#f5f7f9}
+.bpc-running-stop{display:grid;place-items:center;flex:none;width:24px;height:24px;margin:0 10px 0 2px;padding:0;border:1px solid #cbd1d7;border-radius:0;background:#fff;color:#232a31;cursor:pointer}
+.bpc-running-stop i{display:block;width:8px;height:8px;background:currentColor}
+.bpc-running-stop:hover:not(:disabled){border-color:#232a31;background:#f5f7f9}
+.bpc-running-stop:disabled{color:#b6bec6;cursor:default}
+.bpc-running-row .bpc-running-error{margin:4px 0 0;color:#b5432f;font-size:11px;line-height:16px;white-space:normal;overflow-wrap:anywhere}
+.bpc-running-row-head{display:flex;align-items:center;gap:8px}
+.bpc-running-row-head>b{flex:1;min-width:0;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bpc-running-row-head>span{flex:none;font:10px/18px ui-monospace,"SF Mono",Menlo,monospace;color:#7c8792}
+.bpc-running-meta{display:flex;align-items:center;gap:6px;min-width:0;margin-top:4px}
+.bpc-running-kind{flex:none;font-size:10px;color:#84909b;white-space:nowrap}
+.bpc-running-row p{flex:1;min-width:0;margin:0;color:#68737d;font-size:11px;line-height:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bpc-running-note{flex:none;margin:0;padding:10px 12px;color:#7c8792;font:11px/18px -apple-system,system-ui,"PingFang SC",sans-serif;overflow-wrap:anywhere}
+.bpc-running-note button{margin-left:8px;padding:0;border:0;background:transparent;color:#303942;font:inherit;text-decoration:underline;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.bpc-running-mark i{animation:none!important}}

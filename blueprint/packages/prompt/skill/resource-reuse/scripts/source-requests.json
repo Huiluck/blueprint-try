@@ -1,0 +1,182 @@
+[
+  {
+    "url": "https://codeload.github.com/godotengine/godot-demo-projects/zip/6ad6167e0577fe3622c18546138f456b107ce93c",
+    "local_path": "样例原件/Godot-Demos-4.7-6ad6167.zip",
+    "bytes": 251081467,
+    "sha256": "8c7fce46854280984f57bb58eecf949383fac394e939365bed48612ecb95f308",
+    "versioning": "git-commit",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://codeload.github.com/KenneyNL/Starter-Kit-3D-Platformer/zip/3fa8a04b1c01ab23db43123d4ce814a34c3fc7f0",
+    "local_path": "样例原件/Kenney-3D-Platformer-3fa8a04.zip",
+    "bytes": 4565232,
+    "sha256": "aae74237d4fe047aa6074e209c7bb7eec2ddfbfc110547818230a2da4cb924b9",
+    "versioning": "git-commit",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://cdn.phaser.io/tutorials/making-your-first-phaser-3-game/phaser3-tutorial-src.zip",
+    "local_path": "样例原件/Phaser3-FirstGame-Tutorial.zip",
+    "bytes": 19411,
+    "sha256": "3b6185eaa37a7e057db6d4dd32d838b485b4be055d1e20577abc30b7a26c0f52",
+    "versioning": "download-snapshot",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://ui.shadcn.com/r/styles/new-york/accordion.json",
+    "local_path": "样例原件/shadcn-accordion.json",
+    "bytes": 3179,
+    "sha256": "af2a6c966d4077ae002eb95b6b4513e86c53bfd02cabb7b3a5700ed0d7191bc1",
+    "versioning": "registry-snapshot",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://snippet.babylonjs.com/2KRNG9/2150",
+    "local_path": "样例原件/Babylon-Playground-2KRNG9-2150.json",
+    "bytes": 1301,
+    "sha256": "bb8f4072290b59d600b1b7fee5904e07d8b49f32d982d2ccd9847148a622c1b4",
+    "versioning": "snippet-version",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/shadcn-ui/ui/c8c4027b6b192822ea2952b225ee4760cddedf0d/apps/www/registry/new-york/ui/accordion.tsx",
+    "local_path": "样例原件/shadcn-2.3.0-accordion.tsx",
+    "bytes": 2015,
+    "sha256": "00dd6eef660f08ce85154106fa0fa4d943ed699c5ca7b06bb08732978bcebb49",
+    "versioning": "git-commit",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/mrdoob/three.js/r180/examples/webgl_geometry_cube.html",
+    "local_path": "样例原件/three-r180-webgl_geometry_cube.html",
+    "bytes": 1772,
+    "sha256": "3c2b5ad8fafd73eea2bd086f70b9ce1d772327467e4cf6858d001cc9a96f1030",
+    "versioning": "git-tag-r180",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/mrdoob/three.js/r180/examples/webgl_shader_lava.html",
+    "local_path": "样例原件/three-r180-webgl_shader_lava.html",
+    "bytes": 5324,
+    "sha256": "3c65e82675a869e7aab058730089df871e544e89c88c3a13eae70152a1908fd5",
+    "versioning": "git-tag-r180",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/mrdoob/three.js/r180/examples/main.css",
+    "local_path": "样例原件/three-r180-main.css",
+    "bytes": 1403,
+    "sha256": "57bbd270f4befef0dc767537cd803c30cab549f84aac1bbe86c748520bdfc3fe",
+    "versioning": "git-tag-r180",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/mrdoob/three.js/r180/examples/textures/crate.gif",
+    "local_path": "样例原件/three-r180-crate.gif",
+    "bytes": 67585,
+    "sha256": "a890f0a89eadc083cb39bfbe597c1395d7acf47a19f673b5643d4a9c174ea52f",
+    "versioning": "git-tag-r180",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/mrdoob/three.js/r180/examples/textures/lava/cloud.png",
+    "local_path": "样例原件/three-r180-lava-cloud.png",
+    "bytes": 82231,
+    "sha256": "aab284a9765e95d92e52165f8d18cfbe206651c726a4843b9820b0cb952bda98",
+    "versioning": "git-tag-r180",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/mrdoob/three.js/r180/examples/textures/lava/lavatile.jpg",
+    "local_path": "样例原件/three-r180-lava-lavatile.jpg",
+    "bytes": 558490,
+    "sha256": "8dd33ecfacd108323888479a85cdf10a2159fe82daa247c2f46978952730e76f",
+    "versioning": "git-tag-r180",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://registry.npmjs.org/three/-/three-0.180.0.tgz",
+    "local_path": "样例原件/three-0.180.0.tgz",
+    "bytes": 7750248,
+    "sha256": "ad66d724565ee29a2467277fa84daa5ed0211d6b8d446e9ef29f6bae0cd14144",
+    "versioning": "npm-exact-version",
+    "retrieval": "npm pack exact version and independently curl exact resolved tarball URL",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://registry.npmjs.org/phaser/-/phaser-3.90.0.tgz",
+    "local_path": "样例原件/phaser-3.90.0.tgz",
+    "bytes": 22611407,
+    "sha256": "c4e3a8da498ab94aa8859c7a32cb89140d94bfd95d769bee36a98cdef1bea6e6",
+    "versioning": "npm-exact-version",
+    "retrieval": "npm pack exact version and independently curl exact resolved tarball URL",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://registry.npmjs.org/babylonjs/-/babylonjs-8.32.0.tgz",
+    "local_path": "样例原件/babylonjs-8.32.0.tgz",
+    "bytes": 11188993,
+    "sha256": "4143fafef8f0eb25aa6cd2812abaacc9e6aa9088e235ba1c3b40231511c66620",
+    "versioning": "npm-exact-version",
+    "retrieval": "npm pack exact version and independently curl exact resolved tarball URL",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://registry.npmjs.org/cannon-es/-/cannon-es-0.20.0.tgz",
+    "local_path": "样例原件/cannon-es-0.20.0.tgz",
+    "bytes": 164649,
+    "sha256": "8bb8590fb142095d506d5a5fe13b0331430d05363eff8b6e33fac83c9dd14a84",
+    "versioning": "npm-exact-version",
+    "retrieval": "npm pack exact version and independently curl exact resolved tarball URL",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://registry.npmjs.org/lucide-react/-/lucide-react-0.468.0.tgz",
+    "local_path": "样例原件/lucide-react-0.468.0.tgz",
+    "bytes": 2739588,
+    "sha256": "2d28371e4c354765e6a2e47c23468fff1c65494b312e98e7713aff63079e891a",
+    "versioning": "npm-exact-version",
+    "retrieval": "npm pack exact version and independently curl exact resolved tarball URL",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://files.pythonhosted.org/packages/8e/bc/f36afd1ad03d09cd0d311be5951f2dd705a824f34dd871779d42c277d741/trimesh-4.8.3-py3-none-any.whl",
+    "local_path": "样例原件/trimesh-4.8.3-py3-none-any.whl",
+    "bytes": 735464,
+    "sha256": "f9f1622ecac5f3bed5b65d3a748bb536481f52cd4e4e120e0b637cabe6cf1542",
+    "versioning": "pypi-exact-version-wheel",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://files.pythonhosted.org/packages/96/ff/06d1aa3eeb1c614eda245c1ba4fb88c483bee6520d361641331872ac4b82/numpy-2.0.2-cp39-cp39-macosx_14_0_arm64.whl",
+    "local_path": "样例原件/numpy-2.0.2-cp39-cp39-macosx_14_0_arm64.whl",
+    "bytes": 5306976,
+    "sha256": "2b2955fa6f11907cf7a70dab0d0755159bca87755e831e47932367fc8f2f2d0b",
+    "versioning": "pypi-exact-version-wheel",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/shadcn-ui/ui/c8c4027b6b192822ea2952b225ee4760cddedf0d/apps/www/public/r/styles/new-york/accordion.json",
+    "local_path": "样例原件/shadcn-2.3.0-accordion.json",
+    "bytes": 3179,
+    "sha256": "af2a6c966d4077ae002eb95b6b4513e86c53bfd02cabb7b3a5700ed0d7191bc1",
+    "versioning": "git-commit",
+    "retrieval": "curl -fLsS URL -o LOCAL_PATH",
+    "status": "downloaded"
+  }
+]

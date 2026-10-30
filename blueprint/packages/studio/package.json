@@ -1,0 +1,22 @@
+{
+  "name": "@blueprint/studio",
+  "version": "0.0.0",
+  "private": true,
+  "description": "界面：把 studio 那张脸接到 dsh 上。界面照旧，数据从新名册来（src/名册视图.js 把名册折成这张脸认的形状）",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./media-settings": "./src/媒体设置.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "单价.json"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/schemastery": "3.18.5-alpha.1",
+    "@deepseek-ai/dsh-llm": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-session": "0.2.1-alpha.2"
+  }
+}

@@ -1,0 +1,50 @@
+<!doctype html>
+<!-- 安装窗口（DMG）的背景。改了文字后运行 node app/scripts/dmg-background.mjs 重出两张 PNG。
+     图标位置在 electron-builder.cjs 的 dmg.contents，坐标以图标中心计，和这里的 680×500 同一套。 -->
+<html lang="zh-CN">
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 680px; height: 500px; background: #fff; color: #111; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  .abs { position: absolute; }
+  .title { left: 0; right: 0; top: 30px; text-align: center; font-size: 17px; font-weight: 600; letter-spacing: .02em; }
+  .title small { display: block; margin-top: 4px; font-size: 11px; font-weight: 400; color: #777; letter-spacing: .04em; }
+  /* 箭头在两个图标（中心 x=180、x=500，y=150）之间 */
+  .arrow { left: 262px; top: 149px; width: 150px; height: 1.5px; background: #111; }
+  .arrow::after { content: ""; position: absolute; right: -1px; top: -5px; width: 10px; height: 10px;
+    border-top: 1.5px solid #111; border-right: 1.5px solid #111; transform: rotate(45deg); transform-origin: center; }
+  .rule { left: 40px; right: 40px; top: 238px; height: 1px; background: #111; }
+  .help { left: 40px; top: 258px; width: 482px; font-size: 12.5px; line-height: 1.55; }
+  .help h2 { font-size: 13.5px; font-weight: 600; margin-bottom: 8px; }
+  .help h2 span { font-weight: 400; color: #777; font-size: 11px; margin-left: 6px; }
+  .help ol { list-style: none; }
+  .help li { display: grid; grid-template-columns: 22px 1fr; margin-bottom: 5px; }
+  .help li b { font-weight: 600; }
+  .n { display: inline-flex; width: 15px; height: 15px; margin-top: 2px; border: 1px solid #111;
+    align-items: center; justify-content: center; font-size: 10px; font-weight: 600; }
+  .cmd { margin: 6px 0 0 22px; padding: 6px 10px; border: 1px solid #111; display: inline-block;
+    font-family: Menlo, "SF Mono", monospace; font-size: 12.5px; letter-spacing: .01em; }
+  .note { margin: 8px 0 0 22px; font-size: 11px; color: #555; }
+  /* 指向右下角的「打不开请看.txt」（图标中心 x=590、y=372） */
+  .pointer { left: 504px; top: 371px; width: 34px; height: 1px; background: #111; }
+  .pointer::after { content: ""; position: absolute; right: 0; top: -3.5px; width: 7px; height: 7px;
+    border-top: 1px solid #111; border-right: 1px solid #111; transform: rotate(45deg); }
+</style>
+<body>
+  <div class="abs title">把 Blueprint 拖进「应用程序」<small>Drag Blueprint into Applications</small></div>
+  <div class="abs arrow"></div>
+  <div class="abs rule"></div>
+  <div class="abs help">
+    <h2>第一次打开被 macOS 拦住？<span>Blocked on first launch? See the text file →</span></h2>
+    <ol>
+      <li><span class="n">1</span><span>在「应用程序」里双击 Blueprint，弹出提示后点<b>「完成」</b>。</span></li>
+      <li><span class="n">2</span><span>打开<b>「系统设置 → 隐私与安全性」</b>，翻到下面点<b>「仍要打开」</b>，输入开机密码。</span></li>
+      <li><span class="n">3</span><span>如果提示<b>「已损坏」</b>：按 ⌘ 空格搜「终端」打开，粘贴下面这行，回车后再打开。</span></li>
+    </ol>
+    <div class="cmd">xattr -cr /Applications/Blueprint.app</div>
+    <p class="note">这行只去掉「从网上下载」的标记，不改动软件。命令可以从右边的说明里复制。</p>
+  </div>
+  <div class="abs pointer"></div>
+</body>
+</html>

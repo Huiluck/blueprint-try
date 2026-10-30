@@ -1,0 +1,80 @@
+/* 连接模型：白底、细边、柔和阴影，主结构直角；输入框和按钮 4px 小圆角，每一步只有一个石墨实心主按钮。 */
+.bp-connect{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:16px;background:rgba(24,32,44,.24);color:var(--bp-ink);font:13px/20px var(--bp-font-ui);-webkit-font-smoothing:antialiased;animation:bp-connect-fade .18s ease-out}
+.bp-connect *,.bp-connect *::before,.bp-connect *::after{box-sizing:border-box}
+.bp-connect [hidden]{display:none!important}
+body .bp-connect .bp-connect-panel{position:relative;display:flex;flex-direction:column;width:520px;max-width:100%;max-height:100%;background:var(--bp-surface);border:1px solid var(--bp-line);border-radius:0!important;box-shadow:var(--bp-shadow-window);animation:bp-connect-rise .2s cubic-bezier(.22,1,.36,1)}
+.bp-connect-steps{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0;padding:12px 20px;list-style:none;border-bottom:1px solid var(--bp-line);color:var(--bp-muted);font:12px/18px var(--bp-font-ui)}
+.bp-connect-steps li{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.bp-connect-steps li+li::before{content:'';width:20px;height:1px;margin-right:2px;background:var(--bp-control)}
+.bp-connect-step-no{display:inline-grid;place-items:center;width:18px;height:18px;border:1px solid var(--bp-control);color:var(--bp-muted);font:11px/1 var(--bp-font-mono);font-variant-numeric:tabular-nums;transition:background-color .16s ease-out,border-color .16s ease-out,color .16s ease-out}
+.bp-connect-steps [aria-current=step]{color:var(--bp-ink);font-weight:500}
+.bp-connect-steps [aria-current=step] .bp-connect-step-no{background:var(--bp-ink);border-color:var(--bp-ink);color:var(--bp-surface)}
+.bp-connect-steps .done{color:var(--bp-secondary)}.bp-connect-steps .done .bp-connect-step-no{border-color:var(--bp-ink);color:var(--bp-ink)}
+.bp-connect-head{display:flex;align-items:center;gap:10px;padding:16px 12px 0 20px}
+.bp-connect-head h2{flex:1;min-width:0;margin:0;font:600 14px/20px var(--bp-font-ui);color:var(--bp-ink);overflow-wrap:anywhere}
+.bp-connect-done-mark{display:grid;place-items:center;flex:none;width:22px;height:22px;background:var(--bp-ink);color:var(--bp-surface)}
+.bp-connect-done-mark .bp-glyph{width:15px;height:15px;stroke-width:2.2}
+body .bp-connect .bp-connect-x{display:grid;place-items:center;flex:none;width:32px;height:32px;margin:-6px 0 -6px auto;padding:0;border:0;border-radius:4px!important;background:transparent;color:var(--bp-secondary);cursor:pointer}
+.bp-connect-x:hover{background:var(--bp-hover);color:var(--bp-ink)}.bp-connect-x .bp-glyph{width:18px;height:18px}
+.bp-connect-body{flex:1 1 auto;min-height:0;margin:0;padding:4px 20px 20px;overflow:auto}
+.bp-connect-page{animation:bp-connect-page .16s ease-out}
+.bp-connect-lede{margin:0 0 16px;color:var(--bp-secondary);font:12px/18px var(--bp-font-ui);overflow-wrap:anywhere}
+/* 完成页：模型一行与标题文字对齐 */
+.bp-connect-panel[data-step="3"] .bp-connect-lede{margin:2px 0 0;padding-left:32px}
+.bp-connect-panel[data-step="3"] .bp-connect-hint{margin-top:8px;padding-left:32px}
+.bp-connect-loading{margin:8px 0 0;color:var(--bp-muted);font:12px/18px var(--bp-font-ui)}
+.bp-connect-howto{display:grid;gap:14px;margin:0;padding:0;list-style:none}
+.bp-connect-howto>li{display:flex;align-items:flex-start;gap:8px;min-width:0}
+.bp-connect-no{flex:none;width:18px;color:var(--bp-secondary);font:15px/28px var(--bp-font-ui)}
+.bp-connect-howto-text{flex:1;min-width:0;padding:4px 0;color:var(--bp-ink);font:13px/20px var(--bp-font-ui);overflow-wrap:anywhere}
+.bp-connect-howto-field{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.bp-connect-howto-field .bp-connect-howto-text{display:block;padding:4px 0 0}
+.bp-connect-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.bp-connect-field+.bp-connect-field{margin-top:14px}
+.bp-connect-label{color:var(--bp-ink);font:500 12px/18px var(--bp-font-ui)}
+.bp-connect-hint{margin:0;color:var(--bp-muted);font:12px/18px var(--bp-font-ui);overflow-wrap:anywhere}
+.bp-connect-soft{color:var(--bp-secondary)}
+.bp-connect-key{position:relative;min-width:0}
+body .bp-connect :is(.bp-connect-key input,.bp-connect-input){display:block;width:100%;min-width:0;height:32px;margin:0;padding:0 10px;border:1px solid var(--bp-control);border-radius:4px!important;background:var(--bp-surface);color:var(--bp-ink);font:13px/20px var(--bp-font-ui);transition:border-color .14s ease-out}
+body .bp-connect .bp-connect-key input{padding-right:40px;font-family:var(--bp-font-mono);letter-spacing:0}
+.bp-connect-mono{font-family:var(--bp-font-mono)!important}
+.bp-connect :is(.bp-connect-key input,.bp-connect-input):hover{border-color:#8E99A6}
+.bp-connect :is(.bp-connect-key input,.bp-connect-input)::placeholder{color:var(--bp-disabled)}
+.bp-connect :is(.bp-connect-key input,.bp-connect-input):focus-visible{outline:2px solid var(--bp-focus);outline-offset:-2px;border-color:var(--bp-focus)}
+.bp-connect .bp-connect-input[readonly]{background:var(--bp-soft);color:var(--bp-secondary)}
+.bp-connect select.bp-connect-input{padding-right:28px}
+body .bp-connect .bp-connect-eye{position:absolute;top:2px;right:2px;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:4px!important;background:transparent;color:var(--bp-secondary);cursor:pointer}
+.bp-connect-eye:hover{background:var(--bp-hover);color:var(--bp-ink)}.bp-connect-eye .bp-glyph{width:17px;height:17px}
+.bp-connect-model-row{display:flex;gap:8px;min-width:0}.bp-connect-model-row>:first-child{flex:1}
+.bp-connect-services{margin:0;padding:0;list-style:none;border:1px solid var(--bp-line)}
+.bp-connect-services li+li{border-top:1px solid var(--bp-line)}
+body .bp-connect .bp-connect-service{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;margin:0;padding:10px 12px 10px 14px;border:0;border-radius:0!important;background:var(--bp-surface);color:var(--bp-ink);text-align:left;cursor:pointer;font:13px/20px var(--bp-font-ui)}
+.bp-connect-service:hover{background:var(--bp-workspace)}
+.bp-connect-service-text{display:flex;flex:1;min-width:0;flex-direction:column}
+.bp-connect-service-name{font-weight:500;overflow-wrap:anywhere}.bp-connect-service-note{color:var(--bp-muted);font:12px/18px var(--bp-font-ui);overflow-wrap:anywhere}
+.bp-connect-tag{flex:none;padding:0 6px;border:1px solid var(--bp-line);background:var(--bp-soft);color:var(--bp-secondary);font:11px/18px var(--bp-font-ui)}
+.bp-connect-service-arrow{display:grid;place-items:center;flex:none;color:var(--bp-muted)}.bp-connect-service-arrow .bp-glyph{width:16px;height:16px}
+.bp-connect-service:hover .bp-connect-service-arrow{color:var(--bp-ink)}
+.bp-connect-problem{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:16px 0 0;padding:10px 12px;border:1px solid #E5CDC9;background:#FBF5F4;color:#8B3E36;font:12px/18px var(--bp-font-ui)}
+.bp-connect-problem p{flex:1 1 220px;min-width:0;margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.bp-connect-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 20px;border-top:1px solid var(--bp-line)}
+.bp-connect-gap{flex:1 1 auto}
+body .bp-connect .bp-connect-button{display:inline-flex;align-items:center;justify-content:center;flex:none;min-height:32px;margin:0;padding:0 14px;border:1px solid var(--bp-control);border-radius:4px!important;background:var(--bp-surface);color:var(--bp-ink);font:500 13px/20px var(--bp-font-ui);white-space:nowrap;cursor:pointer;transition:background-color .14s ease-out,border-color .14s ease-out,color .14s ease-out}
+.bp-connect .bp-connect-secondary:hover:not(:disabled){background:var(--bp-hover)}
+body .bp-connect .bp-connect-small{min-height:28px;padding:0 10px;font-size:12px}
+body .bp-connect .bp-connect-primary{background:var(--bp-ink);border-color:var(--bp-ink);color:var(--bp-surface)}
+.bp-connect .bp-connect-primary:hover:not(:disabled){background:#353D47;border-color:#353D47}
+.bp-connect .bp-connect-primary:disabled{opacity:.72;cursor:progress}
+body .bp-connect .bp-connect-link{min-height:28px;padding:0;border:0;background:transparent;color:var(--bp-secondary);font-weight:400;text-decoration:underline;text-decoration-color:var(--bp-control);text-underline-offset:4px}
+.bp-connect .bp-connect-link:hover:not(:disabled){color:var(--bp-ink);text-decoration-color:currentColor}
+.bp-connect-field>.bp-connect-link{align-self:flex-start}
+.bp-connect .bp-connect-button:disabled:not(.bp-connect-primary){color:var(--bp-disabled);cursor:default}
+.bp-connect-problem .bp-connect-button{min-height:28px;padding:0 10px;font-size:12px}
+@keyframes bp-connect-fade{from{opacity:0}to{opacity:1}}
+@keyframes bp-connect-rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes bp-connect-page{from{opacity:0}to{opacity:1}}
+@media(max-width:560px){.bp-connect{align-items:flex-end;padding:12px}.bp-connect-steps,.bp-connect-foot{padding-left:16px;padding-right:16px}.bp-connect-head{padding-left:16px}.bp-connect-body{padding:4px 16px 16px}.bp-connect-model-row{flex-wrap:wrap}.bp-connect :is(.bp-connect-key input,.bp-connect-input){font-size:16px}}
+@media(prefers-reduced-motion:reduce){.bp-connect,.bp-connect *{animation:none!important;transition:none!important}}
+/* 「管理子 Agent」沿用这层外壳，里面放左窗「子 Agent」页；比连接模型宽一点，内容在框里滚动。 */
+body .bp-connect .bp-connect-panel.bp-subagent-panel{width:600px;height:min(720px,100%)}
+.bp-subagent-body{flex:1 1 auto;min-height:0;margin-top:12px;border-top:1px solid var(--bp-line);overflow:auto}

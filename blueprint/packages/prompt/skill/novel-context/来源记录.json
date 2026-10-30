@@ -1,0 +1,20 @@
+{
+  "implementation": "项目内 Node 原生模块实现；只复用材料组装、单一作品状态与信息边界的领域设计，没有复制外部 Agent 预设或宿主插件。",
+  "sources": [
+    {
+      "repository": "zenstory-ai/oh-story-dsh",
+      "commit": "83cc99046338c9b74b9dd135ff6b2e80bb3cd35e",
+      "license": "MIT",
+      "url": "https://github.com/zenstory-ai/oh-story-dsh/tree/83cc99046338c9b74b9dd135ff6b2e80bb3cd35e/packages/knowledge/oh-story/skills/story-long-write",
+      "used": "作者事实、人物已知、读者已知分开；状态变更由模型提供语义，代码核对格式并原子落盘。"
+    },
+    {
+      "repository": "KurohaneKaoruko/DSH-Novelist",
+      "commit": "6d9fb5acb61f0436ac4a48dc80e6d38c2ebf07cc",
+      "license": "MIT",
+      "url": "https://github.com/KurohaneKaoruko/DSH-Novelist/blob/6d9fb5acb61f0436ac4a48dc80e6d38c2ebf07cc/plugins/novel-tools.mjs",
+      "used": "章节结尾、人物卡、指定材料的原文组装思路；文件读写不调用模型。",
+      "adaptation": "人物卡按完整路径读取；缺失、重名与截取范围明确报告；不引入文风硬门禁或另一套 WebUI。"
+    }
+  ]
+}

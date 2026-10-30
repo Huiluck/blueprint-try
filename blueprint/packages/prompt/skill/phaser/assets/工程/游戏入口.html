@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>__作品标题__</title><link rel="stylesheet" href="作品样式.css">
+</head>
+<body>
+  <main>
+    <header><div><p class="eyebrow">STARDUST ROUTE</p><h1>__作品标题__</h1></div><button id="重新开始" type="button">重新开始</button></header>
+    <p class="guide">35 秒内收集全部星光。方向键 / WASD 移动，也可点按画面。</p>
+    <div id="游戏画布" aria-label="收集星光游戏画布"></div>
+    <p id="游戏状态" role="status" aria-live="polite">正在启动游戏…</p>
+    <nav class="touch-controls" aria-label="触控移动">
+      <button data-direction="up" aria-label="向上">↑</button>
+      <button data-direction="left" aria-label="向左">←</button>
+      <button data-direction="down" aria-label="向下">↓</button>
+      <button data-direction="right" aria-label="向右">→</button>
+    </nav>
+  </main>
+  <script src="依赖/phaser/dist/phaser.min.js"></script>
+  <script type="module" src="游戏场景.mjs"></script>
+</body>
+</html>

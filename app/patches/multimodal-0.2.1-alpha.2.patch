@@ -1,0 +1,244 @@
+Blueprint 音视频扩展，适用 DSH 0.2.1-alpha.2（2026-10-12）。
+
+官方负责图片附件、请求版本、工具 role 与持久 image/offload。本补丁只补两项：
+1. 按模型 input 声明保留音视频 FileBlock 原件，并仅在 openai-completions 路由序列化。
+2. 并行工具图片附上工具名称、调用 ID 和原生文件句柄，明确每组图片的归属。
+不再临时隐藏早前 read_image 图片；超预算交给官方 image/offload。
+
+路径相对选定引擎的 node_modules，启动与 prepare 共用 multimodal-patch.mjs 核对。
+
+--- @deepseek-ai/dsh-llm/lib/index.js
++++ @deepseek-ai/dsh-llm/lib/index.js
+@@ -617,8 +617,19 @@
+ 	if (readonlyPath === void 0) return `[${identity} was uploaded, but the current execution environment cannot access a readable path. Report that limitation if its contents are needed; do not claim to have read it.]`;
+ 	return `[${identity}: verbatim read-only copy saved at ${quoted(readonlyPath)}. Read that path with your file tools when its contents are needed; copy it to a writable location before modifying it. When delegating file work, include this saved path in the delegation prompt; only subagents sharing this execution environment can read it.]`;
+ }
+-/** Replace every file occurrence with handle text. */
+-function replaceFilesWithHandles(blocks, resolvePath) {
++// Blueprint: declared audio/video routes keep exact file bytes beside the native handle.
++const NATIVE_FILE_MEDIA_TYPES = new Map([
++	[".mp4", "video/mp4"], [".m4v", "video/mp4"], [".mov", "video/quicktime"],
++	[".avi", "video/x-msvideo"], [".wmv", "video/x-ms-wmv"], [".webm", "video/webm"], [".mkv", "video/x-matroska"],
++	[".mp3", "audio/mp3"], [".wav", "audio/wav"], [".flac", "audio/flac"], [".m4a", "audio/m4a"],
++	[".ogg", "audio/ogg"], [".aac", "audio/aac"], [".opus", "audio/opus"]
++]);
++function nativeFileMediaType(ref, modalities) {
++	const name = String(ref.name ?? "");
++	const mediaType = NATIVE_FILE_MEDIA_TYPES.get(name.slice(name.lastIndexOf(".")).toLowerCase());
++	return mediaType !== void 0 && modalities?.includes(mediaType.split("/")[0]) ? mediaType : void 0;
++}
++function replaceFilesWithHandles(blocks, resolvePath, modalities) {
+ 	let next;
+ 	for (const [index, block] of blocks.entries()) {
+ 		if (block.type === "file") {
+@@ -627,16 +638,18 @@
+ 				type: "text",
+ 				text: fileHandleText(block.attachment, resolvePath(block.attachment))
+ 			});
++			const mediaType = nativeFileMediaType(block.attachment, modalities);
++			if (mediaType !== void 0) next.push({ ...block, mediaType });
+ 			continue;
+ 		}
+ 		next?.push(block);
+ 	}
+ 	return next ?? blocks;
+ }
+-function projectFilesToText(messages, resolvePath) {
++function projectFilesToText(messages, resolvePath, modalities) {
+ 	if (!messages.some((message) => contentHasFile(message.content))) return messages;
+ 	return messages.map((message) => {
+-		const content = replaceFilesWithHandles(message.content, resolvePath);
++		const content = replaceFilesWithHandles(message.content, resolvePath, modalities);
+ 		return content === message.content ? message : {
+ 			...message,
+ 			content
+@@ -2314,7 +2327,7 @@
+ 					...resolvedConfig
+ 				};
+ 				let projectedMessages = resolvedOptions.messages;
+-				if (projectedMessages.some((message) => contentHasFile(message.content))) projectedMessages = projectFilesToText(projectedMessages, (ref) => this.fileReadPath(ref));
++				if (projectedMessages.some((message) => contentHasFile(message.content))) projectedMessages = projectFilesToText(projectedMessages, (ref) => this.fileReadPath(ref), modelInfo.inputModalities);
+ 				if (modelInfo.inputModalities !== void 0 && !modelInfo.inputModalities.includes("image") && projectedMessages.some((message) => contentHasImage(message.content))) projectedMessages = projectImagesForTextModel(projectedMessages);
+ 				const projectedTools = projectToolUpdates(projectedMessages, resolvedOptions.tools, modelInfo.toolUpdate, resolvedOptions.toolHistory);
+ 				projectedMessages = projectedTools.messages;
+--- @deepseek-ai/dsh-llm-pi-ai/lib/index.js
++++ @deepseek-ai/dsh-llm-pi-ai/lib/index.js
+@@ -281,7 +281,9 @@
+ /** Every request modality a profile may declare. */
+ const MODALITIES = Object.keys({
+ 	text: true,
+-	image: true
++	image: true,
++	video: true,
++	audio: true
+ });
+ /**
+ * One entry's modality list, or `undefined` when it states no answer. Absent
+@@ -1217,7 +1219,7 @@
+ 		if (message.role === "system" && message.content.some((block) => block.type !== "text")) throw new LlmError("pi-ai cannot represent non-text system messages", "UNSUPPORTED_CONTENT");
+ 	}
+ }
+-function userContent(blocks, requestImages, resolveImageAccess) {
++function userContent(blocks, requestImages, resolveImageAccess, requestFiles) {
+ 	const content = [];
+ 	for (const block of blocks) switch (block.type) {
+ 		case "text":
+@@ -1239,6 +1241,11 @@
+ 			});
+ 			break;
+ 		}
++		case "file": {
++			const data = requestFiles?.get(block.attachment.attachmentId);
++			if (block.mediaType !== void 0 && data !== void 0) content.push({ type: "image", data, mimeType: block.mediaType });
++			break;
++		}
+ 		default: break;
+ 	}
+ 	if (content.every((block) => block.type === "text")) return content.map((block) => block.text).join("");
+@@ -1257,6 +1264,22 @@
+ 	const versions = /* @__PURE__ */ new Map();
+ 	for (const [index, ref] of orderedRefs.entries()) versions.set(ref.attachmentId, prepared[index]);
+ 	return versions;
++}
++function hasNativeMedia(blocks) {
++	return blocks.some((block) => block.type === "file" && block.mediaType !== void 0);
++}
++async function prepareRequestFiles(messages, attachments, signal) {
++	const refs = new Map();
++	for (const message of messages) for (const block of message.content) {
++		if (block.type === "file" && block.mediaType !== void 0) refs.set(block.attachment.attachmentId, block.attachment);
++	}
++	const files = new Map();
++	for (const ref of refs.values()) {
++		const chunks = [];
++		for await (const chunk of attachments.readFileStream(ref, signal)) chunks.push(chunk);
++		files.set(ref.attachmentId, Buffer.concat(chunks).toString("base64"));
++	}
++	return files;
+ }
+ /** Convert a projected declaration without its harness-owned activation marker. */
+ function piTool(tool) {
+@@ -1389,6 +1412,7 @@
+ 	assertSupportedHistory(options.messages);
+ 	const split = splitSystemPrompt(options);
+ 	const requestImages = await prepareRequestImages(split.messages, attachments, requestImagePolicy, options.signal);
++	const requestFiles = await prepareRequestFiles(split.messages, attachments, options.signal);
+ 	if (maxRequestImageBytes !== void 0) {
+ 		const offloadImages = requiredImageOffload(split.messages, {
+ 			representation: "base64",
+@@ -1402,10 +1426,10 @@
+ 	for (const message of exactMessages) {
+ 		if (appendSharedHistory(message, options, messages, toolNames, onReplayDegrade)) continue;
+ 		if (message.role === "tool") {
+-			messages.push(toolResultOf(message, toolNames, userContent(message.content, requestImages, resolveImageAccess)));
++			messages.push(toolResultOf(message, toolNames, userContent(message.content, requestImages, resolveImageAccess, requestFiles)));
+ 			continue;
+ 		}
+-		const content = userContent(message.content, requestImages, resolveImageAccess);
++		const content = userContent(message.content, requestImages, resolveImageAccess, requestFiles);
+ 		messages.push({
+ 			role: "user",
+ 			content,
+@@ -1939,8 +1963,10 @@
+ 			try {
+ 				const containsImage = options.messages.some((message) => contentHasImage(message.content));
+ 				if (containsImage && !model.input.includes("image")) throw new LlmError(`pi-ai model "${model.id}" does not support image input`, "UNSUPPORTED_CONTENT");
+-				const attachments = containsImage ? this.config.resolveAttachments?.() : void 0;
+-				if (containsImage && attachments === void 0) throw new LlmError("pi-ai image input requires the durable attachment service", "UNSUPPORTED_CONTENT");
++				const containsNativeMedia = options.messages.some((message) => hasNativeMedia(message.content));
++				if (containsNativeMedia && model.api !== "openai-completions") throw new LlmError("Blueprint native audio/video input requires an openai-completions route", "UNSUPPORTED_CONTENT");
++				const attachments = containsImage || containsNativeMedia ? this.config.resolveAttachments?.() : void 0;
++				if ((containsImage || containsNativeMedia) && attachments === void 0) throw new LlmError("pi-ai media input requires the durable attachment service", "UNSUPPORTED_CONTENT");
+ 				const onReplayDegrade = (reason) => {
+ 					this.config.onReplayDegrade?.({
+ 						provider: options.provider,
+--- @earendil-works/pi-ai/dist/api/openai-completions.js
++++ @earendil-works/pi-ai/dist/api/openai-completions.js
+@@ -62,6 +62,14 @@
+ }
+ function isImageContentBlock(block) {
+     return block.type === "image";
++}
++// Blueprint's audio/video extension is confined to OpenAI-compatible Chat Completions.
++function mediaContentPart(block) {
++    switch (String(block.mimeType).split("/")[0]) {
++        case "video": return { type: "video_url", video_url: { url: `data:${block.mimeType};base64,${block.data}` } };
++        case "audio": return { type: "input_audio", input_audio: { data: block.data, format: String(block.mimeType).split("/")[1] } };
++        default: return { type: "image_url", image_url: { url: `data:${block.mimeType};base64,${block.data}` } };
++    }
+ }
+ function isReasoningDetailObject(detail) {
+     return typeof detail === "object" && detail !== null && !Array.isArray(detail);
+@@ -940,12 +948,7 @@
+                         };
+                     }
+                     else {
+-                        return {
+-                            type: "image_url",
+-                            image_url: {
+-                                url: `data:${item.mimeType};base64,${item.data}`,
+-                            },
+-                        };
++                        return mediaContentPart(item);
+                     }
+                 });
+                 if (content.length === 0)
+@@ -1086,15 +1089,11 @@
+                     toolResultMsg.name = toolMsg.toolName;
+                 }
+                 params.push(toolResultMsg);
+-                if (hasImages && model.input.includes("image")) {
++                if (hasImages) {
++                    imageBlocks.push({ type: "text", text: sanitizeSurrogates(`Tool ${toolMsg.toolName || "unknown"} (${toolMsg.toolCallId}):\n${toolResultText}`) });
+                     for (const block of toolMsg.content) {
+-                        if (isImageContentBlock(block)) {
+-                            imageBlocks.push({
+-                                type: "image_url",
+-                                image_url: {
+-                                    url: `data:${block.mimeType};base64,${block.data}`,
+-                                },
+-                            });
++                        if (isImageContentBlock(block) && model.input.includes(String(block.mimeType).split("/")[0])) {
++                            imageBlocks.push(mediaContentPart(block));
+                         }
+                     }
+                 }
+--- @earendil-works/pi-ai/dist/api/transform-messages.js
++++ @earendil-works/pi-ai/dist/api/transform-messages.js
+@@ -1,10 +1,10 @@
+ const NON_VISION_USER_IMAGE_PLACEHOLDER = "(image omitted: model does not support images)";
+ const NON_VISION_TOOL_IMAGE_PLACEHOLDER = "(tool image omitted: model does not support images)";
+-function replaceImagesWithPlaceholder(content, placeholder) {
++function replaceImagesWithPlaceholder(content, placeholder, model) {
+     const result = [];
+     let previousWasPlaceholder = false;
+     for (const block of content) {
+-        if (block.type === "image") {
++        if (block.type === "image" && !model.input.includes(String(block.mimeType).split("/")[0])) {
+             if (!previousWasPlaceholder) {
+                 result.push({ type: "text", text: placeholder });
+             }
+@@ -17,20 +17,20 @@
+     return result;
+ }
+ function downgradeUnsupportedImages(messages, model) {
+-    if (model.input.includes("image")) {
++    if (["image", "video", "audio"].every((kind) => model.input.includes(kind))) {
+         return messages;
+     }
+     return messages.map((msg) => {
+         if (msg.role === "user" && Array.isArray(msg.content)) {
+             return {
+                 ...msg,
+-                content: replaceImagesWithPlaceholder(msg.content, NON_VISION_USER_IMAGE_PLACEHOLDER),
++                content: replaceImagesWithPlaceholder(msg.content, NON_VISION_USER_IMAGE_PLACEHOLDER, model),
+             };
+         }
+         if (msg.role === "toolResult") {
+             return {
+                 ...msg,
+-                content: replaceImagesWithPlaceholder(msg.content, NON_VISION_TOOL_IMAGE_PLACEHOLDER),
++                content: replaceImagesWithPlaceholder(msg.content, NON_VISION_TOOL_IMAGE_PLACEHOLDER, model),
+             };
+         }
+         return msg;

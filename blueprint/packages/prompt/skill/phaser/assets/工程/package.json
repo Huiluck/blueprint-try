@@ -1,0 +1,6 @@
+{
+  "name": "blueprint-phaser-project",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node 检查玩法.mjs" }
+}

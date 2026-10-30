@@ -1,0 +1,30 @@
+/* 底部活条保留三格波：当前为思考时点击展开当前原文，其他阶段只报状态。 */
+.bp-chat-body [data-chat-running]{color:var(--bp-secondary);font:11.5px/24px var(--bp-font-mono)}
+.bp-chat-body [data-chat-running] [class*="_runningContent"]{gap:10px;min-height:24px}
+.bp-chat-body [data-chat-running] [class*="_runningIcon"]{width:18px;height:14px;gap:3px;align-items:center;color:#14A177}
+.bp-chat-body [data-chat-running] [class*="_runningIcon"]::before,
+.bp-chat-body [data-chat-running] [class*="_runningIcon"]::after{content:""}
+.bp-chat-body [data-chat-running] [class*="_runningIcon"]::before,
+.bp-chat-body [data-chat-running] [class*="_runningIcon"]>span,
+.bp-chat-body [data-chat-running] [class*="_runningIcon"]::after{display:block;flex:none;background:currentColor}
+.bp-chat-body [data-chat-running] [class*="_runningIcon"]>span{position:static;inset:auto;mask:none;transform:none;will-change:auto}
+.bp-chat-body [data-chat-running] [class*="_runningIcon"]>svg{display:none}
+/* 撤掉原生文字扫光，只有三格方块按既有节奏明暗起伏。 */
+.bp-chat-body [data-chat-running] [data-shimmer]::before,
+.bp-chat-body [data-chat-running] [data-shimmer]::after,
+.bp-chat-body [data-chat-running] [data-shimmer]>[aria-hidden=true]{display:none}
+BLUEPRINT_RUNNING_WAVE
+.bp-live-activity{width:100%;min-width:0}
+.bp-chat-body .bp-live-head{margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;color:var(--bp-secondary);text-align:left;font:11.5px/24px var(--bp-font-mono)}
+.bp-live-activity button.bp-live-head{cursor:pointer}
+.bp-live-activity button.bp-live-head:hover .bp-live-label{color:var(--bp-ink)}
+.bp-live-time{color:var(--bp-muted);font-variant-numeric:tabular-nums}
+.bp-live-toggle{color:var(--bp-muted);min-width:12px;text-align:center}
+.bp-live-think-body{box-sizing:border-box;width:100%;min-width:0;padding:8px 8px 12px 28px;color:var(--bp-secondary);font:13px/22px var(--bp-font-ui);white-space:pre-wrap;overflow-wrap:anywhere}
+.bp-live-think-body[hidden]{display:none}
+.bp-live-announcement{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media (prefers-reduced-motion:reduce){
+  .bp-chat-body [data-chat-running] [class*="_runningIcon"]::before{content:"▶";width:18px;height:14px;background:none;opacity:1;animation:none;font:11px/14px var(--bp-font-mono)}
+  .bp-chat-body [data-chat-running] [class*="_runningIcon"]>span,
+  .bp-chat-body [data-chat-running] [class*="_runningIcon"]::after{display:none;animation:none}
+}

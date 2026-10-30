@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "package": "phaser",
+  "version": "4.2.1",
+  "license": "MIT",
+  "repository": "https://github.com/phaserjs/phaser",
+  "registry": "https://registry.npmjs.org/phaser/4.2.1",
+  "tarball": "https://registry.npmjs.org/phaser/-/phaser-4.2.1.tgz",
+  "integrity": "sha512-WUNwCPJpdjvZiuT6SgCfYVW8Qw/3j0jJ4ws7P2QkhFLFu74sbGuyHJcbFueGkY/AYO4Pi47bNQXn1OCJeLX//w==",
+  "files": [
+    {
+      "path": "依赖/phaser/LICENSE.md",
+      "bytes": 1120,
+      "sha256": "d59c20a9deb5dc240614b428dce5246ae561d15efeeebea0e069d73f0a78fbff"
+    },
+    {
+      "path": "依赖/phaser/dist/phaser.min.js",
+      "bytes": 1375976,
+      "sha256": "66348b1b5141e49b7d5ebbe688cddcb502eab1cb00f21c538686a5b2c5abe4de"
+    },
+    {
+      "path": "依赖/phaser/package.json",
+      "bytes": 2937,
+      "sha256": "dd57d55f092bc5093a8e38f786932966ace026a10a5f59d28dcfd675acb37a2c"
+    }
+  ],
+  "note": "仅提取浏览器构建和本工程使用的模块闭包；未执行 npm 安装或发布包脚本。"
+}

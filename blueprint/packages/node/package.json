@@ -1,0 +1,28 @@
+{
+  "name": "@blueprint/node",
+  "version": "0.0.0",
+  "private": true,
+  "description": "节点之间怎么协作：六把工具、状态由动作写、叫醒、开会话、建项目、模型表、用户回答落名册。名册唯一的写者",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./compaction": "./src/上下文重建.js",
+    "./features": "./src/执行能力.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/schemastery": "3.18.5-alpha.1",
+    "@deepseek-ai/dsh-agent": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-compaction": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-llm": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tools": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tool-web": "0.2.1-alpha.2",
+    "zod": "^4.4.3",
+    "@deepseek-ai/dsh-terminal": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-compaction-basic": "0.2.1-alpha.2"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "bash": {
+    "description": "Run bash -c; return stdout/stderr and [exit code: N]. Check exit codes and investigate failures. Each call uses a fresh shell. Project tools run without desktop windows: use the supplied Godot/browser launchers and return artifacts for user preview. Truncated output reports its saved file. A sandbox denial permits one exact retry with exposed sandbox_permissions and justification through approval, only if approvals are enabled. Never bypass a denial or rejected escalation. Escalate only after this access was denied; unrelated commands may continue. Managed environment facts are in $DSH_*.",
+    "parameters": {
+      "command": null,
+      "description": "Brief action shown in the UI.",
+      "timeoutMs": "Milliseconds; configured default/cap; expiry kills the command.",
+      "workdir": "Default current working directory; relative paths resolve from it.",
+      "run_in_background": "For long work: return job id, collect via job_output, stop via job_kill; no timeout.",
+      "sandbox_permissions": "Exact denied-operation retry only, with justification and user approval.",
+      "justification": "Why this exact operation needs wider access."
+    }
+  },
+  "read": {
+    "description": "Inspect UTF-8 text with line numbers; use offset/limit for large files.",
+    "parameters": {
+      "file_path": null,
+      "offset": "First line, 1-based; default 1."
+    }
+  },
+  "write": {
+    "description": "Create or replace UTF-8 text. Read an existing file first; use edit for targeted changes.",
+    "parameters": {
+      "file_path": null,
+      "content": null,
+      "sandbox_permissions": "Exact denied-operation retry only, with justification and user approval.",
+      "justification": "Why this exact operation needs wider access."
+    }
+  },
+  "edit": {
+    "description": "Replace literal UTF-8 text. Read first unless just created/edited. old_string must match once unless replace_all; empty new_string deletes it.",
+    "parameters": {
+      "file_path": null,
+      "old_string": null,
+      "new_string": null,
+      "replace_all": "Default false.",
+      "sandbox_permissions": "Exact denied-operation retry only, with justification and user approval.",
+      "justification": "Why this exact operation needs wider access."
+    }
+  },
+  "glob": {
+    "description": "Find files by glob, including hidden/ignored files except VCS metadata. Returns up to 100 paths, newest first; capped results report a saved full list. Files only.",
+    "parameters": {
+      "pattern": "Without /, matches basenames at any depth; include / to anchor depth.",
+      "path": "Default current working directory; relative paths resolve from it."
+    }
+  },
+  "grep": {
+    "description": "Search contents by ripgrep regex; return up to 250 matching lines with file/line numbers. Capped results report a saved full list; read for surrounding context.",
+    "parameters": {
+      "pattern": null,
+      "path": "File or directory; default session workspace; relative paths resolve from it.",
+      "include": "One glob, such as *.{js,jsx}; no list or negation."
+    }
+  },
+  "read_image": {
+    "description": "Return PNG/JPEG/WebP/GIF pixels; requires image-capable model. Detects format without extension and downscales large images automatically. Read independent images in small batches.",
+    "parameters": {
+      "file_path": null
+    }
+  },
+  "job_output": {
+    "description": "Read job output. Streams return new output; final-output jobs return after settlement. Check [status: ...]. Non-blocking unless wait=true; timeout leaves the job running.",
+    "parameters": {
+      "job_id": null,
+      "wait": "Default false.",
+      "timeout_ms": "Milliseconds for wait=true; configured default and cap."
+    }
+  },
+  "job_list": {
+    "description": "List your background job ids, kinds and statuses.",
+    "parameters": {}
+  },
+  "job_kill": {
+    "description": "Request job cancellation; returns immediately, settles as killed when work stops.",
+    "parameters": {
+      "job_id": null,
+      "reason": "Optional reason, logged and forwarded to the job."
+    }
+  }
+}

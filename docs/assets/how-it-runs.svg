@@ -1,0 +1,378 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1754" viewBox="0 0 1440 1754">
+<title>How Blueprint runs</title><desc>A tree from top to bottom: you, helm, the top dock, and child docks and agents on workbenches. Each lead assembles context, a selector picks the next phase, requests go down and hand-backs come up.</desc>
+<defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#EEF1F4" stroke-width="1"/></pattern><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#D5DBE1" stroke-width="1.2"/></pattern><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#1D232A"/></marker><marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#9AA4AF"/></marker><marker id="ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L9 5L1 9" fill="none" stroke="#9AA4AF" stroke-width="1.4"/></marker><filter id="sh" x="-6%" y="-6%" width="112%" height="120%"><feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#18202C" flood-opacity="0.07"/></filter></defs>
+<rect width="1440" height="1754" fill="#FAFBFC"/><rect width="1440" height="1754" fill="url(#grid)"/>
+<rect x="60" y="44" width="28" height="28" rx="0" fill="#111418" stroke="#111418" stroke-width="1"/>
+<text x="74" y="64" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="16" font-weight="700" fill="#F5F7FA" text-anchor="middle">B</text>
+<text x="100" y="63" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="600" fill="#1D232A">Blueprint<tspan dx="10" font-weight="400" fill="#59616B">Developer Handbook · Structure</tspan></text>
+<text x="1380" y="63" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="400" fill="#68717B" text-anchor="end">Draft 2026-10-29</text>
+<text x="60" y="128" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="32" font-weight="600" fill="#1D232A" text-anchor="start">How Blueprint runs</text>
+<text x="60" y="162" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="400" fill="#59616B" text-anchor="start">Every lead has the same structure: assemble context, then the selector picks the next phase. Requests and workbenches go down; hand-backs in one format come up.</text>
+<rect x="560" y="210" width="120" height="40" rx="0" fill="#FFFFFF" stroke="#1D232A" stroke-width="1.4"/>
+<text x="620" y="236" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="16" font-weight="600" fill="#1D232A" text-anchor="middle">You</text>
+<rect x="750" y="204" width="270" height="52" rx="0" fill="#FFFBEF" stroke="#C9A227" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="764" y="225" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#1D232A" text-anchor="start">spark · optional</text>
+<text x="764" y="243" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">Finds what you want; one page for helm</text>
+<path d="M750 230 L682 230" fill="none" stroke="#C9A227" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#ag)"/>
+<rect x="170" y="300" width="900" height="392" rx="0" fill="#FFFFFF" stroke="#C9D0D7" stroke-width="1" filter="url(#sh)"/>
+<rect x="170" y="300" width="62" height="26" rx="0" fill="#111418" stroke="#111418" stroke-width="1"/>
+<text x="201" y="318" font-family="'SF Mono', Menlo, monospace" font-size="12" font-weight="700" fill="#F5F7FA" text-anchor="middle">HELM</text>
+<text x="244" y="319" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="600" fill="#1D232A" text-anchor="start">Problem-solving machine</text>
+<text x="244" y="338" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">One per job · owns the stages</text>
+<text x="1056" y="319" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="end">STAGES × N</text>
+<rect x="270.5" y="374.5" width="99" height="35" rx="0" fill="#EEF1F4" stroke="#D5DBE1" stroke-width="1"/>
+<text x="320.0" y="389.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#59616B" text-anchor="middle">canon</text>
+<text x="320.0" y="402.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="middle">shared prefix</text>
+<rect x="370.5" y="374.5" width="59" height="35" rx="0" fill="#EEF1F4" stroke="#D5DBE1" stroke-width="1"/>
+<text x="400.0" y="396.0" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#59616B" text-anchor="middle">helm page</text>
+<rect x="430.5" y="374.5" width="119" height="35" rx="0" fill="#EEF1F4" stroke="#D5DBE1" stroke-width="1"/>
+<text x="490.0" y="389.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#59616B" text-anchor="middle">node prefix</text>
+<text x="490.0" y="402.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="middle">identity · request</text>
+<rect x="550.5" y="374.5" width="149" height="35" rx="0" fill="#FFFFFF" stroke="#D5DBE1" stroke-width="1"/>
+<rect x="550.5" y="374.5" width="149" height="35" rx="0" fill="url(#hatch)" stroke="#D5DBE1" stroke-width="1"/>
+<rect x="609.0" y="379.5" width="32" height="13" fill="#FFFFFF"/>
+<text x="625.0" y="389.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#59616B" text-anchor="middle">conversation</text>
+<rect x="563.0" y="392.5" width="124" height="13" fill="#FFFFFF"/>
+<text x="625.0" y="402.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="middle">rebuilt at loop ends</text>
+<rect x="700.5" y="374.5" width="119" height="35" rx="0" fill="#FFFFFF" stroke="#1D232A" stroke-width="1"/>
+<text x="760.0" y="389.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#1D232A" text-anchor="middle">What just happened</text>
+<text x="760.0" y="402.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#1D232A" text-anchor="middle">wake · you · returns</text>
+<rect x="820.5" y="374.5" width="79" height="35" rx="0" fill="#FFFFFF" stroke="#1D232A" stroke-width="1"/>
+<text x="860.0" y="389.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#1D232A" text-anchor="middle">Task table</text>
+<text x="860.0" y="402.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#1D232A" text-anchor="middle">full · overview</text>
+<rect x="900.5" y="374.5" width="69" height="35" rx="0" fill="#111418" stroke="#111418" stroke-width="1"/>
+<text x="935.0" y="389.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#F5F7FA" text-anchor="middle">This step</text>
+<text x="935.0" y="402.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#F5F7FA" text-anchor="middle">page</text>
+<path d="M270 362 L550 362" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M270 358 L270 366" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M550 358 L550 366" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<text x="272" y="356" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">System prompt · identical at every step</text>
+<path d="M700 362 L738.0 362" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M782.0 362 L970 362" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M700 358 L700 366" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M970 358 L970 366" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<text x="968" y="356" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="end">per phase · at the end</text>
+<text x="260" y="396" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="400" fill="#8A939D" text-anchor="end">context</text>
+<path d="M574.0 553.3 L456.0 528.4" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M666.0 553.3 L784.0 528.4" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M574.0 572.7 L456.0 597.6" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M666.0 572.7 L784.0 597.6" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M620.0 610.0 L620.0 631.0" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<circle cx="620" cy="563" r="54" fill="none" stroke="#C3CAD2" stroke-dasharray="2 4"/>
+<circle cx="620" cy="563" r="44" fill="#111418"/>
+<text x="620" y="561" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="600" fill="#F5F7FA" text-anchor="middle">Selector</text>
+<text x="620" y="579" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#AEB7C2" text-anchor="middle">Next?</text>
+<rect x="186" y="450" width="270" height="100" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1"/>
+<rect x="186" y="450" width="3" height="100" fill="#C9A227"/>
+<text x="202" y="474" font-family="'SF Mono', Menlo, monospace" font-size="14" font-weight="700" fill="#1D232A" text-anchor="start">orient</text>
+<text x="266" y="474" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">find it, don't solve it</text>
+<text x="202" y="496" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">What's wanted? The bar? What's good?</text>
+<text x="202" y="513" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#8A939D" text-anchor="start">·</text>
+<text x="212" y="513" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#59616B" text-anchor="start">No files or methods yet; you answer intent</text>
+<path d="M202 524 L442 524" fill="none" stroke="#E3E7EB" stroke-width="1"/>
+<text x="202" y="540" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">Out</text>
+<text x="236" y="540" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#1D232A" text-anchor="start">problem statement · asks you in build</text>
+<rect x="784" y="450" width="270" height="100" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1"/>
+<rect x="784" y="450" width="3" height="100" fill="#C9A227"/>
+<text x="800" y="474" font-family="'SF Mono', Menlo, monospace" font-size="14" font-weight="700" fill="#1D232A" text-anchor="start">plan</text>
+<text x="846" y="474" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">set the stages</text>
+<text x="800" y="496" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">Split into stages? What's this one for?</text>
+<text x="800" y="513" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#8A939D" text-anchor="start">·</text>
+<text x="810" y="513" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#59616B" text-anchor="start">Main contradiction first: the key unknown</text>
+<path d="M800 524 L1040 524" fill="none" stroke="#E3E7EB" stroke-width="1"/>
+<text x="800" y="540" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">Out</text>
+<text x="834" y="540" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#1D232A" text-anchor="start">stage table · you review in build</text>
+<rect x="186" y="576" width="270" height="100" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1"/>
+<rect x="186" y="576" width="3" height="100" fill="#4E9A72"/>
+<text x="202" y="600" font-family="'SF Mono', Menlo, monospace" font-size="14" font-weight="700" fill="#1D232A" text-anchor="start">complete</text>
+<text x="284" y="600" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">against your intent</text>
+<text x="202" y="622" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">Does it really give you what you want?</text>
+<text x="202" y="639" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#8A939D" text-anchor="start">·</text>
+<text x="212" y="639" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#59616B" text-anchor="start">Big picture; human calls go to you</text>
+<path d="M202 650 L442 650" fill="none" stroke="#E3E7EB" stroke-width="1"/>
+<text x="202" y="666" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">Out</text>
+<text x="236" y="666" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#1D232A" text-anchor="start">enough → finish; not → back to plan</text>
+<rect x="784" y="576" width="270" height="100" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1"/>
+<rect x="784" y="576" width="3" height="100" fill="#C8553D"/>
+<text x="800" y="600" font-family="'SF Mono', Menlo, monospace" font-size="14" font-weight="700" fill="#1D232A" text-anchor="start">execute</text>
+<text x="873" y="600" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">wait for this stage</text>
+<text x="800" y="622" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">Stage goes to the top dock; hands off</text>
+<text x="800" y="639" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#8A939D" text-anchor="start">·</text>
+<text x="810" y="639" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#59616B" text-anchor="start">Still replies; changes go by note to dock</text>
+<path d="M800 650 L1040 650" fill="none" stroke="#E3E7EB" stroke-width="1"/>
+<text x="800" y="666" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">Out</text>
+<text x="834" y="666" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#1D232A" text-anchor="start">no output; woken when top dock returns</text>
+<rect x="574.0" y="631.0" width="92" height="30" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="620" y="645" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#1D232A" text-anchor="middle">reply</text>
+<text x="620" y="657" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="400" fill="#59616B" text-anchor="middle">just reply</text>
+<path d="M620 410 L620 507" fill="none" stroke="#1D232A" stroke-width="1.2" marker-end="url(#ah)"/>
+<path d="M650 529 L650 432 L935.0 432 L935.0 412" fill="none" stroke="#111418" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#ah)"/>
+<text x="660" y="427" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">once chosen, insert that phase's page</text>
+<path d="M650 250 L650 280 L748.0 280 L748.0 372" fill="none" stroke="#1D232A" stroke-width="1.2" marker-end="url(#ah)"/>
+<text x="658" y="274" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">your words</text>
+<path d="M590 300 L590 252" fill="none" stroke="#9AA4AF" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#ag)"/>
+<text x="582" y="280" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="end">to you</text>
+<path d="M620 692 L620 844 L490.0 844 L490.0 934" fill="none" stroke="#1D232A" stroke-width="1.2" marker-end="url(#ah)"/>
+<rect x="660" y="708" width="370" height="138" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1" filter="url(#sh)"/>
+<text x="674" y="730" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">Request</text>
+<text x="734" y="730" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">all the context written for the child at dispatch</text>
+<text x="674" y="756" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">01</text>
+<text x="698" y="756" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">what to do</text>
+<text x="850" y="756" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">02</text>
+<text x="874" y="756" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">how parts connect</text>
+<text x="674" y="778" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">03</text>
+<text x="698" y="778" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">project context</text>
+<text x="850" y="778" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">04</text>
+<text x="874" y="778" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">work level</text>
+<text x="674" y="800" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">05</text>
+<text x="698" y="800" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">sibling division</text>
+<text x="850" y="800" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">06</text>
+<text x="874" y="800" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">required rules</text>
+<text x="674" y="832" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#59616B" text-anchor="start">context, not control: how is its call</text>
+<circle cx="620" cy="776" r="3" fill="#1D232A"/>
+<path d="M620 776 L660 776" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<text x="482.0" y="838" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="end">+ workbench: the top dock's is the whole product</text>
+<rect x="184" y="876" width="900" height="438" rx="0" fill="#FFFFFF" stroke="#DCE1E6" stroke-width="1"/>
+<rect x="177" y="869" width="900" height="438" rx="0" fill="#FFFFFF" stroke="#DCE1E6" stroke-width="1"/>
+<rect x="170" y="862" width="900" height="438" rx="0" fill="#FFFFFF" stroke="#C9D0D7" stroke-width="1" filter="url(#sh)"/>
+<rect x="170" y="862" width="62" height="26" rx="0" fill="#111418" stroke="#111418" stroke-width="1"/>
+<text x="201" y="880" font-family="'SF Mono', Menlo, monospace" font-size="12" font-weight="700" fill="#F5F7FA" text-anchor="middle">DOCK</text>
+<text x="244" y="881" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="600" fill="#1D232A" text-anchor="start">Top dock</text>
+<text x="244" y="900" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">Workbenches and integration · one per stage</text>
+<text x="1056" y="881" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="end">ROUNDS × N</text>
+<rect x="270.5" y="936.5" width="99" height="35" rx="0" fill="#EEF1F4" stroke="#D5DBE1" stroke-width="1"/>
+<text x="320.0" y="951.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#59616B" text-anchor="middle">canon</text>
+<text x="320.0" y="964.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="middle">shared prefix</text>
+<rect x="370.5" y="936.5" width="59" height="35" rx="0" fill="#EEF1F4" stroke="#D5DBE1" stroke-width="1"/>
+<text x="400.0" y="958.0" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#59616B" text-anchor="middle">dock page</text>
+<rect x="430.5" y="936.5" width="119" height="35" rx="0" fill="#EEF1F4" stroke="#D5DBE1" stroke-width="1"/>
+<text x="490.0" y="951.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#59616B" text-anchor="middle">node prefix</text>
+<text x="490.0" y="964.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="middle">identity · bench · request</text>
+<rect x="550.5" y="936.5" width="149" height="35" rx="0" fill="#FFFFFF" stroke="#D5DBE1" stroke-width="1"/>
+<rect x="550.5" y="936.5" width="149" height="35" rx="0" fill="url(#hatch)" stroke="#D5DBE1" stroke-width="1"/>
+<rect x="609.0" y="941.5" width="32" height="13" fill="#FFFFFF"/>
+<text x="625.0" y="951.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#59616B" text-anchor="middle">conversation</text>
+<rect x="563.0" y="954.5" width="124" height="13" fill="#FFFFFF"/>
+<text x="625.0" y="964.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="middle">rebuilt at loop ends</text>
+<rect x="700.5" y="936.5" width="119" height="35" rx="0" fill="#FFFFFF" stroke="#1D232A" stroke-width="1"/>
+<text x="760.0" y="951.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#1D232A" text-anchor="middle">What just happened</text>
+<text x="760.0" y="964.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#1D232A" text-anchor="middle">wake · notes · returns</text>
+<rect x="820.5" y="936.5" width="79" height="35" rx="0" fill="#FFFFFF" stroke="#1D232A" stroke-width="1"/>
+<text x="860.0" y="951.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#1D232A" text-anchor="middle">Task table</text>
+<text x="860.0" y="964.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#1D232A" text-anchor="middle">own branch</text>
+<rect x="900.5" y="936.5" width="69" height="35" rx="0" fill="#111418" stroke="#111418" stroke-width="1"/>
+<text x="935.0" y="951.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#F5F7FA" text-anchor="middle">This step</text>
+<text x="935.0" y="964.5" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#F5F7FA" text-anchor="middle">page</text>
+<path d="M270 924 L476.0 924" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M504.0 924 L550 924" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M270 920 L270 928" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M550 920 L550 928" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<text x="272" y="918" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">System prompt · identical at every step</text>
+<path d="M700 924 L768.0 924" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M800.0 924 L970 924" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M700 920 L700 928" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M970 920 L970 928" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<text x="968" y="918" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="end">per phase · at the end</text>
+<text x="260" y="958" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="400" fill="#8A939D" text-anchor="end">context</text>
+<path d="M574.0 1115.3 L456.0 1090.4" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M666.0 1115.3 L784.0 1090.4" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M574.0 1134.7 L456.0 1159.6" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M666.0 1134.7 L784.0 1159.6" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M620.0 1172.0 L620.0 1196.0" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<path d="M585.1 1093.5 L552.6 1064.0" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<circle cx="620" cy="1125" r="54" fill="none" stroke="#C3CAD2" stroke-dasharray="2 4"/>
+<circle cx="620" cy="1125" r="44" fill="#111418"/>
+<text x="620" y="1123" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="600" fill="#F5F7FA" text-anchor="middle">Selector</text>
+<text x="620" y="1141" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#AEB7C2" text-anchor="middle">Next?</text>
+<rect x="186" y="1012" width="270" height="100" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1"/>
+<rect x="186" y="1012" width="3" height="100" fill="#C9A227"/>
+<text x="202" y="1036" font-family="'SF Mono', Menlo, monospace" font-size="14" font-weight="700" fill="#1D232A" text-anchor="start">orient</text>
+<text x="266" y="1036" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">find it, don't solve it</text>
+<text x="202" y="1058" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">What is this part really solving?</text>
+<text x="202" y="1075" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#8A939D" text-anchor="start">·</text>
+<text x="212" y="1075" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#59616B" text-anchor="start">What makes this kind work? Then this one</text>
+<path d="M202 1086 L442 1086" fill="none" stroke="#E3E7EB" stroke-width="1"/>
+<text x="202" y="1102" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">Out</text>
+<text x="236" y="1102" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#1D232A" text-anchor="start">problem statement; each part gets its bar</text>
+<rect x="784" y="1012" width="270" height="100" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1"/>
+<rect x="784" y="1012" width="3" height="100" fill="#C9A227"/>
+<text x="800" y="1036" font-family="'SF Mono', Menlo, monospace" font-size="14" font-weight="700" fill="#1D232A" text-anchor="start">plan</text>
+<text x="846" y="1036" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">cut parts</text>
+<text x="800" y="1058" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">Which parts? Give to dock or run?</text>
+<text x="800" y="1075" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#8A939D" text-anchor="start">·</text>
+<text x="810" y="1075" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#59616B" text-anchor="start">Quality in the fit? One whole, one run</text>
+<path d="M800 1086 L1040 1086" fill="none" stroke="#E3E7EB" stroke-width="1"/>
+<text x="800" y="1102" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">Out</text>
+<text x="834" y="1102" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#1D232A" text-anchor="start">division table · part table</text>
+<rect x="186" y="1138" width="270" height="100" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1"/>
+<rect x="186" y="1138" width="3" height="100" fill="#4E9A72"/>
+<text x="202" y="1162" font-family="'SF Mono', Menlo, monospace" font-size="14" font-weight="700" fill="#1D232A" text-anchor="start">complete</text>
+<text x="284" y="1162" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">is it enough?</text>
+<text x="202" y="1184" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">Does it really meet this part's aim?</text>
+<text x="202" y="1201" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#8A939D" text-anchor="start">·</text>
+<text x="212" y="1201" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#59616B" text-anchor="start">Connected and running is enough; helm judges</text>
+<path d="M202 1212 L442 1212" fill="none" stroke="#E3E7EB" stroke-width="1"/>
+<text x="202" y="1228" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">Out</text>
+<text x="236" y="1228" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#1D232A" text-anchor="start">enough → finish; broken → loop again</text>
+<rect x="784" y="1138" width="270" height="100" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1"/>
+<rect x="784" y="1138" width="3" height="100" fill="#C8553D"/>
+<text x="800" y="1162" font-family="'SF Mono', Menlo, monospace" font-size="14" font-weight="700" fill="#1D232A" text-anchor="start">execute</text>
+<text x="873" y="1162" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">build benches, dispatch</text>
+<text x="800" y="1184" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="400" fill="#1D232A" text-anchor="start">Which benches now? Which parts fit?</text>
+<text x="800" y="1201" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#8A939D" text-anchor="start">·</text>
+<text x="810" y="1201" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#59616B" text-anchor="start">Dispatch what's ready; log the rest</text>
+<path d="M800 1212 L1040 1212" fill="none" stroke="#E3E7EB" stroke-width="1"/>
+<text x="800" y="1228" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">Out</text>
+<text x="834" y="1228" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#1D232A" text-anchor="start">bench + request; woken when batch returns</text>
+<rect x="505" y="1196" width="230" height="80" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1"/>
+<rect x="505" y="1196" width="3" height="80" fill="#4E9A72"/>
+<text x="519" y="1217" font-family="'SF Mono', Menlo, monospace" font-size="13" font-weight="700" fill="#1D232A" text-anchor="start">integrate</text>
+<text x="608" y="1217" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#1D232A" text-anchor="start">connect it</text>
+<text x="519" y="1238" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#8A939D" text-anchor="start">·</text>
+<text x="529" y="1238" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#59616B" text-anchor="start">Wire each return in; fix seams yourself</text>
+<text x="519" y="1266" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">Out</text>
+<text x="551" y="1266" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="400" fill="#1D232A" text-anchor="start">integration list</text>
+<rect x="490.0" y="1034.0" width="92" height="30" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="536" y="1048" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#1D232A" text-anchor="middle">reply</text>
+<text x="536" y="1060" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="400" fill="#59616B" text-anchor="middle">just reply</text>
+<path d="M620 972 L620 1069" fill="none" stroke="#1D232A" stroke-width="1.2" marker-end="url(#ah)"/>
+<path d="M650 1091 L650 994 L935.0 994 L935.0 974" fill="none" stroke="#111418" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#ah)"/>
+<text x="660" y="989" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">once chosen, insert that phase's page</text>
+<path d="M1070 882 L1092 882 L1092 334 L772.0 334 L772.0 372" fill="none" stroke="#9AA4AF" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#ag)"/>
+<text x="1100" y="781.0" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">Hand-back</text>
+<path d="M620 1314 L620 1340" fill="none" stroke="#1D232A" stroke-width="1.2"/>
+<path d="M264.0 1340 L936.0 1340" fill="none" stroke="#1D232A" stroke-width="1.2"/>
+<path d="M264.0 1340 L264.0 1372" fill="none" stroke="#1D232A" stroke-width="1.2" marker-end="url(#ah)"/>
+<path d="M488.0 1340 L488.0 1372" fill="none" stroke="#1D232A" stroke-width="1.2" marker-end="url(#ah)"/>
+<path d="M712.0 1340 L712.0 1372" fill="none" stroke="#1D232A" stroke-width="1.2" marker-end="url(#ah)"/>
+<path d="M936.0 1340 L936.0 1372" fill="none" stroke="#1D232A" stroke-width="1.2" marker-end="url(#ah)"/>
+<text x="628" y="1330" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">request + bench</text>
+<path d="M178 1376 L164 1376 L164 1390" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<path d="M350 1376 L364 1376 L364 1390" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<path d="M178 1536 L164 1536 L164 1522" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<path d="M350 1536 L364 1536 L364 1522" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<text x="174" y="1392" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#1D232A" text-anchor="start">Bench</text>
+<text x="218" y="1392" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="400" fill="#8A939D" text-anchor="start">locate · build · check alone</text>
+<rect x="176" y="1402" width="176" height="78" rx="0" fill="#FFFFFF" stroke="#C9D0D7" stroke-width="1"/>
+<rect x="176" y="1402" width="44" height="18" rx="0" fill="#111418" stroke="#111418" stroke-width="1"/>
+<text x="198" y="1415" font-family="'SF Mono', Menlo, monospace" font-size="9" font-weight="700" fill="#F5F7FA" text-anchor="middle">DOCK</text>
+<text x="188" y="1442" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#1D232A" text-anchor="start">Child dock × k</text>
+<text x="188" y="1464" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="start">Same structure, splits further</text>
+<rect x="176" y="1492" width="74" height="26" rx="0" fill="#FFFFFF" stroke="#9AA4AF" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="213" y="1509" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#1D232A" text-anchor="middle">交付/</text>
+<text x="258" y="1509" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">output goes here</text>
+<path d="M213 1518 L213 1558" fill="none" stroke="#9AA4AF" stroke-width="1.2" stroke-dasharray="5 4"/>
+<path d="M402 1376 L388 1376 L388 1390" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<path d="M574 1376 L588 1376 L588 1390" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<path d="M402 1536 L388 1536 L388 1522" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<path d="M574 1536 L588 1536 L588 1522" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<text x="398" y="1392" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#1D232A" text-anchor="start">Bench</text>
+<text x="442" y="1392" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="400" fill="#8A939D" text-anchor="start">locate · build · check alone</text>
+<rect x="400" y="1402" width="176" height="78" rx="0" fill="#111418" stroke="#111418" stroke-width="1"/>
+<text x="412" y="1426" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#F5F7FA" text-anchor="start">DSH agent</text>
+<text x="412" y="1447" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#C9D0D7" text-anchor="start">IN   system prompt + request</text>
+<text x="412" y="1464" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#C9D0D7" text-anchor="start">OUT  finish tool</text>
+<rect x="400" y="1492" width="74" height="26" rx="0" fill="#FFFFFF" stroke="#9AA4AF" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="437" y="1509" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#1D232A" text-anchor="middle">交付/</text>
+<text x="482" y="1509" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">output goes here</text>
+<path d="M437 1518 L437 1558" fill="none" stroke="#9AA4AF" stroke-width="1.2" stroke-dasharray="5 4"/>
+<path d="M626 1376 L612 1376 L612 1390" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<path d="M798 1376 L812 1376 L812 1390" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<path d="M626 1536 L612 1536 L612 1522" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<path d="M798 1536 L812 1536 L812 1522" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<text x="622" y="1392" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#1D232A" text-anchor="start">Bench</text>
+<text x="666" y="1392" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="400" fill="#8A939D" text-anchor="start">locate · build · check alone</text>
+<rect x="624" y="1402" width="176" height="78" rx="0" fill="#111418" stroke="#111418" stroke-width="1"/>
+<text x="636" y="1426" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#F5F7FA" text-anchor="start">Codex</text>
+<text x="636" y="1447" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#C9D0D7" text-anchor="start">IN   prompt · cwd = bench</text>
+<text x="636" y="1464" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#C9D0D7" text-anchor="start">OUT  --output-schema</text>
+<rect x="624" y="1492" width="74" height="26" rx="0" fill="#FFFFFF" stroke="#9AA4AF" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="661" y="1509" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#1D232A" text-anchor="middle">交付/</text>
+<text x="706" y="1509" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">output goes here</text>
+<path d="M661 1518 L661 1558" fill="none" stroke="#9AA4AF" stroke-width="1.2" stroke-dasharray="5 4"/>
+<path d="M850 1376 L836 1376 L836 1390" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<path d="M1022 1376 L1036 1376 L1036 1390" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<path d="M850 1536 L836 1536 L836 1522" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<path d="M1022 1536 L1036 1536 L1036 1522" fill="none" stroke="#1D232A" stroke-width="1.4"/>
+<text x="846" y="1392" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#1D232A" text-anchor="start">Bench</text>
+<text x="890" y="1392" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="400" fill="#8A939D" text-anchor="start">locate · build · check alone</text>
+<rect x="848" y="1402" width="176" height="78" rx="0" fill="#111418" stroke="#111418" stroke-width="1"/>
+<text x="860" y="1426" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#F5F7FA" text-anchor="start">Claude Code</text>
+<text x="860" y="1447" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#C9D0D7" text-anchor="start">IN   prompt · cwd = bench</text>
+<text x="860" y="1464" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#C9D0D7" text-anchor="start">OUT  --json-schema</text>
+<rect x="848" y="1492" width="74" height="26" rx="0" fill="#FFFFFF" stroke="#9AA4AF" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="885" y="1509" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#1D232A" text-anchor="middle">交付/</text>
+<text x="930" y="1509" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">output goes here</text>
+<path d="M885 1518 L885 1558" fill="none" stroke="#9AA4AF" stroke-width="1.2" stroke-dasharray="5 4"/>
+<path d="M213 1558 L1112 1558 L1112 896 L784.0 896 L784.0 934" fill="none" stroke="#9AA4AF" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#ag)"/>
+<text x="620" y="1582" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="middle">Several wholes → child dock, split again　·　One whole → any one agent, end to end; its inner steps aren't expanded</text>
+<text x="620" y="1600" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="middle">A bench is the checking station the parent builds: the child's workspace holds only this slot, output goes in 交付/</text>
+<rect x="1136" y="1370" width="290" height="176" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1" filter="url(#sh)"/>
+<text x="1150" y="1394" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">Hand-back</text>
+<text x="1224" y="1394" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">same format for all three</text>
+<text x="1150" y="1420" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#1D232A" text-anchor="start">result · handoff</text>
+<text x="1264" y="1420" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">→ parent reads</text>
+<text x="1150" y="1441" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#1D232A" text-anchor="start">checked</text>
+<text x="1264" y="1441" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">→ usually not rechecked</text>
+<text x="1150" y="1462" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#1D232A" text-anchor="start">parts</text>
+<text x="1264" y="1462" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">→ integration list, one by one</text>
+<text x="1150" y="1483" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#1D232A" text-anchor="start">unchecked</text>
+<text x="1264" y="1483" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">→ bubbles up to human review</text>
+<text x="1150" y="1504" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#1D232A" text-anchor="start">question</text>
+<text x="1264" y="1504" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">→ for the parent to decide</text>
+<text x="1150" y="1532" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">woken when all return · branch merges up</text>
+<path d="M1112 1458 L1136 1458" fill="none" stroke="#9AA4AF" stroke-width="1"/>
+<circle cx="1112" cy="1458" r="2.5" fill="#9AA4AF"/>
+<path d="M560 230 L132 230 L132 1396 L158 1396" fill="none" stroke="#9AA4AF" stroke-width="1" stroke-dasharray="1 3" marker-end="url(#ao)"/>
+<path d="M132 563 L168 563" fill="none" stroke="#9AA4AF" stroke-width="1" stroke-dasharray="1 3" marker-end="url(#ao)"/>
+<path d="M132 1125 L168 1125" fill="none" stroke="#9AA4AF" stroke-width="1" stroke-dasharray="1 3" marker-end="url(#ao)"/>
+<text x="140" y="222" font-family="'SF Mono', Menlo, monospace" font-size="10" font-weight="400" fill="#8A939D" text-anchor="start">Talk to any agent anytime · stop only stops that one</text>
+<path d="M132 1636 L1380 1636" fill="none" stroke="#1D232A" stroke-width="1"/>
+<text x="132" y="1660" font-family="'SF Mono', Menlo, monospace" font-size="11" font-weight="700" fill="#1D232A" text-anchor="start">MACHINE</text>
+<text x="132" y="1678" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">on the side</text>
+<path d="M260.0 1648 L260.0 1682" fill="none" stroke="#D5DBE1" stroke-width="1"/>
+<text x="272.0" y="1662" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">Task table</text>
+<text x="272.0" y="1679" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="start">source of truth for context</text>
+<path d="M420.0 1648 L420.0 1682" fill="none" stroke="#D5DBE1" stroke-width="1"/>
+<text x="432.0" y="1662" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">Ready list</text>
+<text x="432.0" y="1679" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="start">computed from part deps</text>
+<path d="M580.0 1648 L580.0 1682" fill="none" stroke="#D5DBE1" stroke-width="1"/>
+<text x="592.0" y="1662" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">Notes</text>
+<text x="592.0" y="1679" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="start">inform · ask for help</text>
+<path d="M740.0 1648 L740.0 1682" fill="none" stroke="#D5DBE1" stroke-width="1"/>
+<text x="752.0" y="1662" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">Goal</text>
+<text x="752.0" y="1679" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="start">next turn when idle</text>
+<path d="M900.0 1648 L900.0 1682" fill="none" stroke="#D5DBE1" stroke-width="1"/>
+<text x="912.0" y="1662" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">Rebuild</text>
+<text x="912.0" y="1679" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="start">from node doc at loop ends</text>
+<path d="M1060.0 1648 L1060.0 1682" fill="none" stroke="#D5DBE1" stroke-width="1"/>
+<text x="1072.0" y="1662" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">Git</text>
+<text x="1072.0" y="1679" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="start">one branch per node</text>
+<path d="M1220.0 1648 L1220.0 1682" fill="none" stroke="#D5DBE1" stroke-width="1"/>
+<text x="1232.0" y="1662" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" fill="#1D232A" text-anchor="start">Collab points</text>
+<text x="1232.0" y="1679" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#59616B" text-anchor="start">waits for your OK</text>
+<rect x="132" y="1710" width="22" height="14" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1"/>
+<rect x="132" y="1710" width="3" height="14" fill="#C9A227"/>
+<text x="162" y="1721" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">Think</text>
+<rect x="222" y="1710" width="22" height="14" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1"/>
+<rect x="222" y="1710" width="3" height="14" fill="#C8553D"/>
+<text x="252" y="1721" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">Hit reality</text>
+<rect x="312" y="1710" width="22" height="14" rx="0" fill="#FFFFFF" stroke="#C3CAD2" stroke-width="1"/>
+<rect x="312" y="1710" width="3" height="14" fill="#4E9A72"/>
+<text x="342" y="1721" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">Judge</text>
+<circle cx="410" cy="1717" r="7" fill="#111418"/>
+<text x="424" y="1721" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">Machine picks</text>
+<path d="M542 1717 L572 1717" fill="none" stroke="#1D232A" stroke-width="1.2" marker-end="url(#ah)"/>
+<text x="580" y="1721" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">Dispatch</text>
+<path d="M632 1717 L662 1717" fill="none" stroke="#9AA4AF" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#ag)"/>
+<text x="670" y="1721" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">Hand-back</text>
+<path d="M722 1717 L752 1717" fill="none" stroke="#9AA4AF" stroke-width="1" stroke-dasharray="1 3" marker-end="url(#ao)"/>
+<text x="760" y="1721" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">You speak</text>
+<rect x="822" y="1710" width="30" height="14" rx="0" fill="url(#hatch)" stroke="#D5DBE1" stroke-width="1"/>
+<text x="860" y="1721" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">Rebuilt from doc</text>
+<path d="M968 1709 L962 1709 L962 1715" fill="none" stroke="#1D232A" stroke-width="1.2"/>
+<path d="M978 1709 L984 1709 L984 1715" fill="none" stroke="#1D232A" stroke-width="1.2"/>
+<path d="M968 1725 L962 1725 L962 1719" fill="none" stroke="#1D232A" stroke-width="1.2"/>
+<path d="M978 1725 L984 1725 L984 1719" fill="none" stroke="#1D232A" stroke-width="1.2"/>
+<text x="992" y="1721" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="400" fill="#59616B" text-anchor="start">Bench</text>
+</svg>

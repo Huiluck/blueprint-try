@@ -1,0 +1,17 @@
+.bp-home-animation .bp-home-minor-line{fill:none;stroke:var(--bp-grid);stroke-width:1}
+.bp-home-animation .bp-home-major-line{fill:none;stroke:var(--bp-line);stroke-width:1;opacity:.7}
+.bp-home-animation .bp-node-outline{fill:none;stroke:var(--bp-ink);stroke-width:1;stroke-linejoin:miter}
+.bp-home-animation .bp-node-paper{fill:var(--bp-paper)}
+.bp-home-animation .bp-node-header{fill:var(--bp-canvas)}
+.bp-home-animation .bp-node-divider{fill:none;stroke:var(--bp-line);stroke-width:1}
+.bp-home-animation .bp-node-name{fill:var(--bp-ink);font:500 11px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+.bp-home-animation .bp-node-number{fill:var(--bp-secondary);font:10px/1.5 ui-monospace,"SF Mono",monospace}
+.bp-home-animation .bp-node-task{fill:var(--bp-secondary);font:11px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+.bp-home-animation .bp-node-meta{fill:var(--bp-muted);font:10px/1.5 ui-monospace,"SF Mono",monospace}
+.bp-home-animation .bp-node-rail{fill:var(--bp-rail)}
+.bp-home-animation .bp-node-wave{fill:var(--bp-paper)}
+.bp-home-animation .bp-node-action{fill:var(--bp-secondary);font:12px/1.5 ui-monospace,"SF Mono",monospace}
+.bp-home-animation .bp-org-wire{fill:none;stroke:var(--bp-wire);stroke-width:1.2;stroke-linecap:butt;stroke-linejoin:round}
+.bp-home-animation .bp-org-message{fill:var(--bp-rail)}
+.bp-home-animation .bp-org-frame{fill:none;stroke:var(--bp-line);stroke-width:1}
+.bp-home-animation .bp-org-frame-label{fill:var(--bp-muted);font:10px/1.5 ui-monospace,"SF Mono",monospace;letter-spacing:2px}

@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>explainroo frame</title>
+<style>html,body{margin:0;background:#000}canvas{display:block}</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+import { boot, renderAudio } from '/engine/runtime.js';
+
+const canvas = document.getElementById('c');
+const scale = Number(new URLSearchParams(location.search).get('scale') || 1);
+
+async function upload(path, body) {
+  const res = await fetch('/__upload?path=' + encodeURIComponent(path), { method: 'PUT', body });
+  if (!res.ok) throw new Error(`upload ${path} failed: ${await res.text()}`);
+}
+
+function describe(e) {
+  const where = e.scene ? ` (scene "${e.scene}" at ${Number(e.sceneTime).toFixed(2)}s)` : '';
+  return (e.message || String(e)) + where;
+}
+
+window.explainrooReady = (async () => {
+  const { engine, audio, state } = await boot({ canvas, scale });
+  const fps = state.config.fps;
+  window.explainroo = {
+    info() {
+      return { duration: state.timeline.duration, frames: state.timeline.frames, fps, width: canvas.width, height: canvas.height, scenes: state.timeline.scenes.map((s) => ({ id: s.id, start: s.start, dur: s.dur })) };
+    },
+    frames(list, quality) {
+      const out = [];
+      for (const f of list) {
+        try {
+          engine.renderFrame(f / fps);
+        } catch (e) {
+          throw new Error(describe(e));
+        }
+        out.push(canvas.toDataURL('image/jpeg', quality).slice(23));
+      }
+      return out;
+    },
+    async stills(list) {
+      for (const { T, path } of list) {
+        try {
+          engine.renderFrame(T);
+        } catch (e) {
+          throw new Error(describe(e));
+        }
+        const blob = await new Promise((r) => canvas.toBlob(r, 'image/png'));
+        await upload(path, blob);
+      }
+      return list.length;
+    },
+    async sheet({ times, labels, cols, thumb, path }) {
+      const tw = thumb;
+      const th = Math.round((tw * canvas.height) / canvas.width);
+      const labelH = 30;
+      const rows = Math.ceil(times.length / cols);
+      const sheet = document.createElement('canvas');
+      sheet.width = cols * (tw + 8) + 8;
+      sheet.height = rows * (th + labelH + 8) + 8;
+      const g = sheet.getContext('2d');
+      g.fillStyle = '#16181d';
+      g.fillRect(0, 0, sheet.width, sheet.height);
+      g.font = '600 17px Inter, sans-serif';
+      g.textBaseline = 'middle';
+      for (let i = 0; i < times.length; i++) {
+        try {
+          engine.renderFrame(times[i]);
+        } catch (e) {
+          throw new Error(describe(e));
+        }
+        const x = 8 + (i % cols) * (tw + 8);
+        const y = 8 + Math.floor(i / cols) * (th + labelH + 8);
+        g.drawImage(canvas, x, y, tw, th);
+        g.fillStyle = '#e6e9ef';
+        g.fillText(labels[i], x + 4, y + th + labelH / 2);
+      }
+      const blob = await new Promise((r) => sheet.toBlob(r, 'image/jpeg', 0.88));
+      await upload(path, blob);
+      return { width: sheet.width, height: sheet.height };
+    },
+    check(step, viewWidth) {
+      return engine.check(step, viewWidth);
+    },
+    async soundtrack(path) {
+      const { buffer, cues, errors } = await renderAudio(engine, audio);
+      if (errors.length) throw new Error(errors.map((e) => `scene "${e.scene}" at ${e.t.toFixed(2)}s: ${e.message}`).join('\n'));
+      await upload(path, audio.encodeWav(buffer));
+      return { cues: cues.length, duration: buffer.duration };
+    },
+  };
+  return true;
+})();
+</script>
+</body>
+</html>

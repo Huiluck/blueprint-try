@@ -1,0 +1,349 @@
+dsh 多模态补丁（2026-09-24）—— 让 dsh「模型收什么就递什么」。
+
+dsh 0.1.5-rc.2 本体只认「文字＋图」两种输入。这份补丁改 4 个文件，让视频、音频文件
+按模型在 .dsh/settings.yaml 里声明的 `input` 自动递原件（收不下的照旧只给存放路径）：
+  dsh-llm          文件→路径文字那一步：模型收这一种（按后缀判 video/audio）就留原件
+  dsh-llm-pi-ai    input 允许写 video/audio；把留下的原件读成 base64 交给 pi-ai
+  pi-ai 两个文件   按 MIME 拼请求：image_url / video_url / input_audio
+
+打在全局装的 dsh 上（~/.npm-global/.../@deepseek-ai/dsh/node_modules），dsh 升级会冲掉。
+所以仓库里的 ./dsh 启动器每次启动先查：打过的不动，被冲掉的补回，对不上的喊出来。
+路径相对那个 node_modules，用法：patch -d <node_modules> -p0 < 本文件
+
+2026-09-29 读图修订：read_image 只携带最近一批图片，旧记录保留路径；附件消息保留工具和文件标识。
+
+--- @deepseek-ai/dsh-llm/lib/index.js
++++ @deepseek-ai/dsh-llm/lib/index.js
+@@ -602,8 +602,37 @@
+ 	if (readonlyPath === void 0) return `[${identity} was uploaded, but the current execution environment cannot access a readable path. Report that limitation if its contents are needed; do not claim to have read it.]`;
+ 	return `[${identity}: verbatim read-only copy saved at ${quoted(readonlyPath)}. Read that path with your file tools when its contents are needed; copy it to a writable location before modifying it. When delegating file work, include this saved path in the delegation prompt; only subagents sharing this execution environment can read it.]`;
+ }
++/**
++* Blueprint multimodal patch: file extensions a model may receive natively.
++* The media kind (`video` / `audio`) is the part before the slash; a file whose
++* kind the model declares in `inputModalities` keeps its block, tagged with
++* this media type, right after its handle text. Audio subtypes are spelled as
++* the wire `format` names (`mp3`, `wav`, ...).
++*/
++const NATIVE_FILE_MEDIA_TYPES = new Map([
++	[".mp4", "video/mp4"],
++	[".m4v", "video/mp4"],
++	[".mov", "video/quicktime"],
++	[".avi", "video/x-msvideo"],
++	[".wmv", "video/x-ms-wmv"],
++	[".webm", "video/webm"],
++	[".mkv", "video/x-matroska"],
++	[".mp3", "audio/mp3"],
++	[".wav", "audio/wav"],
++	[".flac", "audio/flac"],
++	[".m4a", "audio/m4a"],
++	[".ogg", "audio/ogg"],
++	[".aac", "audio/aac"],
++	[".opus", "audio/opus"]
++]);
++/** Media type to send a file natively as, or `undefined` when the model does not take its kind. */
++function nativeFileMediaType(ref, modalities) {
++	const name = String(ref.name ?? "");
++	const mediaType = NATIVE_FILE_MEDIA_TYPES.get(name.slice(name.lastIndexOf(".")).toLowerCase());
++	return mediaType !== void 0 && modalities?.includes(mediaType.split("/")[0]) ? mediaType : void 0;
++}
+ /** Replace every file occurrence, including nested tool results, with handle text. */
+-function replaceFilesWithHandles(blocks, resolvePath) {
++function replaceFilesWithHandles(blocks, resolvePath, modalities) {
+ 	let next;
+ 	for (const [index, block] of blocks.entries()) {
+ 		if (block.type === "file") {
+@@ -612,10 +641,15 @@
+ 				type: "text",
+ 				text: fileHandleText(block.attachment, resolvePath(block.attachment))
+ 			});
++			const mediaType = nativeFileMediaType(block.attachment, modalities);
++			if (mediaType !== void 0) next.push({
++				...block,
++				mediaType
++			});
+ 			continue;
+ 		}
+ 		if (block.type === "tool-result") {
+-			const content = replaceFilesWithHandles(block.content, resolvePath);
++			const content = replaceFilesWithHandles(block.content, resolvePath, modalities);
+ 			if (content !== block.content) {
+ 				next ??= blocks.slice(0, index);
+ 				next.push({
+@@ -635,12 +669,13 @@
+ * projection is unconditional in request assembly.
+ * @param messages - complete request history.
+ * @param resolvePath - resolve one reference's current execution-world read path.
++* @param modalities - the model's declared input modalities; files of a declared kind stay native.
+ * @returns the original list without files, otherwise shallow message copies with handle text.
+ */
+-function projectFilesToText(messages, resolvePath) {
++function projectFilesToText(messages, resolvePath, modalities) {
+ 	if (!messages.some((message) => contentHasFile(message.content))) return messages;
+ 	return messages.map((message) => {
+-		const content = replaceFilesWithHandles(message.content, resolvePath);
++		const content = replaceFilesWithHandles(message.content, resolvePath, modalities);
+ 		return content === message.content ? message : {
+ 			...message,
+ 			content
+@@ -2247,7 +2282,7 @@
+ 					...resolvedConfig
+ 				};
+ 				let projectedMessages = resolvedOptions.messages;
+-				if (projectedMessages.some((message) => contentHasFile(message.content))) projectedMessages = projectFilesToText(projectedMessages, (ref) => this.fileReadPath(ref));
++				if (projectedMessages.some((message) => contentHasFile(message.content))) projectedMessages = projectFilesToText(projectedMessages, (ref) => this.fileReadPath(ref), modelInfo.inputModalities);
+ 				if (modelInfo.inputModalities !== void 0 && !modelInfo.inputModalities.includes("image") && projectedMessages.some((message) => contentHasImage(message.content))) projectedMessages = projectImagesForTextModel(projectedMessages);
+ 				const projectedOptions = projectedMessages === resolvedOptions.messages ? resolvedOptions : Object.isFrozen(resolvedOptions) ? deepFreeze({
+ 					...resolvedOptions,
+--- @deepseek-ai/dsh-llm-pi-ai/lib/index.js
++++ @deepseek-ai/dsh-llm-pi-ai/lib/index.js
+@@ -1,5 +1,5 @@
+ import { launchEnvironmentOf } from "@deepseek-ai/dsh-launch-environment";
+-import { CONTEXT_WINDOW_EXCEEDED_CODE, EMPTY_RESPONSE_CODE, INVALID_CREDENTIAL_CODE, LlmAdapter, LlmError, QUOTA_EXCEEDED_CODE, ReasoningEffortId, RetryPolicySchema, assertUsableApiKey, attributionHeaders, contentHasImage, isContextWindowExceededError, isQuotaExceededError, normalizeApiKey, offloadRequestImagesWithPolicy, offloadedImageText, requestImageHandleText, resolveImageAttachmentAccess, resolveRetryPolicy } from "@deepseek-ai/dsh-llm";
++import { CONTEXT_WINDOW_EXCEEDED_CODE, EMPTY_RESPONSE_CODE, INVALID_CREDENTIAL_CODE, LlmAdapter, LlmError, QUOTA_EXCEEDED_CODE, ReasoningEffortId, RetryPolicySchema, assertUsableApiKey, attributionHeaders, contentHasFile, contentHasImage, isContextWindowExceededError, isQuotaExceededError, normalizeApiKey, offloadRequestImagesWithPolicy, offloadedImageText, requestImageHandleText, resolveImageAttachmentAccess, resolveRetryPolicy } from "@deepseek-ai/dsh-llm";
+ import { deepEqualJson } from "@deepseek-ai/dsh-util-values";
+ import { createModels, createProvider, getSupportedThinkingLevels, isContextOverflow } from "@earendil-works/pi-ai";
+ import { MAX_TIMER_DELAY_MS, idleWatchdog, timeoutOf } from "@deepseek-ai/dsh-timeout";
+@@ -278,7 +278,9 @@
+ /** Every request modality a profile may declare. */
+ const MODALITIES = Object.keys({
+ 	text: true,
+-	image: true
++	image: true,
++	video: true,
++	audio: true
+ });
+ /**
+ * One entry's modality list, or `undefined` when it states no answer. Absent
+@@ -1137,7 +1139,7 @@
+ function assertSupportedImageRoles(messages) {
+ 	for (const message of messages) if (message.role !== "user" && contentHasImage(message.content)) throw new LlmError(`pi-ai cannot represent an image in an in-history ${message.role} message`, "UNSUPPORTED_CONTENT");
+ }
+-async function userContent(blocks, requestImages, resolveImageAccess) {
++async function userContent(blocks, requestImages, resolveImageAccess, requestFiles) {
+ 	const content = [];
+ 	for (const block of blocks) switch (block.type) {
+ 		case "text":
+@@ -1161,7 +1163,7 @@
+ 		}
+ 		case "tool-result":
+ 			{
+-				const nested = await userContent(block.content, requestImages, resolveImageAccess);
++				const nested = await userContent(block.content, requestImages, resolveImageAccess, requestFiles);
+ 				if (typeof nested === "string") {
+ 					if (nested.length > 0) content.push({
+ 						type: "text",
+@@ -1170,6 +1172,15 @@
+ 				} else content.push(...nested);
+ 			}
+ 			break;
++		case "file": {
++			const data = requestFiles?.get(block.attachment.attachmentId);
++			if (block.mediaType !== void 0 && data !== void 0) content.push({
++				type: "image",
++				data,
++				mimeType: block.mediaType
++			});
++			break;
++		}
+ 		default: break;
+ 	}
+ 	if (content.every((block) => block.type === "text")) return content.map((block) => block.text).join("");
+@@ -1187,6 +1198,23 @@
+ 	const versions = /* @__PURE__ */ new Map();
+ 	for (const [index, ref] of orderedRefs.entries()) versions.set(ref.attachmentId, prepared[index]);
+ 	return versions;
++}
++/** Collect the file blocks the request keeps natively (tagged with a media type upstream). */
++function collectFileRefs(blocks, refs) {
++	for (const block of blocks) if (block.type === "file" && block.mediaType !== void 0) refs.set(block.attachment.attachmentId, block.attachment);
++	else if (block.type === "tool-result") collectFileRefs(block.content, refs);
++}
++/** Read each natively kept file's exact bytes as base64, keyed by attachment id. */
++async function prepareRequestFiles(messages, attachments, signal) {
++	const refs = /* @__PURE__ */ new Map();
++	for (const message of messages) collectFileRefs(message.content, refs);
++	const files = /* @__PURE__ */ new Map();
++	for (const ref of refs.values()) {
++		const chunks = [];
++		for await (const chunk of attachments.readFileStream(ref, signal)) chunks.push(chunk);
++		files.set(ref.attachmentId, Buffer.concat(chunks).toString("base64"));
++	}
++	return files;
+ }
+ function toolsOf(options) {
+ 	return options.tools?.map((tool) => ({
+@@ -1291,6 +1319,7 @@
+ 		placeholder: (ref) => offloadedImageText(ref, resolveImageAccess(ref))
+ 	});
+ 	const requestImages = await prepareRequestImages(requestMessages, attachments, requestImagePolicy, options.signal);
++	const requestFiles = await prepareRequestFiles(requestMessages, attachments, options.signal);
+ 	const exactMessages = offloadRequestImagesWithPolicy(requestMessages, {
+ 		representation: "base64",
+ 		...maxRequestImageBytes === void 0 ? {} : { maxBytes: maxRequestImageBytes },
+@@ -1313,7 +1342,7 @@
+ 			appendAssistant(message, messages, toolNames, onReplayDegrade);
+ 			continue;
+ 		}
+-		const content = await userContent(message.content.filter((block) => block.type !== "tool-result"), requestImages, resolveImageAccess);
++		const content = await userContent(message.content.filter((block) => block.type !== "tool-result"), requestImages, resolveImageAccess, requestFiles);
+ 		const results = message.content.filter((block) => block.type === "tool-result");
+ 		if (content.length > 0 || results.length === 0) messages.push({
+ 			role: "user",
+@@ -1321,7 +1350,7 @@
+ 			timestamp: 0
+ 		});
+ 		for (const result of results) {
+-			const resultContent = await userContent(result.content, requestImages, resolveImageAccess);
++			const resultContent = await userContent(result.content, requestImages, resolveImageAccess, requestFiles);
+ 			messages.push({
+ 				role: "toolResult",
+ 				toolCallId: result.toolCallId,
+@@ -1843,8 +1872,9 @@
+ 			try {
+ 				const containsImage = options.messages.some((message) => contentHasImage(message.content));
+ 				if (containsImage && !model.input.includes("image")) throw new LlmError(`pi-ai model "${model.id}" does not support image input`, "UNSUPPORTED_CONTENT");
+-				const attachments = containsImage ? this.config.resolveAttachments?.() : void 0;
+-				if (containsImage && attachments === void 0) throw new LlmError("pi-ai image input requires the durable attachment service", "UNSUPPORTED_CONTENT");
++				const containsMedia = containsImage || options.messages.some((message) => contentHasFile(message.content));
++				const attachments = containsMedia ? this.config.resolveAttachments?.() : void 0;
++				if (containsMedia && attachments === void 0) throw new LlmError("pi-ai image input requires the durable attachment service", "UNSUPPORTED_CONTENT");
+ 				const onReplayDegrade = (reason) => {
+ 					this.config.onReplayDegrade?.({
+ 						provider: options.provider,
+--- @earendil-works/pi-ai/dist/api/openai-completions.js
++++ @earendil-works/pi-ai/dist/api/openai-completions.js
+@@ -79,6 +79,22 @@
+ }
+ function isImageContentBlock(block) {
+     return block.type === "image";
++}
++// Blueprint multimodal patch: an "image" content block may carry video or audio;
++// its MIME kind picks the wire part (video_url / input_audio / image_url).
++function mediaKind(block) {
++    return String(block.mimeType).split("/")[0];
++}
++function mediaContentPart(block) {
++    const url = `data:${block.mimeType};base64,${block.data}`;
++    switch (mediaKind(block)) {
++        case "video":
++            return { type: "video_url", video_url: { url } };
++        case "audio":
++            return { type: "input_audio", input_audio: { data: block.data, format: String(block.mimeType).split("/")[1] } };
++        default:
++            return { type: "image_url", image_url: { url } };
++    }
+ }
+ function isReasoningDetailObject(detail) {
+     return typeof detail === "object" && detail !== null && !Array.isArray(detail);
+@@ -878,6 +894,25 @@
+     }
+     return false;
+ }
++// Blueprint read_image window: keep the latest tool-call batch, never edit durable history.
++// A comparison reads its images in one batch; earlier results retain paths and handles.
++function latestReadImages(messages) {
++    let batch = 0, latest = -1;
++    const isReadImage = (m) => m.role === "toolResult" && m.toolName === "read_image";
++    const isPicture = (b) => b.type === "image" && String(b.mimeType).startsWith("image/");
++    for (const message of messages) {
++        if (message.role === "assistant") batch++;
++        if (isReadImage(message) && Array.isArray(message.content) && message.content.some(isPicture)) latest = batch;
++    }
++    batch = 0;
++    return messages.map((message) => {
++        if (message.role === "assistant") batch++;
++        if (!isReadImage(message) || batch === latest || !Array.isArray(message.content)) return message;
++        return { ...message, content: message.content.map((block) => isPicture(block)
++            ? { type: "text", text: "[Earlier read_image image omitted from this request. Its path and version remain above; re-read it to inspect or compare.]" }
++            : block) };
++    });
++}
+ export function convertMessages(model, context, compat, options) {
+     const params = [];
+     const normalizeToolCallId = (id) => {
+@@ -905,7 +940,7 @@
+             return id.length > 40 ? id.slice(0, 40) : id;
+         return id;
+     };
+-    const transformedMessages = transformMessages(context.messages, model, (id) => normalizeToolCallId(id));
++    const transformedMessages = transformMessages(latestReadImages(context.messages), model, (id) => normalizeToolCallId(id));
+     if (context.systemPrompt) {
+         const useDeveloperRole = model.reasoning && compat.supportsDeveloperRole;
+         const role = useDeveloperRole ? "developer" : "system";
+@@ -938,12 +973,7 @@
+                         };
+                     }
+                     else {
+-                        return {
+-                            type: "image_url",
+-                            image_url: {
+-                                url: `data:${item.mimeType};base64,${item.data}`,
+-                            },
+-                        };
++                        return mediaContentPart(item);
+                     }
+                 });
+                 if (content.length === 0)
+@@ -1090,15 +1120,13 @@
+                         deferredToolNames.add(name);
+                     }
+                 }
+-                if (hasImages && model.input.includes("image")) {
++                if (hasImages) {
++                    // Keep each tool's file identity beside its media, including parallel reads.
++                    imageBlocks.push({ type: "text", text: sanitizeSurrogates(
++                        `Tool ${toolMsg.toolName || "unknown"} (${toolMsg.toolCallId}):\n${toolResultText}`) });
+                     for (const block of toolMsg.content) {
+-                        if (isImageContentBlock(block)) {
+-                            imageBlocks.push({
+-                                type: "image_url",
+-                                image_url: {
+-                                    url: `data:${block.mimeType};base64,${block.data}`,
+-                                },
+-                            });
++                        if (isImageContentBlock(block) && model.input.includes(mediaKind(block))) {
++                            imageBlocks.push(mediaContentPart(block));
+                         }
+                     }
+                 }
+--- @earendil-works/pi-ai/dist/api/transform-messages.js
++++ @earendil-works/pi-ai/dist/api/transform-messages.js
+@@ -1,10 +1,11 @@
+ const NON_VISION_USER_IMAGE_PLACEHOLDER = "(image omitted: model does not support images)";
+ const NON_VISION_TOOL_IMAGE_PLACEHOLDER = "(tool image omitted: model does not support images)";
+-function replaceImagesWithPlaceholder(content, placeholder) {
++function replaceImagesWithPlaceholder(content, placeholder, model) {
+     const result = [];
+     let previousWasPlaceholder = false;
+     for (const block of content) {
+-        if (block.type === "image") {
++        // Blueprint multimodal patch: an "image" block may carry video/audio; keep it when the model takes its kind.
++        if (block.type === "image" && !model.input.includes(String(block.mimeType).split("/")[0])) {
+             if (!previousWasPlaceholder) {
+                 result.push({ type: "text", text: placeholder });
+             }
+@@ -17,20 +18,20 @@
+     return result;
+ }
+ function downgradeUnsupportedImages(messages, model) {
+-    if (model.input.includes("image")) {
++    if (["image", "video", "audio"].every((kind) => model.input.includes(kind))) {
+         return messages;
+     }
+     return messages.map((msg) => {
+         if (msg.role === "user" && Array.isArray(msg.content)) {
+             return {
+                 ...msg,
+-                content: replaceImagesWithPlaceholder(msg.content, NON_VISION_USER_IMAGE_PLACEHOLDER),
++                content: replaceImagesWithPlaceholder(msg.content, NON_VISION_USER_IMAGE_PLACEHOLDER, model),
+             };
+         }
+         if (msg.role === "toolResult") {
+             return {
+                 ...msg,
+-                content: replaceImagesWithPlaceholder(msg.content, NON_VISION_TOOL_IMAGE_PLACEHOLDER),
++                content: replaceImagesWithPlaceholder(msg.content, NON_VISION_TOOL_IMAGE_PLACEHOLDER, model),
+             };
+         }
+         return msg;

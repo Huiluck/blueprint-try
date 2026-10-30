@@ -1,0 +1,6 @@
+{
+  "name": "blueprint-threejs-project",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node 检查交互状态.mjs" }
+}

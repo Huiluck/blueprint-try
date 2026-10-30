@@ -1,0 +1,33 @@
+{
+  "review_date": "2026-10-11",
+  "upstream": "https://github.com/STARDUSTLC666/dsh-ppt",
+  "commit": "8db48055b773e9d501c3b8993042c7c1d7e373dd",
+  "version": "0.9.0",
+  "source_archive_sha256": "e9034c27e113bae5b407a5d919a0dff86774edfb2dbc7340a91eba861743aefc",
+  "dependencies": [
+    {
+      "name": "@office-kit/pptx",
+      "version": "0.21.0",
+      "tarball": "https://registry.npmjs.org/@office-kit/pptx/-/pptx-0.21.0.tgz",
+      "sha256": "89a544a6af125f9160ca9db0c5521cad1937a8cd42e4c2ad15fd31080c9ea235",
+      "license": "MIT"
+    },
+    {
+      "name": "fflate",
+      "version": "0.8.3",
+      "tarball": "https://registry.npmjs.org/fflate/-/fflate-0.8.3.tgz",
+      "sha256": "38c2cd824402407b43153c782274aec2ea83ea688e4aa0b743c5f2c305857d92",
+      "license": "MIT"
+    }
+  ],
+  "optional_renderer": {
+    "name": "@deepseek-ai/libreoffice-kit",
+    "version": "0.1.5",
+    "bundled": false
+  },
+  "local_adaptations": [
+    "入口文件使用 Blueprint 名称，并读本技能的 0.9.0 版本元数据",
+    "Office Kit ESM 与 fflate 以审查过的固定发行文件随技能分发；仅替换本地导入路径和移除未分发 source map 引用",
+    "可选渲染器只接受当前项目或技能中匹配的 LibreOffice Kit 0.1.5；不自动安装引擎"
+  ]
+}

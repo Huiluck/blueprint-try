@@ -1,0 +1,87 @@
+# Blueprint bundle 的接线图（根包 `@blueprint/bundle` 即 bundle）。
+# 每个部件包一行；config 全部走各包 Config 的默认值，要改在 profile 的
+# cordis.patch.yml 按 id 覆盖（patch 替换整个 config，不合并）。
+#
+# ⚠️ 这是共享文件：部件会话不许自己往里加行。加一行之前先问用户 —— 一行写错，整栋楼点不亮。
+#
+# 规矩：只写**真的能加载**的包（案底 A2）。写了一个还没有代码的包名，dsh 当场起不来。
+#
+# 宿主挂界面；节点组合通过原生 preset 声明，工具清单共用 agent.cordis.yml。
+#
+- id: agent-preset-registry
+  config:
+    default: blueprint
+- id: ui-layout
+  disabled: true
+# dsh 的「预览版说明」讲的是 DeepSeek Harness 自身，Blueprint 里视为已读（版本号随 dsh 升级核对）。
+- id: ui-settings-general
+  config:
+    welcomeNoticeVersion: '2026-09-28.1'
+- id: ui-brand-official
+  disabled: true
+# 首次打开不弹 dsh 的 Key 对话框；Blueprint 在创建项目时自己引导（layout/模型引导.js）。
+- id: ui-settings-models
+  config:
+    credentialOnboarding: false
+# dsh 只给它自己的桌面版开右侧栏浏览器；Blueprint 也是桌面软件，照样打开（网页嵌在页面里显示，拒绝被嵌的网站会是空白）。
+- id: ui-sidebar-browser
+  disabled: false
+- insert:
+    - id: blueprint-layout
+      name: '@blueprint/layout'
+    - id: blueprint-canvas
+      name: '@blueprint/canvas'
+    - id: blueprint-brand
+      name: '@blueprint/brand'
+    - id: blueprint-files
+      name: '@blueprint/files'
+    - id: blueprint-feed
+      name: '@blueprint/feed'
+    - id: blueprint-workspace
+      name: '@blueprint/workspace'
+    - id: blueprint-skill
+      name: '@blueprint/skill'
+    - id: blueprint-media-page
+      name: '@blueprint/media'
+    - id: blueprint-execution-features
+      name: '@blueprint/node/features'
+      config:
+        resourceRoot: !!js "process.getBuiltinModule('node:url').fileURLToPath(new URL('../app/.build/native-resources/', process.getBuiltinModule('node:url').pathToFileURL(process.getBuiltinModule('node:module').createRequire(profileContext.dir + '/package.json').resolve('@blueprint/bundle/package.json'))))"
+        entries: !!js "Object.fromEntries(Object.entries({presentation:'@deepseek-ai/dsh-agent-tool-presentation',workflow:'@deepseek-ai/dsh-workflow-ptc',workflowTool:'@deepseek-ai/dsh-tool-workflow',browserRegistry:'@deepseek-ai/dsh-browser-use',browserProvider:'@deepseek-ai/dsh-experimental-browser-use-playwright-mcp',office:'@deepseek-ai/dsh-skill-office',dependencies:'@deepseek-ai/dsh-tool-workspace-dependencies'}).map(([key,name]) => [key,process.getBuiltinModule('node:url').pathToFileURL(process.getBuiltinModule('node:module').createRequire(profileContext.installAnchor).resolve(name)).href]))"
+    - id: subagent-workflow-spawn
+      name: '@deepseek-ai/dsh-subagent-spawn-in-process'
+      config:
+        providerName: blueprint-workflow
+    - id: subagent-ralph-spawn
+      name: '@deepseek-ai/dsh-subagent-spawn-in-process'
+      config:
+        providerName: blueprint-ralph
+    - id: terminal-registry
+      name: '@deepseek-ai/dsh-terminal'
+    - id: terminal-bash
+      name: '@deepseek-ai/dsh-terminal-bash'
+    - id: terminal-controller
+      name: '@deepseek-ai/dsh-api-terminal-controller'
+    # 两家提供方不再给节点当工具（叶 6：选了它们的 run 由 node 的 外部run.js 直接用命令行启动）；留着取随包程序的固定版本和项目隔离的只读代码目录。
+    - id: subagent-codex
+      name: '@deepseek-ai/dsh-subagent-codex'
+      config:
+        providerName: codex
+        # 外层项目隔离负责边界；macOS 下不叠加 Codex 的第二层 Seatbelt。
+        permissionMode: dangerously-bypass-approvals-and-sandbox
+    - id: subagent-claude-code
+      name: '@deepseek-ai/dsh-subagent-claude-code'
+      config:
+        providerName: claude-code
+        permissionMode: acceptEdits
+    - id: worktree
+      name: '@deepseek-ai/dsh-experimental-worktree'
+      config:
+        nodeCommand: !!js "process.execPath"
+    # 界面：挂到 /studio。只读名册和账本，建项目调 node（协议 2.3）。
+    - id: blueprint-studio
+      name: '@blueprint/studio'
+    - id: blueprint-media
+      name: '@blueprint/studio/media-settings'
+    - id: preset-blueprint
+      name: '@blueprint/bundle/register-preset'

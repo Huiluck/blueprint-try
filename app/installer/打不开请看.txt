@@ -1,0 +1,50 @@
+Blueprint 打不开怎么办
+
+Blueprint 现在还没有苹果的开发者签名，第一次打开时 macOS 会拦一下。按下面的顺序试，多数情况做到第 2 步就能打开。
+
+1. 先把 Blueprint 拖进「应用程序」文件夹，再到「应用程序」里双击打开它。
+   如果弹出「Apple 无法验证“Blueprint”……」，点「完成」。
+
+2. 打开「系统设置」→「隐私与安全性」，往下翻到「安全性」，
+   能看到「已阻止“Blueprint”以保护你的 Mac」，点旁边的「仍要打开」，
+   按提示输入开机密码，再点一次「仍要打开」。
+   「仍要打开」只在第 1 步之后一小时左右出现；没看到的话，回到第 1 步再双击一次。
+
+3. 如果提示的是「“Blueprint”已损坏，无法打开」：
+   (1) 按 ⌘ + 空格，输入「终端」，按回车，打开终端。
+   (2) 复制下面这一行，粘贴进终端，按回车：
+
+       xattr -cr /Applications/Blueprint.app
+
+   (3) 没有任何输出就是成功了。回到「应用程序」再双击 Blueprint。
+   如果弹出「“终端”想要管理 Mac 上的 App」，点「允许」，再运行一次这行。
+   如果显示 No such file，说明 Blueprint 还没拖进「应用程序」，先做第 1 步的拖动。
+
+这行命令只去掉 macOS 给「从网上下载的文件」加的标记，不会改动 Blueprint 本身。
+以后下载新版本替换时，可能需要再做一次。
+
+
+If Blueprint won't open
+
+Blueprint is not signed with an Apple Developer ID yet, so macOS blocks it on first launch. Try these in order; step 2 is usually enough.
+
+1. Drag Blueprint into the Applications folder, then double-click it there.
+   If a message says Apple could not verify "Blueprint", click Done.
+
+2. Open System Settings > Privacy & Security and scroll down to Security.
+   Next to "Blueprint" was blocked to protect your Mac, click Open Anyway,
+   enter your login password, then click Open Anyway again.
+   The button only shows for about an hour after step 1. If you don't see it, double-click Blueprint again.
+
+3. If the message says "Blueprint" is damaged and can't be opened:
+   (1) Press Command + Space, type Terminal, press Return.
+   (2) Paste this line into Terminal and press Return:
+
+       xattr -cr /Applications/Blueprint.app
+
+   (3) No output means it worked. Open Blueprint from Applications again.
+   If macOS asks whether Terminal may manage apps on your Mac, click Allow and run the line again.
+   "No such file" means Blueprint is not in Applications yet; drag it there first.
+
+The command only removes the "downloaded from the internet" flag macOS adds. It does not change Blueprint itself.
+You may need to do this again after downloading a new version.

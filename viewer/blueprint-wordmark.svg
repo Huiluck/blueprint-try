@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -3 92.5 16" width="162" height="28" role="img" aria-label="BLUEPRINT">
+  <title>BLUEPRINT</title>
+  <desc>Full geometric wordmark and construction geometry from the supplied Blueprint Logo.html primary board. White lettering with neutral gray guides for the black header; small-size stroke weight 1.2u.</desc>
+  <g data-logo-guides="true" fill="none">
+    <path d="M-3.5 0H88M-3.5 10H88" stroke="#808080" stroke-width="0.3"/>
+    <path d="M-3.5 5H88" stroke="#666666" stroke-width="0.3" stroke-dasharray="1 0.25 0.15 0.25"/>
+    <path d="M-2 -2.5V12.5M9.5 -2.5V12.5M18.75 -2.5V12.5M29.5 -2.5V12.5M39.5 -2.5V12.5M50 -2.5V12.5M61 -2.5V12.5M65 -2.5V12.5M76 -2.5V12.5M86.5 -2.5V12.5" stroke="#666666" stroke-width="0.3" stroke-dasharray="0.25 0.25"/>
+    <path d="M0 -1.3V-0.7M0 10.7V11.3M7.5 -1.3V-0.7M7.5 10.7V11.3M11.5 -1.3V-0.7M11.5 10.7V11.3M17.5 -1.3V-0.7M17.5 10.7V11.3M20 -1.3V-0.7M20 10.7V11.3M27.5 -1.3V-0.7M27.5 10.7V11.3M31.5 -1.3V-0.7M31.5 10.7V11.3M38 -1.3V-0.7M38 10.7V11.3M41 -1.3V-0.7M41 10.7V11.3M48.5 -1.3V-0.7M48.5 10.7V11.3M51.5 -1.3V-0.7M51.5 10.7V11.3M59 -1.3V-0.7M59 10.7V11.3M63 -1.3V-0.7M63 10.7V11.3M63 -1.3V-0.7M63 10.7V11.3M67 -1.3V-0.7M67 10.7V11.3M74.5 -1.3V-0.7M74.5 10.7V11.3M77.5 -1.3V-0.7M77.5 10.7V11.3M84.5 -1.3V-0.7M84.5 10.7V11.3" stroke="#999999" stroke-width="0.35"/>
+    <path d="M65.875 -1.5L75.625 11.5M50.375 -1.5L60.125 11.5" stroke="#777777" stroke-width="0.3" stroke-dasharray="0.5 0.3"/>
+    <path d="M0.6 5H1.8M32.1 5H33.3M41.6 5H42.8M52.1 5H53.3M81 0.6V1.8" stroke="#777777" stroke-width="0.3"/>
+  </g>
+  <g data-logo-wordmark="true">
+    <path d="M2.4 5H7.5V10H0V0H7V5M11.5 0V10H17.5M20 0V10H27.5V0M38 0H31.5V10H38M33.9 5H37.5M41 10V0H48.5V5H43.4M51.5 10V0H59V5H53.9M63 0V10M67 10V0M74.5 0V10M77.5 0H84.5M81 2.4V10" fill="none" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="square" stroke-linejoin="miter"/>
+    <path d="M54.5 5H56L59.6 9.8V10.6H58.7ZM66.4 -0.6H67.3L75.1 9.8V10.6H74.2L66.4 0.2Z" fill="#FFFFFF"/>
+  </g>
+</svg>

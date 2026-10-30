@@ -1,0 +1,4 @@
+name: Blueprint · 蓝图
+description: Blueprint 的节点：helm 总负责，dock 坐在座位上，run 照请求做完交回。
+order: 0
+id: blueprint

@@ -1,0 +1,1978 @@
+[
+  {
+    "id": "agentic",
+    "name": "Agentic",
+    "category": "Themed & Unique",
+    "description": "Bundled OpenDesign package for Agentic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/agentic/DESIGN.md",
+    "tokens": "references/design-systems/agentic/tokens.css",
+    "components": "references/design-systems/agentic/components.html"
+  },
+  {
+    "id": "airbnb",
+    "name": "Airbnb",
+    "category": "E-Commerce & Retail",
+    "description": "Bundled OpenDesign package for Airbnb, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/airbnb/DESIGN.md",
+    "tokens": "references/design-systems/airbnb/tokens.css",
+    "components": "references/design-systems/airbnb/components.html"
+  },
+  {
+    "id": "airtable",
+    "name": "Airtable",
+    "category": "Design & Creative",
+    "description": "Bundled OpenDesign package for Airtable, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/airtable/DESIGN.md",
+    "tokens": "references/design-systems/airtable/tokens.css",
+    "components": "references/design-systems/airtable/components.html"
+  },
+  {
+    "id": "ant",
+    "name": "Ant",
+    "category": "Professional & Corporate",
+    "description": "Bundled OpenDesign package for Ant, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/ant/DESIGN.md",
+    "tokens": "references/design-systems/ant/tokens.css",
+    "components": "references/design-systems/ant/components.html"
+  },
+  {
+    "id": "apple",
+    "name": "Apple",
+    "category": "Media & Consumer",
+    "description": "Bundled OpenDesign package for Apple, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/apple/DESIGN.md",
+    "tokens": "references/design-systems/apple/tokens.css",
+    "components": "references/design-systems/apple/components.html"
+  },
+  {
+    "id": "application",
+    "name": "Application",
+    "category": "Professional & Corporate",
+    "description": "Bundled OpenDesign package for Application, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/application/DESIGN.md",
+    "tokens": "references/design-systems/application/tokens.css",
+    "components": "references/design-systems/application/components.html"
+  },
+  {
+    "id": "arc",
+    "name": "Arc Browser",
+    "category": "Productivity & SaaS",
+    "description": "Bundled OpenDesign package for Arc Browser, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/arc/DESIGN.md",
+    "tokens": "references/design-systems/arc/tokens.css",
+    "components": "references/design-systems/arc/components.html"
+  },
+  {
+    "id": "artistic",
+    "name": "Artistic",
+    "category": "Creative & Artistic",
+    "description": "Bundled OpenDesign package for Artistic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/artistic/DESIGN.md",
+    "tokens": "references/design-systems/artistic/tokens.css",
+    "components": "references/design-systems/artistic/components.html"
+  },
+  {
+    "id": "atelier-zero",
+    "name": "Atelier Zero",
+    "category": "Editorial · Studio",
+    "description": "Bundled OpenDesign package for Atelier Zero, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/atelier-zero/DESIGN.md",
+    "tokens": "references/design-systems/atelier-zero/tokens.css",
+    "components": "references/design-systems/atelier-zero/components.html"
+  },
+  {
+    "id": "bento",
+    "name": "Bento",
+    "category": "Layout & Structure",
+    "description": "Bundled OpenDesign package for Bento, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/bento/DESIGN.md",
+    "tokens": "references/design-systems/bento/tokens.css",
+    "components": "references/design-systems/bento/components.html"
+  },
+  {
+    "id": "binance",
+    "name": "Binance.US",
+    "category": "Fintech & Crypto",
+    "description": "Bundled OpenDesign package for Binance.US, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/binance/DESIGN.md",
+    "tokens": "references/design-systems/binance/tokens.css",
+    "components": "references/design-systems/binance/components.html"
+  },
+  {
+    "id": "bmw",
+    "name": "BMW",
+    "category": "Automotive",
+    "description": "Bundled OpenDesign package for BMW, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/bmw/DESIGN.md",
+    "tokens": "references/design-systems/bmw/tokens.css",
+    "components": "references/design-systems/bmw/components.html"
+  },
+  {
+    "id": "bmw-m",
+    "name": "BMW M",
+    "category": "Automotive",
+    "description": "Bundled OpenDesign package for BMW M, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/bmw-m/DESIGN.md",
+    "tokens": "references/design-systems/bmw-m/tokens.css",
+    "components": "references/design-systems/bmw-m/components.html"
+  },
+  {
+    "id": "bold",
+    "name": "Bold",
+    "category": "Bold & Expressive",
+    "description": "Bundled OpenDesign package for Bold, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/bold/DESIGN.md",
+    "tokens": "references/design-systems/bold/tokens.css",
+    "components": "references/design-systems/bold/components.html"
+  },
+  {
+    "id": "brutalism",
+    "name": "Brutalism",
+    "category": "Bold & Expressive",
+    "description": "Bundled OpenDesign package for Brutalism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/brutalism/DESIGN.md",
+    "tokens": "references/design-systems/brutalism/tokens.css",
+    "components": "references/design-systems/brutalism/components.html"
+  },
+  {
+    "id": "bugatti",
+    "name": "Bugatti",
+    "category": "Automotive",
+    "description": "Bundled OpenDesign package for Bugatti, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/bugatti/DESIGN.md",
+    "tokens": "references/design-systems/bugatti/tokens.css",
+    "components": "references/design-systems/bugatti/components.html"
+  },
+  {
+    "id": "cafe",
+    "name": "Cafe",
+    "category": "Creative & Artistic",
+    "description": "Bundled OpenDesign package for Cafe, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/cafe/DESIGN.md",
+    "tokens": "references/design-systems/cafe/tokens.css",
+    "components": "references/design-systems/cafe/components.html"
+  },
+  {
+    "id": "cal",
+    "name": "Cal.com",
+    "category": "Productivity & SaaS",
+    "description": "Bundled OpenDesign package for Cal.com, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/cal/DESIGN.md",
+    "tokens": "references/design-systems/cal/tokens.css",
+    "components": "references/design-systems/cal/components.html"
+  },
+  {
+    "id": "canva",
+    "name": "Canva",
+    "category": "Design & Creative",
+    "description": "Bundled OpenDesign package for Canva, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/canva/DESIGN.md",
+    "tokens": "references/design-systems/canva/tokens.css",
+    "components": "references/design-systems/canva/components.html"
+  },
+  {
+    "id": "cisco",
+    "name": "Cisco",
+    "category": "Backend & Data",
+    "description": "Bundled OpenDesign package for Cisco, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/cisco/DESIGN.md",
+    "tokens": "references/design-systems/cisco/tokens.css",
+    "components": "references/design-systems/cisco/components.html"
+  },
+  {
+    "id": "claude",
+    "name": "Claude (Anthropic)",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for Claude (Anthropic), derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/claude/DESIGN.md",
+    "tokens": "references/design-systems/claude/tokens.css",
+    "components": "references/design-systems/claude/components.html"
+  },
+  {
+    "id": "clay",
+    "name": "Clay",
+    "category": "Design & Creative",
+    "description": "Bundled OpenDesign package for Clay, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/clay/DESIGN.md",
+    "tokens": "references/design-systems/clay/tokens.css",
+    "components": "references/design-systems/clay/components.html"
+  },
+  {
+    "id": "claymorphism",
+    "name": "Claymorphism",
+    "category": "Morphism & Effects",
+    "description": "Bundled OpenDesign package for Claymorphism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/claymorphism/DESIGN.md",
+    "tokens": "references/design-systems/claymorphism/tokens.css",
+    "components": "references/design-systems/claymorphism/components.html"
+  },
+  {
+    "id": "clean",
+    "name": "Clean",
+    "category": "Modern & Minimal",
+    "description": "Bundled OpenDesign package for Clean, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/clean/DESIGN.md",
+    "tokens": "references/design-systems/clean/tokens.css",
+    "components": "references/design-systems/clean/components.html"
+  },
+  {
+    "id": "clickhouse",
+    "name": "ClickHouse",
+    "category": "Backend & Data",
+    "description": "Bundled OpenDesign package for ClickHouse, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/clickhouse/DESIGN.md",
+    "tokens": "references/design-systems/clickhouse/tokens.css",
+    "components": "references/design-systems/clickhouse/components.html"
+  },
+  {
+    "id": "cloudflare-kumo",
+    "name": "Cloudflare Kumo UI",
+    "category": "Developer Tools",
+    "description": "Cloudflare's component system for modern web apps, with semantic light and dark tokens, compact typography, layered neutral surfaces, accessible controls, and chart-ready color guidance.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated integration of https://github.com/cloudflare/kumo at 0c5832575c99988917b81cd752002e10f3dc9c7a (@cloudflare/kumo 2.9.2, MIT)"
+    },
+    "design": "references/design-systems/cloudflare-kumo/DESIGN.md",
+    "tokens": "references/design-systems/cloudflare-kumo/tokens.css",
+    "components": "references/design-systems/cloudflare-kumo/components.html"
+  },
+  {
+    "id": "cohere",
+    "name": "Cohere",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for Cohere, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/cohere/DESIGN.md",
+    "tokens": "references/design-systems/cohere/tokens.css",
+    "components": "references/design-systems/cohere/components.html"
+  },
+  {
+    "id": "coinbase",
+    "name": "Coinbase",
+    "category": "Fintech & Crypto",
+    "description": "Bundled OpenDesign package for Coinbase, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/coinbase/DESIGN.md",
+    "tokens": "references/design-systems/coinbase/tokens.css",
+    "components": "references/design-systems/coinbase/components.html"
+  },
+  {
+    "id": "colorful",
+    "name": "Colorful",
+    "category": "Bold & Expressive",
+    "description": "Bundled OpenDesign package for Colorful, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/colorful/DESIGN.md",
+    "tokens": "references/design-systems/colorful/tokens.css",
+    "components": "references/design-systems/colorful/components.html"
+  },
+  {
+    "id": "composio",
+    "name": "Composio",
+    "category": "Backend & Data",
+    "description": "Bundled OpenDesign package for Composio, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/composio/DESIGN.md",
+    "tokens": "references/design-systems/composio/tokens.css",
+    "components": "references/design-systems/composio/components.html"
+  },
+  {
+    "id": "contemporary",
+    "name": "Contemporary",
+    "category": "Modern & Minimal",
+    "description": "Bundled OpenDesign package for Contemporary, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/contemporary/DESIGN.md",
+    "tokens": "references/design-systems/contemporary/tokens.css",
+    "components": "references/design-systems/contemporary/components.html"
+  },
+  {
+    "id": "corporate",
+    "name": "Corporate",
+    "category": "Professional & Corporate",
+    "description": "Bundled OpenDesign package for Corporate, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/corporate/DESIGN.md",
+    "tokens": "references/design-systems/corporate/tokens.css",
+    "components": "references/design-systems/corporate/components.html"
+  },
+  {
+    "id": "cosmic",
+    "name": "Cosmic",
+    "category": "Creative & Artistic",
+    "description": "Bundled OpenDesign package for Cosmic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/cosmic/DESIGN.md",
+    "tokens": "references/design-systems/cosmic/tokens.css",
+    "components": "references/design-systems/cosmic/components.html"
+  },
+  {
+    "id": "creative",
+    "name": "Creative",
+    "category": "Creative & Artistic",
+    "description": "Bundled OpenDesign package for Creative, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/creative/DESIGN.md",
+    "tokens": "references/design-systems/creative/tokens.css",
+    "components": "references/design-systems/creative/components.html"
+  },
+  {
+    "id": "cursor",
+    "name": "Cursor",
+    "category": "Developer Tools",
+    "description": "Bundled OpenDesign package for Cursor, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/cursor/DESIGN.md",
+    "tokens": "references/design-systems/cursor/tokens.css",
+    "components": "references/design-systems/cursor/components.html"
+  },
+  {
+    "id": "dashboard",
+    "name": "Dashboard",
+    "category": "Professional & Corporate",
+    "description": "Bundled OpenDesign package for Dashboard, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/dashboard/DESIGN.md",
+    "tokens": "references/design-systems/dashboard/tokens.css",
+    "components": "references/design-systems/dashboard/components.html"
+  },
+  {
+    "id": "default",
+    "name": "Neutral Modern",
+    "category": "Starter",
+    "description": "Bundled OpenDesign package for Neutral Modern, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/default/DESIGN.md",
+    "tokens": "references/design-systems/default/tokens.css",
+    "components": "references/design-systems/default/components.html"
+  },
+  {
+    "id": "discord",
+    "name": "Discord",
+    "category": "Productivity & SaaS",
+    "description": "Bundled OpenDesign package for Discord, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/discord/DESIGN.md",
+    "tokens": "references/design-systems/discord/tokens.css",
+    "components": "references/design-systems/discord/components.html"
+  },
+  {
+    "id": "dithered",
+    "name": "Dithered",
+    "category": "Retro & Nostalgic",
+    "description": "Bundled OpenDesign package for Dithered, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/dithered/DESIGN.md",
+    "tokens": "references/design-systems/dithered/tokens.css",
+    "components": "references/design-systems/dithered/components.html"
+  },
+  {
+    "id": "doodle",
+    "name": "Doodle",
+    "category": "Creative & Artistic",
+    "description": "Bundled OpenDesign package for Doodle, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/doodle/DESIGN.md",
+    "tokens": "references/design-systems/doodle/tokens.css",
+    "components": "references/design-systems/doodle/components.html"
+  },
+  {
+    "id": "dramatic",
+    "name": "Dramatic",
+    "category": "Bold & Expressive",
+    "description": "Bundled OpenDesign package for Dramatic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/dramatic/DESIGN.md",
+    "tokens": "references/design-systems/dramatic/tokens.css",
+    "components": "references/design-systems/dramatic/components.html"
+  },
+  {
+    "id": "duolingo",
+    "name": "Duolingo",
+    "category": "Productivity & SaaS",
+    "description": "Bundled OpenDesign package for Duolingo, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/duolingo/DESIGN.md",
+    "tokens": "references/design-systems/duolingo/tokens.css",
+    "components": "references/design-systems/duolingo/components.html"
+  },
+  {
+    "id": "editorial",
+    "name": "Editorial",
+    "category": "Creative & Artistic",
+    "description": "Bundled OpenDesign package for Editorial, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/editorial/DESIGN.md",
+    "tokens": "references/design-systems/editorial/tokens.css",
+    "components": "references/design-systems/editorial/components.html"
+  },
+  {
+    "id": "elegant",
+    "name": "Elegant",
+    "category": "Professional & Corporate",
+    "description": "Bundled OpenDesign package for Elegant, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/elegant/DESIGN.md",
+    "tokens": "references/design-systems/elegant/tokens.css",
+    "components": "references/design-systems/elegant/components.html"
+  },
+  {
+    "id": "elevenlabs",
+    "name": "ElevenLabs",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for ElevenLabs, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/elevenlabs/DESIGN.md",
+    "tokens": "references/design-systems/elevenlabs/tokens.css",
+    "components": "references/design-systems/elevenlabs/components.html"
+  },
+  {
+    "id": "energetic",
+    "name": "Energetic",
+    "category": "Bold & Expressive",
+    "description": "Bundled OpenDesign package for Energetic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/energetic/DESIGN.md",
+    "tokens": "references/design-systems/energetic/tokens.css",
+    "components": "references/design-systems/energetic/components.html"
+  },
+  {
+    "id": "enterprise",
+    "name": "Enterprise",
+    "category": "Professional & Corporate",
+    "description": "Bundled OpenDesign package for Enterprise, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/enterprise/DESIGN.md",
+    "tokens": "references/design-systems/enterprise/tokens.css",
+    "components": "references/design-systems/enterprise/components.html"
+  },
+  {
+    "id": "expo",
+    "name": "Expo",
+    "category": "Developer Tools",
+    "description": "Bundled OpenDesign package for Expo, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/expo/DESIGN.md",
+    "tokens": "references/design-systems/expo/tokens.css",
+    "components": "references/design-systems/expo/components.html"
+  },
+  {
+    "id": "expressive",
+    "name": "Expressive",
+    "category": "Bold & Expressive",
+    "description": "Bundled OpenDesign package for Expressive, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/expressive/DESIGN.md",
+    "tokens": "references/design-systems/expressive/tokens.css",
+    "components": "references/design-systems/expressive/components.html"
+  },
+  {
+    "id": "fantasy",
+    "name": "Fantasy",
+    "category": "Creative & Artistic",
+    "description": "Bundled OpenDesign package for Fantasy, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/fantasy/DESIGN.md",
+    "tokens": "references/design-systems/fantasy/tokens.css",
+    "components": "references/design-systems/fantasy/components.html"
+  },
+  {
+    "id": "ferrari",
+    "name": "Ferrari",
+    "category": "Automotive",
+    "description": "Bundled OpenDesign package for Ferrari, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/ferrari/DESIGN.md",
+    "tokens": "references/design-systems/ferrari/tokens.css",
+    "components": "references/design-systems/ferrari/components.html"
+  },
+  {
+    "id": "figma",
+    "name": "Figma",
+    "category": "Design & Creative",
+    "description": "Bundled OpenDesign package for Figma, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/figma/DESIGN.md",
+    "tokens": "references/design-systems/figma/tokens.css",
+    "components": "references/design-systems/figma/components.html"
+  },
+  {
+    "id": "flat",
+    "name": "Flat",
+    "category": "Modern & Minimal",
+    "description": "Bundled OpenDesign package for Flat, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/flat/DESIGN.md",
+    "tokens": "references/design-systems/flat/tokens.css",
+    "components": "references/design-systems/flat/components.html"
+  },
+  {
+    "id": "framer",
+    "name": "Framer",
+    "category": "Design & Creative",
+    "description": "Bundled OpenDesign package for Framer, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/framer/DESIGN.md",
+    "tokens": "references/design-systems/framer/tokens.css",
+    "components": "references/design-systems/framer/components.html"
+  },
+  {
+    "id": "friendly",
+    "name": "Friendly",
+    "category": "Creative & Artistic",
+    "description": "Bundled OpenDesign package for Friendly, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/friendly/DESIGN.md",
+    "tokens": "references/design-systems/friendly/tokens.css",
+    "components": "references/design-systems/friendly/components.html"
+  },
+  {
+    "id": "futuristic",
+    "name": "Futuristic",
+    "category": "Themed & Unique",
+    "description": "Bundled OpenDesign package for Futuristic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/futuristic/DESIGN.md",
+    "tokens": "references/design-systems/futuristic/tokens.css",
+    "components": "references/design-systems/futuristic/components.html"
+  },
+  {
+    "id": "github",
+    "name": "GitHub",
+    "category": "Developer Tools",
+    "description": "Bundled OpenDesign package for GitHub, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/github/DESIGN.md",
+    "tokens": "references/design-systems/github/tokens.css",
+    "components": "references/design-systems/github/components.html"
+  },
+  {
+    "id": "glassmorphism",
+    "name": "Glassmorphism",
+    "category": "Morphism & Effects",
+    "description": "Bundled OpenDesign package for Glassmorphism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/glassmorphism/DESIGN.md",
+    "tokens": "references/design-systems/glassmorphism/tokens.css",
+    "components": "references/design-systems/glassmorphism/components.html"
+  },
+  {
+    "id": "gradient",
+    "name": "Gradient",
+    "category": "Morphism & Effects",
+    "description": "Bundled OpenDesign package for Gradient, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/gradient/DESIGN.md",
+    "tokens": "references/design-systems/gradient/tokens.css",
+    "components": "references/design-systems/gradient/components.html"
+  },
+  {
+    "id": "hashicorp",
+    "name": "HashiCorp",
+    "category": "Backend & Data",
+    "description": "Bundled OpenDesign package for HashiCorp, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/hashicorp/DESIGN.md",
+    "tokens": "references/design-systems/hashicorp/tokens.css",
+    "components": "references/design-systems/hashicorp/components.html"
+  },
+  {
+    "id": "hud",
+    "name": "HUD Design System",
+    "category": "Themed & Unique",
+    "description": "Bundled OpenDesign package for HUD Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/hud/DESIGN.md",
+    "tokens": "references/design-systems/hud/tokens.css",
+    "components": "references/design-systems/hud/components.html"
+  },
+  {
+    "id": "huggingface",
+    "name": "Hugging Face",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for Hugging Face, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/huggingface/DESIGN.md",
+    "tokens": "references/design-systems/huggingface/tokens.css",
+    "components": "references/design-systems/huggingface/components.html"
+  },
+  {
+    "id": "ibm",
+    "name": "IBM",
+    "category": "Media & Consumer",
+    "description": "Bundled OpenDesign package for IBM, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/ibm/DESIGN.md",
+    "tokens": "references/design-systems/ibm/tokens.css",
+    "components": "references/design-systems/ibm/components.html"
+  },
+  {
+    "id": "intercom",
+    "name": "Intercom",
+    "category": "Productivity & SaaS",
+    "description": "Bundled OpenDesign package for Intercom, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/intercom/DESIGN.md",
+    "tokens": "references/design-systems/intercom/tokens.css",
+    "components": "references/design-systems/intercom/components.html"
+  },
+  {
+    "id": "kami",
+    "name": "kami (紙 / 纸)",
+    "category": "Editorial & Print",
+    "description": "Bundled OpenDesign package for kami (紙 / 纸), derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/kami/DESIGN.md",
+    "tokens": "references/design-systems/kami/tokens.css",
+    "components": "references/design-systems/kami/components.html"
+  },
+  {
+    "id": "kraken",
+    "name": "Kraken",
+    "category": "Fintech & Crypto",
+    "description": "Bundled OpenDesign package for Kraken, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/kraken/DESIGN.md",
+    "tokens": "references/design-systems/kraken/tokens.css",
+    "components": "references/design-systems/kraken/components.html"
+  },
+  {
+    "id": "lamborghini",
+    "name": "Lamborghini",
+    "category": "Automotive",
+    "description": "Bundled OpenDesign package for Lamborghini, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/lamborghini/DESIGN.md",
+    "tokens": "references/design-systems/lamborghini/tokens.css",
+    "components": "references/design-systems/lamborghini/components.html"
+  },
+  {
+    "id": "levels",
+    "name": "Levels",
+    "category": "Layout & Structure",
+    "description": "Bundled OpenDesign package for Levels, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/levels/DESIGN.md",
+    "tokens": "references/design-systems/levels/tokens.css",
+    "components": "references/design-systems/levels/components.html"
+  },
+  {
+    "id": "linear-app",
+    "name": "Linear",
+    "category": "Productivity & SaaS",
+    "description": "Bundled OpenDesign package for Linear, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/linear-app/DESIGN.md",
+    "tokens": "references/design-systems/linear-app/tokens.css",
+    "components": "references/design-systems/linear-app/components.html"
+  },
+  {
+    "id": "lingo",
+    "name": "Lingo",
+    "category": "Creative & Artistic",
+    "description": "Bundled OpenDesign package for Lingo, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/lingo/DESIGN.md",
+    "tokens": "references/design-systems/lingo/tokens.css",
+    "components": "references/design-systems/lingo/components.html"
+  },
+  {
+    "id": "loom",
+    "name": "Loom Design System",
+    "category": "Themed & Unique",
+    "description": "Bundled OpenDesign package for Loom Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/loom/DESIGN.md",
+    "tokens": "references/design-systems/loom/tokens.css",
+    "components": "references/design-systems/loom/components.html"
+  },
+  {
+    "id": "lovable",
+    "name": "Lovable",
+    "category": "Developer Tools",
+    "description": "Bundled OpenDesign package for Lovable, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/lovable/DESIGN.md",
+    "tokens": "references/design-systems/lovable/tokens.css",
+    "components": "references/design-systems/lovable/components.html"
+  },
+  {
+    "id": "luxury",
+    "name": "Luxury",
+    "category": "Professional & Corporate",
+    "description": "Bundled OpenDesign package for Luxury, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/luxury/DESIGN.md",
+    "tokens": "references/design-systems/luxury/tokens.css",
+    "components": "references/design-systems/luxury/components.html"
+  },
+  {
+    "id": "mastercard",
+    "name": "Mastercard",
+    "category": "Fintech & Crypto",
+    "description": "Bundled OpenDesign package for Mastercard, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/mastercard/DESIGN.md",
+    "tokens": "references/design-systems/mastercard/tokens.css",
+    "components": "references/design-systems/mastercard/components.html"
+  },
+  {
+    "id": "material",
+    "name": "Material",
+    "category": "Professional & Corporate",
+    "description": "Bundled OpenDesign package for Material, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/material/DESIGN.md",
+    "tokens": "references/design-systems/material/tokens.css",
+    "components": "references/design-systems/material/components.html"
+  },
+  {
+    "id": "meta",
+    "name": "Meta (Store)",
+    "category": "E-Commerce & Retail",
+    "description": "Bundled OpenDesign package for Meta (Store), derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/meta/DESIGN.md",
+    "tokens": "references/design-systems/meta/tokens.css",
+    "components": "references/design-systems/meta/components.html"
+  },
+  {
+    "id": "minimal",
+    "name": "Minimal",
+    "category": "Modern & Minimal",
+    "description": "Bundled OpenDesign package for Minimal, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/minimal/DESIGN.md",
+    "tokens": "references/design-systems/minimal/tokens.css",
+    "components": "references/design-systems/minimal/components.html"
+  },
+  {
+    "id": "minimax",
+    "name": "MiniMax",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for MiniMax, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/minimax/DESIGN.md",
+    "tokens": "references/design-systems/minimax/tokens.css",
+    "components": "references/design-systems/minimax/components.html"
+  },
+  {
+    "id": "mintlify",
+    "name": "Mintlify",
+    "category": "Productivity & SaaS",
+    "description": "Bundled OpenDesign package for Mintlify, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/mintlify/DESIGN.md",
+    "tokens": "references/design-systems/mintlify/tokens.css",
+    "components": "references/design-systems/mintlify/components.html"
+  },
+  {
+    "id": "miro",
+    "name": "Miro",
+    "category": "Design & Creative",
+    "description": "Bundled OpenDesign package for Miro, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/miro/DESIGN.md",
+    "tokens": "references/design-systems/miro/tokens.css",
+    "components": "references/design-systems/miro/components.html"
+  },
+  {
+    "id": "mission-control",
+    "name": "Mission Control Design System",
+    "category": "Developer Tools",
+    "description": "Bundled OpenDesign package for Mission Control Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/mission-control/DESIGN.md",
+    "tokens": "references/design-systems/mission-control/tokens.css",
+    "components": "references/design-systems/mission-control/components.html"
+  },
+  {
+    "id": "mistral-ai",
+    "name": "Mistral AI",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for Mistral AI, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/mistral-ai/DESIGN.md",
+    "tokens": "references/design-systems/mistral-ai/tokens.css",
+    "components": "references/design-systems/mistral-ai/components.html"
+  },
+  {
+    "id": "modern",
+    "name": "Modern",
+    "category": "Modern & Minimal",
+    "description": "Bundled OpenDesign package for Modern, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/modern/DESIGN.md",
+    "tokens": "references/design-systems/modern/tokens.css",
+    "components": "references/design-systems/modern/components.html"
+  },
+  {
+    "id": "mongodb",
+    "name": "MongoDB",
+    "category": "Backend & Data",
+    "description": "Bundled OpenDesign package for MongoDB, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/mongodb/DESIGN.md",
+    "tokens": "references/design-systems/mongodb/tokens.css",
+    "components": "references/design-systems/mongodb/components.html"
+  },
+  {
+    "id": "mono",
+    "name": "Mono",
+    "category": "Modern & Minimal",
+    "description": "Bundled OpenDesign package for Mono, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/mono/DESIGN.md",
+    "tokens": "references/design-systems/mono/tokens.css",
+    "components": "references/design-systems/mono/components.html"
+  },
+  {
+    "id": "neobrutalism",
+    "name": "Neobrutalism",
+    "category": "Bold & Expressive",
+    "description": "Bundled OpenDesign package for Neobrutalism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/neobrutalism/DESIGN.md",
+    "tokens": "references/design-systems/neobrutalism/tokens.css",
+    "components": "references/design-systems/neobrutalism/components.html"
+  },
+  {
+    "id": "neon",
+    "name": "Neon",
+    "category": "Morphism & Effects",
+    "description": "Bundled OpenDesign package for Neon, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/neon/DESIGN.md",
+    "tokens": "references/design-systems/neon/tokens.css",
+    "components": "references/design-systems/neon/components.html"
+  },
+  {
+    "id": "neumorphism",
+    "name": "Neumorphism",
+    "category": "Morphism & Effects",
+    "description": "Bundled OpenDesign package for Neumorphism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/neumorphism/DESIGN.md",
+    "tokens": "references/design-systems/neumorphism/tokens.css",
+    "components": "references/design-systems/neumorphism/components.html"
+  },
+  {
+    "id": "nike",
+    "name": "Nike",
+    "category": "E-Commerce & Retail",
+    "description": "Bundled OpenDesign package for Nike, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/nike/DESIGN.md",
+    "tokens": "references/design-systems/nike/tokens.css",
+    "components": "references/design-systems/nike/components.html"
+  },
+  {
+    "id": "notion",
+    "name": "Notion",
+    "category": "Productivity & SaaS",
+    "description": "Bundled OpenDesign package for Notion, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/notion/DESIGN.md",
+    "tokens": "references/design-systems/notion/tokens.css",
+    "components": "references/design-systems/notion/components.html"
+  },
+  {
+    "id": "nvidia",
+    "name": "NVIDIA",
+    "category": "Media & Consumer",
+    "description": "Bundled OpenDesign package for NVIDIA, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/nvidia/DESIGN.md",
+    "tokens": "references/design-systems/nvidia/tokens.css",
+    "components": "references/design-systems/nvidia/components.html"
+  },
+  {
+    "id": "ollama",
+    "name": "Ollama",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for Ollama, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/ollama/DESIGN.md",
+    "tokens": "references/design-systems/ollama/tokens.css",
+    "components": "references/design-systems/ollama/components.html"
+  },
+  {
+    "id": "openai",
+    "name": "OpenAI",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for OpenAI, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/openai/DESIGN.md",
+    "tokens": "references/design-systems/openai/tokens.css",
+    "components": "references/design-systems/openai/components.html"
+  },
+  {
+    "id": "opencode-ai",
+    "name": "OpenCode",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for OpenCode, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/opencode-ai/DESIGN.md",
+    "tokens": "references/design-systems/opencode-ai/tokens.css",
+    "components": "references/design-systems/opencode-ai/components.html"
+  },
+  {
+    "id": "pacman",
+    "name": "Pacman",
+    "category": "Themed & Unique",
+    "description": "Bundled OpenDesign package for Pacman, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/pacman/DESIGN.md",
+    "tokens": "references/design-systems/pacman/tokens.css",
+    "components": "references/design-systems/pacman/components.html"
+  },
+  {
+    "id": "paper",
+    "name": "Paper",
+    "category": "Retro & Nostalgic",
+    "description": "Bundled OpenDesign package for Paper, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/paper/DESIGN.md",
+    "tokens": "references/design-systems/paper/tokens.css",
+    "components": "references/design-systems/paper/components.html"
+  },
+  {
+    "id": "perplexity",
+    "name": "Perplexity AI",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for Perplexity AI, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/perplexity/DESIGN.md",
+    "tokens": "references/design-systems/perplexity/tokens.css",
+    "components": "references/design-systems/perplexity/components.html"
+  },
+  {
+    "id": "perspective",
+    "name": "Perspective",
+    "category": "Layout & Structure",
+    "description": "Bundled OpenDesign package for Perspective, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/perspective/DESIGN.md",
+    "tokens": "references/design-systems/perspective/tokens.css",
+    "components": "references/design-systems/perspective/components.html"
+  },
+  {
+    "id": "pinterest",
+    "name": "Pinterest",
+    "category": "Media & Consumer",
+    "description": "Bundled OpenDesign package for Pinterest, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/pinterest/DESIGN.md",
+    "tokens": "references/design-systems/pinterest/tokens.css",
+    "components": "references/design-systems/pinterest/components.html"
+  },
+  {
+    "id": "playstation",
+    "name": "PlayStation",
+    "category": "Media & Consumer",
+    "description": "Bundled OpenDesign package for PlayStation, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/playstation/DESIGN.md",
+    "tokens": "references/design-systems/playstation/tokens.css",
+    "components": "references/design-systems/playstation/components.html"
+  },
+  {
+    "id": "posthog",
+    "name": "PostHog",
+    "category": "Backend & Data",
+    "description": "Bundled OpenDesign package for PostHog, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/posthog/DESIGN.md",
+    "tokens": "references/design-systems/posthog/tokens.css",
+    "components": "references/design-systems/posthog/components.html"
+  },
+  {
+    "id": "premium",
+    "name": "Premium",
+    "category": "Professional & Corporate",
+    "description": "Bundled OpenDesign package for Premium, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/premium/DESIGN.md",
+    "tokens": "references/design-systems/premium/tokens.css",
+    "components": "references/design-systems/premium/components.html"
+  },
+  {
+    "id": "professional",
+    "name": "Professional",
+    "category": "Professional & Corporate",
+    "description": "Bundled OpenDesign package for Professional, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/professional/DESIGN.md",
+    "tokens": "references/design-systems/professional/tokens.css",
+    "components": "references/design-systems/professional/components.html"
+  },
+  {
+    "id": "publication",
+    "name": "Publication",
+    "category": "Creative & Artistic",
+    "description": "Bundled OpenDesign package for Publication, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/publication/DESIGN.md",
+    "tokens": "references/design-systems/publication/tokens.css",
+    "components": "references/design-systems/publication/components.html"
+  },
+  {
+    "id": "raycast",
+    "name": "Raycast",
+    "category": "Developer Tools",
+    "description": "Bundled OpenDesign package for Raycast, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/raycast/DESIGN.md",
+    "tokens": "references/design-systems/raycast/tokens.css",
+    "components": "references/design-systems/raycast/components.html"
+  },
+  {
+    "id": "refined",
+    "name": "Refined",
+    "category": "Modern & Minimal",
+    "description": "Bundled OpenDesign package for Refined, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/refined/DESIGN.md",
+    "tokens": "references/design-systems/refined/tokens.css",
+    "components": "references/design-systems/refined/components.html"
+  },
+  {
+    "id": "renault",
+    "name": "Renault",
+    "category": "Automotive",
+    "description": "Bundled OpenDesign package for Renault, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/renault/DESIGN.md",
+    "tokens": "references/design-systems/renault/tokens.css",
+    "components": "references/design-systems/renault/components.html"
+  },
+  {
+    "id": "replicate",
+    "name": "Replicate",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for Replicate, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/replicate/DESIGN.md",
+    "tokens": "references/design-systems/replicate/tokens.css",
+    "components": "references/design-systems/replicate/components.html"
+  },
+  {
+    "id": "resend",
+    "name": "Resend",
+    "category": "Productivity & SaaS",
+    "description": "Bundled OpenDesign package for Resend, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/resend/DESIGN.md",
+    "tokens": "references/design-systems/resend/tokens.css",
+    "components": "references/design-systems/resend/components.html"
+  },
+  {
+    "id": "retro",
+    "name": "Retro",
+    "category": "Retro & Nostalgic",
+    "description": "Bundled OpenDesign package for Retro, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/retro/DESIGN.md",
+    "tokens": "references/design-systems/retro/tokens.css",
+    "components": "references/design-systems/retro/components.html"
+  },
+  {
+    "id": "revolut",
+    "name": "Revolut",
+    "category": "Fintech & Crypto",
+    "description": "Bundled OpenDesign package for Revolut, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/revolut/DESIGN.md",
+    "tokens": "references/design-systems/revolut/tokens.css",
+    "components": "references/design-systems/revolut/components.html"
+  },
+  {
+    "id": "runwayml",
+    "name": "Runway",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for Runway, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/runwayml/DESIGN.md",
+    "tokens": "references/design-systems/runwayml/tokens.css",
+    "components": "references/design-systems/runwayml/components.html"
+  },
+  {
+    "id": "sanity",
+    "name": "Sanity",
+    "category": "Backend & Data",
+    "description": "Bundled OpenDesign package for Sanity, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/sanity/DESIGN.md",
+    "tokens": "references/design-systems/sanity/tokens.css",
+    "components": "references/design-systems/sanity/components.html"
+  },
+  {
+    "id": "sentry",
+    "name": "Sentry",
+    "category": "Backend & Data",
+    "description": "Bundled OpenDesign package for Sentry, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/sentry/DESIGN.md",
+    "tokens": "references/design-systems/sentry/tokens.css",
+    "components": "references/design-systems/sentry/components.html"
+  },
+  {
+    "id": "shadcn",
+    "name": "Shadcn",
+    "category": "Modern & Minimal",
+    "description": "Bundled OpenDesign package for Shadcn, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/shadcn/DESIGN.md",
+    "tokens": "references/design-systems/shadcn/tokens.css",
+    "components": "references/design-systems/shadcn/components.html"
+  },
+  {
+    "id": "shopify",
+    "name": "Shopify",
+    "category": "E-Commerce & Retail",
+    "description": "Bundled OpenDesign package for Shopify, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/shopify/DESIGN.md",
+    "tokens": "references/design-systems/shopify/tokens.css",
+    "components": "references/design-systems/shopify/components.html"
+  },
+  {
+    "id": "simple",
+    "name": "Simple",
+    "category": "Modern & Minimal",
+    "description": "Bundled OpenDesign package for Simple, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/simple/DESIGN.md",
+    "tokens": "references/design-systems/simple/tokens.css",
+    "components": "references/design-systems/simple/components.html"
+  },
+  {
+    "id": "skeumorphism",
+    "name": "Skeumorphism",
+    "category": "Morphism & Effects",
+    "description": "Bundled OpenDesign package for Skeumorphism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/skeumorphism/DESIGN.md",
+    "tokens": "references/design-systems/skeumorphism/tokens.css",
+    "components": "references/design-systems/skeumorphism/components.html"
+  },
+  {
+    "id": "slack",
+    "name": "Slack",
+    "category": "Productivity & SaaS",
+    "description": "Bundled OpenDesign package for Slack, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/slack/DESIGN.md",
+    "tokens": "references/design-systems/slack/tokens.css",
+    "components": "references/design-systems/slack/components.html"
+  },
+  {
+    "id": "sleek",
+    "name": "Sleek",
+    "category": "Modern & Minimal",
+    "description": "Bundled OpenDesign package for Sleek, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/sleek/DESIGN.md",
+    "tokens": "references/design-systems/sleek/tokens.css",
+    "components": "references/design-systems/sleek/components.html"
+  },
+  {
+    "id": "spacex",
+    "name": "SpaceX",
+    "category": "Media & Consumer",
+    "description": "Bundled OpenDesign package for SpaceX, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/spacex/DESIGN.md",
+    "tokens": "references/design-systems/spacex/tokens.css",
+    "components": "references/design-systems/spacex/components.html"
+  },
+  {
+    "id": "spacious",
+    "name": "Spacious",
+    "category": "Layout & Structure",
+    "description": "Bundled OpenDesign package for Spacious, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/spacious/DESIGN.md",
+    "tokens": "references/design-systems/spacious/tokens.css",
+    "components": "references/design-systems/spacious/components.html"
+  },
+  {
+    "id": "spotify",
+    "name": "Spotify",
+    "category": "Media & Consumer",
+    "description": "Bundled OpenDesign package for Spotify, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/spotify/DESIGN.md",
+    "tokens": "references/design-systems/spotify/tokens.css",
+    "components": "references/design-systems/spotify/components.html"
+  },
+  {
+    "id": "starbucks",
+    "name": "Starbucks",
+    "category": "E-Commerce & Retail",
+    "description": "Bundled OpenDesign package for Starbucks, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/starbucks/DESIGN.md",
+    "tokens": "references/design-systems/starbucks/tokens.css",
+    "components": "references/design-systems/starbucks/components.html"
+  },
+  {
+    "id": "storytelling",
+    "name": "Storytelling",
+    "category": "Creative & Artistic",
+    "description": "Bundled OpenDesign package for Storytelling, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/storytelling/DESIGN.md",
+    "tokens": "references/design-systems/storytelling/tokens.css",
+    "components": "references/design-systems/storytelling/components.html"
+  },
+  {
+    "id": "stripe",
+    "name": "Stripe",
+    "category": "Fintech & Crypto",
+    "description": "Bundled OpenDesign package for Stripe, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/stripe/DESIGN.md",
+    "tokens": "references/design-systems/stripe/tokens.css",
+    "components": "references/design-systems/stripe/components.html"
+  },
+  {
+    "id": "supabase",
+    "name": "Supabase",
+    "category": "Backend & Data",
+    "description": "Bundled OpenDesign package for Supabase, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/supabase/DESIGN.md",
+    "tokens": "references/design-systems/supabase/tokens.css",
+    "components": "references/design-systems/supabase/components.html"
+  },
+  {
+    "id": "superhuman",
+    "name": "Superhuman",
+    "category": "Developer Tools",
+    "description": "Bundled OpenDesign package for Superhuman, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/superhuman/DESIGN.md",
+    "tokens": "references/design-systems/superhuman/tokens.css",
+    "components": "references/design-systems/superhuman/components.html"
+  },
+  {
+    "id": "tesla",
+    "name": "Tesla",
+    "category": "Automotive",
+    "description": "Bundled OpenDesign package for Tesla, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/tesla/DESIGN.md",
+    "tokens": "references/design-systems/tesla/tokens.css",
+    "components": "references/design-systems/tesla/components.html"
+  },
+  {
+    "id": "tetris",
+    "name": "Tetris",
+    "category": "Themed & Unique",
+    "description": "Bundled OpenDesign package for Tetris, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/tetris/DESIGN.md",
+    "tokens": "references/design-systems/tetris/tokens.css",
+    "components": "references/design-systems/tetris/components.html"
+  },
+  {
+    "id": "theverge",
+    "name": "The Verge",
+    "category": "Media & Consumer",
+    "description": "Bundled OpenDesign package for The Verge, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/theverge/DESIGN.md",
+    "tokens": "references/design-systems/theverge/tokens.css",
+    "components": "references/design-systems/theverge/components.html"
+  },
+  {
+    "id": "together-ai",
+    "name": "Together AI",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for Together AI, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/together-ai/DESIGN.md",
+    "tokens": "references/design-systems/together-ai/tokens.css",
+    "components": "references/design-systems/together-ai/components.html"
+  },
+  {
+    "id": "tom-modern",
+    "name": "Tom Modern Design",
+    "category": "Starter",
+    "description": "Editorial-technical design system. Neutral canvas, single vermillion accent, sharp corners, Geist typography, hard shadows, structured composition.",
+    "source": {
+      "type": "bundled",
+      "origin": "https://github.com/Tom-Opencart/tom-modern-html-style-rule"
+    },
+    "design": "references/design-systems/tom-modern/DESIGN.md",
+    "tokens": "references/design-systems/tom-modern/tokens.css",
+    "components": "references/design-systems/tom-modern/components.html"
+  },
+  {
+    "id": "totality-festival",
+    "name": "Totality Festival",
+    "category": "Themed & Unique",
+    "description": "Bundled OpenDesign package for Totality Festival, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/totality-festival/DESIGN.md",
+    "tokens": "references/design-systems/totality-festival/tokens.css",
+    "components": "references/design-systems/totality-festival/components.html"
+  },
+  {
+    "id": "trading-terminal",
+    "name": "Trading Terminal Design System",
+    "category": "Themed & Unique",
+    "description": "Bundled OpenDesign package for Trading Terminal Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/trading-terminal/DESIGN.md",
+    "tokens": "references/design-systems/trading-terminal/tokens.css",
+    "components": "references/design-systems/trading-terminal/components.html"
+  },
+  {
+    "id": "uber",
+    "name": "Uber",
+    "category": "Media & Consumer",
+    "description": "Bundled OpenDesign package for Uber, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/uber/DESIGN.md",
+    "tokens": "references/design-systems/uber/tokens.css",
+    "components": "references/design-systems/uber/components.html"
+  },
+  {
+    "id": "urdu",
+    "name": "Urdu Modern (Indus Script System)",
+    "category": "Editorial / Personal / Publication",
+    "description": "Bundled OpenDesign package for Urdu Modern (Indus Script System), derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/urdu/DESIGN.md",
+    "tokens": "references/design-systems/urdu/tokens.css",
+    "components": "references/design-systems/urdu/components.html"
+  },
+  {
+    "id": "vercel",
+    "name": "Vercel",
+    "category": "Developer Tools",
+    "description": "Bundled OpenDesign package for Vercel, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/vercel/DESIGN.md",
+    "tokens": "references/design-systems/vercel/tokens.css",
+    "components": "references/design-systems/vercel/components.html"
+  },
+  {
+    "id": "vibrant",
+    "name": "Vibrant",
+    "category": "Bold & Expressive",
+    "description": "Bundled OpenDesign package for Vibrant, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/vibrant/DESIGN.md",
+    "tokens": "references/design-systems/vibrant/tokens.css",
+    "components": "references/design-systems/vibrant/components.html"
+  },
+  {
+    "id": "vintage",
+    "name": "Vintage",
+    "category": "Retro & Nostalgic",
+    "description": "Bundled OpenDesign package for Vintage, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/vintage/DESIGN.md",
+    "tokens": "references/design-systems/vintage/tokens.css",
+    "components": "references/design-systems/vintage/components.html"
+  },
+  {
+    "id": "vodafone",
+    "name": "Vodafone",
+    "category": "Media & Consumer",
+    "description": "Bundled OpenDesign package for Vodafone, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/vodafone/DESIGN.md",
+    "tokens": "references/design-systems/vodafone/tokens.css",
+    "components": "references/design-systems/vodafone/components.html"
+  },
+  {
+    "id": "voltagent",
+    "name": "VoltAgent",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for VoltAgent, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/voltagent/DESIGN.md",
+    "tokens": "references/design-systems/voltagent/tokens.css",
+    "components": "references/design-systems/voltagent/components.html"
+  },
+  {
+    "id": "warm-editorial",
+    "name": "Warm Editorial",
+    "category": "Starter",
+    "description": "Bundled OpenDesign package for Warm Editorial, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/warm-editorial/DESIGN.md",
+    "tokens": "references/design-systems/warm-editorial/tokens.css",
+    "components": "references/design-systems/warm-editorial/components.html"
+  },
+  {
+    "id": "warp",
+    "name": "Warp",
+    "category": "Developer Tools",
+    "description": "Bundled OpenDesign package for Warp, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/warp/DESIGN.md",
+    "tokens": "references/design-systems/warp/tokens.css",
+    "components": "references/design-systems/warp/components.html"
+  },
+  {
+    "id": "webex",
+    "name": "Webex",
+    "category": "Productivity & SaaS",
+    "description": "Bundled OpenDesign package for Webex, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/webex/DESIGN.md",
+    "tokens": "references/design-systems/webex/tokens.css",
+    "components": "references/design-systems/webex/components.html"
+  },
+  {
+    "id": "webflow",
+    "name": "Webflow",
+    "category": "Design & Creative",
+    "description": "Bundled OpenDesign package for Webflow, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/webflow/DESIGN.md",
+    "tokens": "references/design-systems/webflow/tokens.css",
+    "components": "references/design-systems/webflow/components.html"
+  },
+  {
+    "id": "wechat",
+    "name": "WeChat Design System",
+    "category": "Social & Messaging",
+    "description": "Bundled OpenDesign package for WeChat Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/wechat/DESIGN.md",
+    "tokens": "references/design-systems/wechat/tokens.css",
+    "components": "references/design-systems/wechat/components.html"
+  },
+  {
+    "id": "wired",
+    "name": "WIRED",
+    "category": "Media & Consumer",
+    "description": "Bundled OpenDesign package for WIRED, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/wired/DESIGN.md",
+    "tokens": "references/design-systems/wired/tokens.css",
+    "components": "references/design-systems/wired/components.html"
+  },
+  {
+    "id": "wise",
+    "name": "Wise",
+    "category": "Fintech & Crypto",
+    "description": "Bundled OpenDesign package for Wise, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/wise/DESIGN.md",
+    "tokens": "references/design-systems/wise/tokens.css",
+    "components": "references/design-systems/wise/components.html"
+  },
+  {
+    "id": "x-ai",
+    "name": "xAI",
+    "category": "AI & LLM",
+    "description": "Bundled OpenDesign package for xAI, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/x-ai/DESIGN.md",
+    "tokens": "references/design-systems/x-ai/tokens.css",
+    "components": "references/design-systems/x-ai/components.html"
+  },
+  {
+    "id": "xiaohongshu",
+    "name": "Xiaohongshu",
+    "category": "Media & Consumer",
+    "description": "Bundled OpenDesign package for Xiaohongshu, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/xiaohongshu/DESIGN.md",
+    "tokens": "references/design-systems/xiaohongshu/tokens.css",
+    "components": "references/design-systems/xiaohongshu/components.html"
+  },
+  {
+    "id": "zapier",
+    "name": "Zapier",
+    "category": "Productivity & SaaS",
+    "description": "Bundled OpenDesign package for Zapier, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "source": {
+      "type": "bundled",
+      "origin": "OpenDesign curated bundled fixture"
+    },
+    "design": "references/design-systems/zapier/DESIGN.md",
+    "tokens": "references/design-systems/zapier/tokens.css",
+    "components": "references/design-systems/zapier/components.html"
+  }
+]

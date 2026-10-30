@@ -1,0 +1,39 @@
+name: Build Blueprint
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mac:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.3'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: test "$(uname -m)" = arm64
+      - run: npm ci --no-audit --no-fund
+        working-directory: app
+      - run: npm test
+        working-directory: app
+      - run: npm run smoke
+        working-directory: app
+      - run: npm run dist
+        working-directory: app
+      - run: npm run smoke:render
+        working-directory: app
+      - run: npm run smoke:desktop
+        working-directory: app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Blueprint-mac-arm64
+          path: |
+            app/dist/*.dmg
+            app/dist/*.zip
+          if-no-files-found: error

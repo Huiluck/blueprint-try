@@ -1,0 +1,110 @@
+--- @deepseek-ai/dsh-subagent/lib/index.js
++++ @deepseek-ai/dsh-subagent/lib/index.js
+@@ -1491,6 +1491,16 @@
+ 	* @param spec - task, provider, cancellation, and delivery policy.
+ 	* @returns the accepted activation and its result/disposal capabilities.
+ 	*/
++	/** Read announced native external residents without creating sessions or resuming execution. */
++	listExternalActivations(parentSessionId) {
++		return [...this.resident.values()].filter((activation) => activation.kind === "external" && activation.announced && (parentSessionId === void 0 || activation.parent.id === parentSessionId)).map((activation) => ({
++			id: activation.childId,
++			parentSessionId: activation.parent.id,
++			provider: activation.provider,
++			cwd: activation.cwd,
++			status: activation.controller.signal.aborted ? "stopping" : activation.closing !== void 0 ? "settling" : "running"
++		}));
++	}
+ 	async startExternal(spec) {
+ 		const parent = spec.request.parent;
+ 		this.assertAdmitting(parent);
+@@ -1501,6 +1511,7 @@
+ 			const cwd = await this.resolveDirectory(spec.request, spec.signal);
+ 			activation = await this.materialize({
+ 				kind: "external",
++				cwd,
+ 				childId: pendingId,
+ 				provider: spec.provider,
+ 				parent,
+@@ -1787,6 +1798,7 @@
+ 				const run = await inputs.start(controller.signal);
+ 				resource = {
+ 					kind: "external",
++					cwd: inputs.cwd,
+ 					run,
+ 					controller
+ 				};
+@@ -1842,6 +1854,7 @@
+ 		}
+ 		const observer = this.host.observeActivation(provider, childId, parent);
+ 		const activation = {
++			provider,
+ 			pool,
+ 			releaseSlot,
+ 			childId,
+@@ -2081,6 +2094,7 @@
+ 	receipt(activation) {
+ 		return {
+ 			childId: activation.childId,
++			...activation.kind === "external" ? { provider: activation.provider, cwd: activation.cwd } : {},
+ 			result: activation.result.promise,
+ 			dispose: () => this.dispose(activation)
+ 		};
+@@ -3140,6 +3154,10 @@
+ 		* @throws {@link SubagentError} when query or catalog projection is unavailable.
+ 		* @throws SessionQueryError when the parent cannot be read or the query is cancelled.
+ 		*/
++		/** Blueprint exact-alpha read-only external execution view; no independent state. */
++		listExternalActivations(parentSessionId) {
++			return this.manager?.listExternalActivations(parentSessionId) ?? [];
++		}
+ 		listChildren(parentSessionId, signal) {
+ 			return listChildren(this.ctx, parentSessionId, signal);
+ 		}
+--- @deepseek-ai/dsh-tool-subagent/lib/index.js
++++ @deepseek-ai/dsh-tool-subagent/lib/index.js
+@@ -364,13 +364,18 @@
+ 							subagentId: {
+ 								type: "string",
+ 								required: true
+-							}
++							},
++							provider: { type: "string" },
++							cwd: { type: "string" }
+ 						}
+ 					},
+ 					render: (_args, value) => [{
+ 						type: "text",
+ 						text: `started subagent ${value.subagentId}`
+-					}]
++					}],
++					presentationMeta: (_args, value) => value.provider === void 0 ? {} : ({
++						blueprintExternal: { id: value.subagentId, provider: value.provider, cwd: value.cwd }
++					})
+ 				},
+ 				isConcurrencySafe: () => true,
+ 				async execute(args, exec) {
+@@ -404,15 +409,17 @@
+ 						...config.toolFilter !== void 0 ? { toolFilter: config.toolFilter } : {},
+ 						...maxDepth !== void 0 ? { maxDepth } : {}
+ 					};
++					const activation = await runtimeCtx.subagents.startActivation({
++						provider: config.provider,
++						label: args.description,
++						request,
++						signal: exec.signal,
++						delivery: "parent"
++					});
+ 					return {
+ 						kind: "activation",
+-						subagentId: (await runtimeCtx.subagents.startActivation({
+-							provider: config.provider,
+-							label: args.description,
+-							request,
+-							signal: exec.signal,
+-							delivery: "parent"
+-						})).childId
++						subagentId: activation.childId,
++						...activation.provider === void 0 ? {} : { provider: activation.provider, cwd: activation.cwd }
+ 					};
+ 				}
+ 			});

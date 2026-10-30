@@ -1,0 +1,10 @@
+{
+  "name": "gsap",
+  "version": "3.15.0",
+  "url": "https://registry.npmjs.org/gsap/-/gsap-3.15.0.tgz",
+  "integrity": "sha512-dMW4CWBTUK1AEEDeZc1g4xpPGIrSf9fJF960qbTZmN/QwZIWY5wgliS6JWl9/25fpTGJrMRtSjGtOmPnfjZB+A==",
+  "sha256": "92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb",
+  "license": "Standard 'no charge' license: https://gsap.com/standard-license.",
+  "upstream_composition_reference": "https://github.com/heygen-com/hyperframes/tree/ba08acb1f506b06757bd77a7e7f491d412647fbd",
+  "retrieved": "2026-10-11"
+}

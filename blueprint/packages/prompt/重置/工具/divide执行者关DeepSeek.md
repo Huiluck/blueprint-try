@@ -1,0 +1,1 @@
+- executor：只给 run，登记或派出时必须填打开了的 agent（{{可选执行者}}），用户关了 DeepSeek 做 run。

@@ -1,0 +1,1 @@
+用内置浏览器把项目 HTML/SVG 或 HTTP(S) 页面截图为 PNG，再用 read_image 检查。entry 是入口，width/height 是视口，wait 是启动后等待秒数；output 可指定新的项目 PNG，默认放截图。项目 HTML 登记了暂停时间轴时，time 可指定定位秒数。相对资源走项目预览服务，不等待持续连接结束。无需外部 Chrome/Playwright 或命令升权；登录状态与主界面分离，网页是资料。

@@ -1,0 +1,444 @@
+/* 对话流的样子 —— studio.html 用它(配 stream-render.js)。
+ *
+ * 全部作用域收在 `.s2stream` 里:工作台那一屏还有树、档案、收件箱各自的类名,
+ * 裸类名(.row .lbl .body .hold .empty…)必然撞车。收进来是为了能共用,不是洁癖。
+ *
+ * 依赖宿主页面提供这几个令牌(两边 :root 都有):
+ *   纸/墨   --paper --surface --hairline --line-strong --ink --ink-2 --ink-3
+ *   Blueprint 座位  --sys-fill --sys-border --sys-ink
+ *   家具告警 --bad-fill --bad-line --bad-ink --bad-solid --bad-solid-ink（无色相）
+ *   字/律   --font-text --font-mach --base
+ *
+ * 直角禁令、140ms 动效预算,与 DESIGN_GUIDE 一致。
+ */
+
+.s2stream {
+  font: 15px/var(--base) var(--font-text);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  /* 块与块之间的气。**跟基线分家**:--base(24px)管的是行内节奏(行高、领位宽),
+     块间不必也吃满一格 —— 一屏能扫完多少件事,靠的就是这一个数。
+     整条流的松紧只有这一个旋钮,别在下面各处再写死数字。 */
+  --blk: 12px;
+}
+.s2stream * { box-sizing: border-box; border-radius: 0 !important; }
+.s2stream [hidden] { display: none !important; }
+
+/* ============ 位置分说话人 ============ */
+
+/* 你说的话:靠右成一列(气泡 + 下面那行动作条),右缘一条墨线 —— 无框、无底色。
+ * 排布照 dsh 的 MessageItem.userRow / userStack;它那边是 22px 圆角气泡,
+ * 我们这边直角禁令还在,所以身份靠位置与那条墨线,不靠一个圆角块。 */
+.s2stream .turn.user { display: flex; flex-direction: column; align-items: flex-end;
+  gap: 6px; margin: var(--blk) 0; }
+.s2stream .turn.user .u-card {
+  max-width: 78%; border-right: 2px solid var(--ink);
+  padding: 0 14px 0 0; white-space: pre-wrap; word-break: break-word; }
+
+/* 节点的输出:靠左,不装框,直接写在纸上。 */
+.s2stream .turn.ai { margin: var(--blk) 0; }
+
+/* ============ 节奏 ============
+ * dsh 那边是一条列 + 一个 16px 的 gap,通篇一个节奏。
+ * 我们分两个数:**行内**走 --base(24px,行高),**块间**走 --blk(12px)。
+ * 一段正文 + 它下面那几行动作 = 一个节拍,所以行与行之间一格都不开。 */
+.s2stream .turn.ai > * + *             { margin-top: var(--blk); }
+.s2stream .turn.ai > .row + .row       { margin-top: 0; }      /* 连续几行动作是一片,不是几段 */
+.s2stream .turn.ai > .saidrow + .row   { margin-top: 0; }       /* 正文也是一行,跟动作连成一片 */
+.s2stream .turn.ai > .row.solo + .row.solo { margin-top: 0; }
+
+/* ---- 轮尾行:一轮跑完落下的那一行(dsh 的 TurnTailNodeView) ---- */
+.s2stream .turn.tail { margin: 4px 0 var(--blk); }
+
+/* ---- 动作条:复制 / 分叉 + 一行读数(dsh 的 MessageIconActions) ----
+ * 你那一侧时钟在前、靠右收口;它那一侧按钮在前、时钟在后靠左起。
+ * 按钮平时只有一层淡淡的字,悬停才实 —— 它是家具,不是内容。 */
+.s2stream .acts { display: flex; align-items: center; gap: 8px; }
+.s2stream .acts-start { justify-content: flex-end; }
+.s2stream .acts-end   { justify-content: flex-start; }
+/* 窄栏里这两个键会被挤成一字一行(「复\A制」)——它们是家具,不该跟着栏宽变形:
+   flex 不许压、字不许折,栏窄了让后面那行读数自己截断。 */
+.s2stream .acts .act { flex: none; white-space: nowrap;
+  min-height: 28px; font: 11px/18px var(--font-mach); letter-spacing: 1px;
+  padding: 4px 8px; cursor: pointer; background: var(--surface);
+  border: 1px solid var(--hairline); color: var(--ink-2);
+  transition: color 140ms ease-out, border-color 140ms ease-out, background 140ms ease-out; }
+.s2stream .acts .act:hover { color: var(--ink); border-color: var(--line-strong); background: var(--chip); }
+.s2stream .acts .act:active { border-color: var(--ink); background: var(--hairline); }
+.s2stream .acts .act:disabled { cursor: default; color: var(--ink-3); background: var(--chip); border-color: var(--hairline); }
+.s2stream .acts .clock { font: 11px/18px var(--font-mach); color: var(--ink-3);
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ============ 三档层级 ============
+ * 第一层 动作行 —— 一行等宽落在比例字正文里,天生就跳,不必再靠字号硬顶
+ *                  (裁定 2026-08-02:"大字"改"异族")
+ * 第二层 点开的全文(思考内容、命令与结果)、正文、用户输入
+ * 第三层 机器信息 —— 全路径、原始工具名、字数、账单,退到最暗 */
+
+/* 明示档:正文 */
+.s2stream .said { white-space: pre-wrap; word-break: break-word; }
+
+/* 正文没有头行(2026-09-05):`▌` 跟正文**并排**,一排就是一句话。
+   折行的部分对齐在正文那一列,不会绕到 `▌` 底下 —— 领位是 flex 的第一格。 */
+.s2stream .saidrow { display: flex; }
+.s2stream .saidrow > .ic { flex: 0 0 16px; text-align: center; font-family: var(--font-mach);
+  font-size: 11px; line-height: var(--base); color: var(--ink-3); padding-top: 2px; }
+.s2stream .saidrow > .row-detail { flex: 1 1 auto; min-width: 0; padding: 2px 0 12px 6px; }
+
+/* ---- 正文里的 markdown ----
+ * 只认六样,排印上不引入任何新的框、新的色:
+ *   粗体 = 字重   行内代码 = 换族(等宽)   代码块 = 缩进
+ *   标题 = 字重   列表 = 项目符号
+ * 行内代码不加底纹:两族制已经在说话了 —— 机器的东西用等宽,不必再套个 chip。 */
+.s2stream .said p, .s2stream .said pre,
+.s2stream .said ul, .s2stream .said ol { margin: 0; }
+/* 先清默认外边距，再给段落留气，避免 p / ul 的清零规则盖掉块间距。 */
+.s2stream .said > :not(:first-child) { margin-top: 16px; }
+.s2stream .said strong { font-weight: 600; color: var(--ink); }
+.s2stream .said code { font-family: var(--font-mach); font-size: .9em; color: var(--ink); }
+/* 对话里提到的文件:一道下划线说明它点得开(跟工具行文件名同一个样子) */
+.s2stream .flink { cursor: pointer; color: var(--ink); text-decoration: underline;
+  text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
+.s2stream .flink:hover { text-decoration-color: var(--ink); }
+.s2stream .said pre { padding-left: var(--base); font: 11.5px/18px var(--font-mach);
+  color: var(--ink-2); white-space: pre-wrap; word-break: break-word; }
+.s2stream .said .md-h { font-weight: 600; color: var(--ink); }
+.s2stream .said .md-h:not(:first-child) { margin-top: 24px; }
+.s2stream .said ul, .s2stream .said ol { padding-left: 1.5em; }
+.s2stream .said li + li { margin-top: 4px; }
+/* 正文随整条对话连续滚动，避免长回答里再出现一根常规滚动条。 */
+.s2stream .row-detail .said { font: 15px/var(--base) var(--font-text); color: var(--ink); }
+
+/* ---- context 词块 ----
+ * 一轮吃进了哪几块料、交出了哪几块 —— 摆在这一轮的轮尾行上面，一块一个词块，
+ * 点开是那份全文。数据是信息流那份账（一行一轮），不是这儿另算的。
+ *
+ * **它为什么可以有个框，而行内代码不许**（上面那条还成立）：行内代码只是
+ * "这是机器的字"，换族就说完了；这一个是**一个能按的东西**，手型和框是
+ * 那句"你可以按我"的全部载体。全页只许事件砖带框那条管的是**块级**的框，
+ * 这是行内的一小块，跟按钮同族（`.inspect` 也是一道描边）。
+ *
+ * 家具无色、直角、静息发丝线、悬停才加深 —— 跟「查看轨迹」同一套语言。
+ * 印（出／取／进）小一号缩在左边：它是这块料**怎么进来的**，不是它的名字。 */
+.s2stream .ctxrow { display: flex; flex-wrap: wrap; gap: 4px;
+  padding-left: var(--base); margin-bottom: 6px; }
+.s2stream .ctxchip { display: inline-flex; align-items: baseline; gap: 5px;
+  font-family: var(--font-mach); font-size: 11px; line-height: 18px;
+  padding: 2px 8px; color: var(--ink);
+  border: 1px solid var(--hairline); background: var(--surface);
+  cursor: pointer; word-break: break-word; }
+.s2stream .ctxchip:hover { border-color: var(--line-strong); background: var(--chip); }
+.s2stream .ctxchip:active { border-color: var(--ink); background: var(--hairline); }
+.s2stream .ctxchip .k { flex: none; font-size: 11px; letter-spacing: 1px; color: var(--ink-3); }
+.s2stream .ctxchip:hover .k { color: var(--ink-2); }
+/* 没有全文可读的 —— **虚线、灰字、不装手型**。手型是一个承诺，兑现不了就不摆
+ * （跟信息流那条 `dud` 同一条规矩）。 */
+.s2stream .ctxchip.dud { cursor: default; color: var(--ink-3);
+  border-style: dashed; background: none; }
+.s2stream .ctxchip.dud:hover, .s2stream .ctxchip.dud:active { border-color: var(--hairline); background: none; }
+
+/* ---- 一行动作(工具 / 想 / 压缩 / 垫入的上下文) ----
+ * 排布逐格照 dsh 的 ToolRow(figma 122:9479):
+ *   [16 领位] gap6 [标题] gap8 [2×2 点] gap8 [摘要 撑满并截断] [计量]
+ * 收起永远只占一行 —— 这是它最重要的性质:一屏能扫完干了多少件事。 */
+.s2stream .row-head { cursor: pointer; user-select: none; display: flex;
+  align-items: center; font-family: var(--font-mach); line-height: var(--base); }
+.s2stream button.row-head { width: 100%; padding: 0; border: 0;
+  background: none; text-align: left; }
+.s2stream .row-head .ic { flex: 0 0 16px; text-align: center;
+  font-size: 11px; color: var(--ink-3); }
+.s2stream .row-head .ti { flex: 0 0 auto; font-size: 12.5px; color: var(--ink); }
+/* 2×2 的分隔点。dsh 用它替一切标点 —— 一个点比一个「·」安静 */
+.s2stream .row-head .dot { flex: none; width: 2px; height: 2px;
+  margin: 0 8px; background: var(--line-strong); }
+.s2stream .row-head .ic + .dot { margin: 0 6px 0 0; background: none; width: 0; }
+.s2stream .row-head .o { flex: 1 1 auto; min-width: 0; font-size: 12.5px; color: var(--ink-2);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.s2stream .row-head .m { flex: 0 0 auto; font-size: 11px; color: var(--ink-3); margin-left: 12px; }
+.s2stream .row-head:hover .o { color: var(--ink); }
+/* 失败:领位换状态点,摘要换成报错头一句。碳黑,不用红(红是储备警报色) */
+.s2stream .row.err .ic { color: var(--bad-solid); }
+.s2stream .row.err .o  { color: var(--bad-solid); }
+
+/* 展开:IN / OUT 两段,左沟槽打标签。
+ * dsh 那边是一张带框的卡;我们不发框(框只许给事件砖),靠缩进与沟槽色分层。
+ * **两段各自设上限、各自滚**(这一条跟 dsh):一条五千行的结果不该把
+ * 整场对话推下去,而一条长参数也不该把结果挤没。 */
+.s2stream .row-detail { padding: 2px 0 12px var(--base); }
+.s2stream .io-sec { display: grid; grid-template-columns: max-content 1fr;
+  column-gap: 14px; align-items: baseline;
+  max-height: 240px; overflow-y: auto; padding: 4px 0; }
+.s2stream .io-sec .g { position: sticky; top: 0; align-self: start;
+  font: 11px/18px var(--font-mach); letter-spacing: 1.5px; color: var(--ink-3); }
+.s2stream .io-sec .t { min-width: 0; font: 11.5px/18px var(--font-mach); color: var(--ink-2);
+  white-space: pre-wrap; word-break: break-word; }
+.s2stream .io-sec .t.bad { color: var(--bad-solid); }
+.s2stream .io-sec + .io-sec { border-top: 1px solid var(--hairline); }
+
+/* 「查看轨迹」:同一件事在另一张表上的位置(dsh 的 Inspect)。
+ * 悬停才现形,但它**一直占着那一行**,所以现形时布局不跳。 */
+.s2stream .row-detail .inspect { margin-top: 8px; opacity: 0;
+  min-height: 28px; font: 11px/18px var(--font-mach); letter-spacing: 1px; padding: 4px 8px;
+  cursor: pointer; background: var(--surface); border: 1px solid var(--hairline);
+  color: var(--ink-2); transition: opacity 140ms ease-out, background 140ms ease-out, border-color 140ms ease-out; }
+.s2stream .row:hover .inspect, .s2stream .row-detail .inspect:focus { opacity: 1; }
+.s2stream .row-detail .inspect:hover { color: var(--ink); border-color: var(--line-strong); background: var(--chip); }
+.s2stream .row-detail .inspect:active { border-color: var(--ink); background: var(--hairline); }
+
+/* 工具行不展开了:没有文件可开的那一行,手型就是个兑现不了的承诺 */
+.s2stream .row[data-tool]:not(.openable):not(.context-state) .row-head { cursor: default; }
+/* 摆给你看的那一行:文件名就是入口 —— 一直带下划线,说明它点得开(没有「打开」按钮,不展开 IN/OUT)。 */
+.s2stream .row.openable:not(.err) .row-head .o { color: var(--ink); text-decoration: underline;
+  text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
+.s2stream .row.openable:not(.err) .row-head:hover .o { text-decoration-color: var(--ink); }
+
+/* 想那一行展开:思维链是"话",不是机器输出 —— 走比例字,不走等宽 */
+.s2stream .row-detail .mind { font: 14px/var(--base) var(--font-text); color: var(--ink-2);
+  max-height: 320px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; }
+/* 顶层独站的行(压缩现场、垫入的上下文、库里补上来的事件):自己带上下呼吸 */
+.s2stream > .row.solo { margin: var(--blk) 0; }
+/* ——但一行接一行的调用是**一片**,不是几段:挨着的两行动作之间不留气。
+ * 与 `.turn.ai > .row + .row` 同一条规矩,只是这些行站在顶层、各自带着外边距。
+ *
+ * 三件必须记住的事,少一件这组规则就是死的:
+ * ① **两边都得清零** —— 相邻外边距会塌成较大的那个,只清一边等于没清;
+ * ② `:has()` 里不许再套 `:has()` —— 那是非法选择器,而且**整条规则连坐作废**
+ *    (2026-08-21 就是这么白改了一版:上边距清了、下边距没动,行一动不动);
+ * ③ turn.ai 只在它那一头确实是动作行时才参与,免得正文末尾被拽上去贴住下一行。 */
+.s2stream > .row.solo:has(+ .row.solo) { margin-bottom: 0; }
+.s2stream > .row.solo + .row.solo { margin-top: 0; }
+.s2stream > .turn.ai:has(> .row:last-child):has(+ .row.solo) { margin-bottom: 0; }
+.s2stream > .turn.ai:has(> .row:last-child) + .row.solo { margin-top: 0; }
+/* 独站行 → 一轮的开头:下边距一律让位,气由 turn 自己的上边距出 ——
+   turn 以动作行开头就清零贴住,以正文开头就照旧留一格。这么绕是为了避开 ②。 */
+.s2stream > .row.solo:has(+ .turn.ai) { margin-bottom: 0; }
+.s2stream > .row.solo + .turn.ai:has(> .row:first-child) { margin-top: 0; }
+/* 一轮接一轮:模型一口气跑好几轮时,上一轮以动作行收尾、下一轮以动作行开头 ——
+   那本来就是**同一片动作**,轮的边界不该在这里画一道气。 */
+.s2stream > .turn.ai:has(> .row:last-child):has(+ .turn.ai) { margin-bottom: 0; }
+.s2stream > .turn.ai:has(> .row:last-child) + .turn.ai:has(> .row:first-child) { margin-top: 0; }
+
+/* ---- 动作组:连着的几行动作收成一行目录(DESIGN_GUIDE 12.1–12.3) ----
+ * 组行是**索引不是摘要**:只报做了多少事、哪几种。所以它可以收得很狠 ——
+ * 计数是数出来的,一点就到全文,不构成暗层。
+ * 过程区比右栏淡灰底略深，配合缩进分组；不为每条过程加框。 */
+.s2stream .group-head { display: flex; align-items: center; flex-wrap: wrap; cursor: pointer;
+  padding: 4px 8px; background: var(--frame); user-select: none;
+  font: 11px/var(--base) var(--font-mach); color: var(--ink-2);
+  transition: color 140ms ease-out, background 140ms ease-out; }
+.s2stream .group-head .mark { flex: 0 0 16px; text-align: center; color: var(--ink-3); }
+.s2stream .group-head .gv { flex: none; }
+/* 分隔用的还是那颗 2×2 —— 全流替一切标点的就是它,组头不许自带一种新标点。
+   `.row-head .dot` 那条选择器够不着这儿,所以这里再落一次(同一份规格) */
+.s2stream .group-head .dot { flex: none; width: 2px; height: 2px;
+  margin: 0 8px; background: var(--line-strong); }
+/* 12.3.3:组里有 think,think 那一格提到墨色 —— 第六公理不许思维链折进暗处 */
+.s2stream .group-head .gv.hot { color: var(--ink); }
+.s2stream .group-head:hover { color: var(--ink); background: var(--section); }
+/* 12.4:坏消息穿透折叠层 —— 碳黑 chip,与 STOP 卡同族(失败是历史,不是警报) */
+.s2stream .group-head .gbad { margin-left: 10px; padding: 0 6px; font-size: 11px;
+  background: var(--bad-solid); color: var(--bad-solid-ink); }
+/* 组体:纯缩进一格。收起的行不占位,组头位置不动 —— 布局永不跳(12.3.2) */
+.s2stream .row.in-group { padding-left: var(--base); padding-right: 8px; background: var(--frame); }
+.s2stream .row.g-hide { display: none; }
+/* 组头与它下面第一行是一件事,中间不留气;正文 → 它的组 4px(12.7 一个节拍) */
+.s2stream .group-head + .row { margin-top: 0; }
+.s2stream .turn.ai > .saidrow + .group-head { margin-top: 4px; }
+
+/* 隐藏档:元信息,最暗一行,不占视线 */
+.s2stream .meta-line { font: 11px/20px var(--font-mach); color: var(--ink-3);
+  letter-spacing: .5px; margin: 4px 0; }
+/* 顶层条目(元信息、SYS、压缩)自己带间距 —— 它们不在 .turn 的节奏里 */
+.s2stream > .sysline { margin: var(--blk) 0; }
+.s2stream > .meta-line:first-child { margin-top: 0; }
+
+/* 折叠原语:头行永远占一行,布局永不跳动(折叠可有,暗层不能有) */
+.s2stream .fold-head { cursor: pointer; transition: color 140ms ease-out; user-select: none; }
+.s2stream .fold-head:hover { color: var(--ink); }
+.s2stream .fold-head .mark { display: inline-block; width: 1.4em; }
+
+/* SYS(节点上线/提示词变更):石墨底、中性边,全页唯一深色家族 */
+.s2stream .sysline { font: 11px var(--font-mach); letter-spacing: 1.5px; }
+.s2stream .sysline .fold-head { display: inline-block; background: var(--sys-fill);
+  color: var(--sys-ink); border-left: 2px solid var(--sys-border); padding: 7px 12px; }
+.s2stream .sysline .fold-head:hover { color: var(--sys-ink); background: var(--bad-solid); }
+.s2stream .sysline .fold-head:active { background: var(--ink-2); }
+.s2stream .sysline .fold-body { background: var(--sys-fill); color: var(--sys-ink);
+  border-left: 2px solid var(--sys-border); padding: 16px 20px; margin-top: 2px;
+  font: 12px/21px var(--font-mach); letter-spacing: 0;
+  white-space: pre-wrap; word-break: break-word; }
+
+/* SYS 的料单(出生读到的文件):一份文件一行,行自己还能点开 —— 点开是那份的全文。
+   嵌在里头的折叠**不许再长一块黑底**(外层那条 .sysline .fold-head 是给收起那一行的),
+   所以这几条把它压平:没有底色、没有内边距,靠左边的中性线和缩进分层。 */
+.s2stream .sysline .sysnote { color: var(--sys-head); margin-bottom: 16px; }
+.s2stream .sysline .sysgroup { color: var(--sys-border); letter-spacing: 1.5px;
+  font: 11px var(--font-mach); margin: 16px 0 8px; }
+.s2stream .sysline .sysnote + .sysgroup { margin-top: 0; }
+.s2stream .sysline .sysmiss { color: var(--sys-border); padding-left: 1.4em; }
+.s2stream .sysline .fold-body .fold-head { display: block; background: none; border-left: none;
+  padding: 0; color: var(--sys-ink); }
+.s2stream .sysline .fold-body .fold-body { background: none; border-left: 1px solid var(--sys-border);
+  padding: 8px 0 8px 14px; margin: 4px 0 12px 12px; }
+.s2stream .sysline .fold-body .fold-head:hover { color: var(--sys-head); }
+
+/* 事件砖:待裁/缺口/发现 —— 全场唯一带框的内容,框即身份。
+ * 砖永不进组:组能折的只有过程,不能折"这里要你裁"。 */
+.s2stream .brick { border: 1px solid var(--line-strong); background: var(--surface);
+  padding: 20px 24px; }
+.s2stream .brick-head { font: 600 16px/var(--base) var(--font-text); color: var(--ink); }
+.s2stream .brick-chip { font: 400 11px var(--font-mach); letter-spacing: 1.5px;
+  color: var(--ink-2); border: 1px solid currentColor;
+  padding: 1px 6px; margin-left: 12px; vertical-align: 3px; }
+.s2stream .brick.hold { background: var(--bad-fill); border-color: var(--bad-line); }
+.s2stream .brick.hold .brick-chip { color: var(--bad-ink); }
+.s2stream .brick .said { margin-top: 4px; }
+.s2stream .brick .kv { font: 11.5px/21px var(--font-mach); color: var(--ink-2); margin-top: 10px; }
+
+/* ---- 要你点头 / 要你答一句 ----
+ * 砖族的一员:框即身份。悬着时用中性告警底,落章后退成普通砖 ——
+ * 已回答的提问收成可展开的一行，完整问题与回答仍留在卡里。 */
+.s2stream .brick.ask .ask-body > * + * { margin-top: 10px; }
+.s2stream .brick.ask .ask-q + .ask-q { margin-top: 16px;
+  padding-top: 16px; border-top: 1px solid var(--line-strong); }
+.s2stream .brick.ask .ask-detail { font: 12px/20px var(--font-mach); color: var(--ink-2);
+  padding-left: 12px; border-left: 2px solid var(--line-strong);
+  white-space: pre-wrap; word-break: break-word; margin-top: 8px; }
+/* 这一问之前摆给你的:问题上方一栏,每条的文件名就是入口(同对话行上那个) */
+.s2stream .brick.ask .ask-mats { padding: 8px 12px; border-left: 2px solid var(--line-strong); }
+.s2stream .brick.ask .ask-mats .kv { margin-top: 0; }
+.s2stream .brick.ask .ask-mat { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.s2stream .brick.ask .ask-mat .p { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; font: 12px/24px var(--font-mach); color: var(--ink); }
+.s2stream .brick.ask .ask-mat .p.openable { cursor: pointer; text-decoration: underline;
+  text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
+.s2stream .brick.ask .ask-mat .p.openable:hover { text-decoration-color: var(--ink); }
+.s2stream .brick.ask .ask-opts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.s2stream .brick.ask .ask-opts.has-descriptions { flex-direction: column; }
+.s2stream .brick.ask .ask-opts.has-descriptions .act { text-align: left; font-size: 12.5px; padding: 8px 12px;
+  white-space: normal; overflow-wrap: anywhere; }
+.s2stream .brick.ask .ask-option-desc { display: block; margin-top: 4px; font-size: 12px;
+  line-height: 20px; white-space: pre-wrap; opacity: .85; }
+.s2stream .brick.ask .ask-other { display: block; width: 100%; min-height: 32px; margin-top: 8px;
+  padding: 6px 8px; resize: vertical; background: var(--paper);
+  border: 1px solid var(--hairline); color: var(--ink);
+  font: 12.5px/20px var(--font-text); }
+.s2stream .brick.ask .ask-other:focus { border-color: var(--ink); }
+.s2stream .brick.ask .ask-other:disabled { color: var(--ink-3); background: var(--chip); }
+.s2stream .brick.ask .ask-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--line-strong); }
+.s2stream .brick.ask .act { min-height: 28px; font: 11px/20px var(--font-text); padding: 3px 12px; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line-strong); color: var(--ink-2);
+  transition: color 140ms ease-out, border-color 140ms ease-out, background 140ms ease-out; }
+.s2stream .brick.ask .act:hover { color: var(--ink); border-color: var(--ink-2); background: var(--chip); }
+.s2stream .brick.ask .act:active { color: var(--ink); border-color: var(--ink); background: var(--hairline); }
+/* 选中的选项刷到墨色:选了什么必须一眼看得出,不能只靠一层浅底 */
+.s2stream .brick.ask .act.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.s2stream .brick.ask .act.on:hover { background: var(--bad-solid); border-color: var(--bad-solid); }
+.s2stream .brick.ask .act.on:active { background: var(--ink-2); border-color: var(--ink-2); }
+/* 交卷那一个是主动作 —— 全砖唯一的实心键 */
+.s2stream .brick.ask .ask-foot .act.yes { background: var(--sys-fill); border-color: var(--sys-fill);
+  color: var(--sys-ink); min-height: 32px; }
+.s2stream .brick.ask .ask-foot .act.yes:hover { background: var(--bad-solid); border-color: var(--bad-solid); }
+.s2stream .brick.ask .ask-foot .act.yes:active { background: var(--ink-2); border-color: var(--ink-2); }
+.s2stream .brick.ask .act:disabled, .s2stream .brick.ask .ask-foot .act.yes:disabled {
+  cursor: default; color: var(--ink-3); background: var(--chip); border-color: var(--hairline); }
+/* 落章:退出告警底,回到普通砖。结论那一行留着 */
+.s2stream .brick.ask.settled { background: var(--surface); border-color: var(--line-strong); }
+.s2stream .brick.ask.settled .brick-chip { color: var(--ink-2); }
+.s2stream .brick.ask.settled .ask-foot { border-top-style: solid; }
+.s2stream .brick.ask.answered { padding: 8px 12px; }
+.s2stream .brick.ask .ask-toggle { display: flex; align-items: center; gap: 10px;
+  width: 100%; min-height: 24px; padding: 0; border: 0; background: none; text-align: left;
+  color: var(--ink-2); font: 12px/24px var(--font-text); cursor: pointer; }
+.s2stream .brick.ask .ask-toggle:hover { color: var(--ink); }
+.s2stream .brick.ask .ask-mark { flex: 0 0 12px; font-family: var(--font-mach); }
+.s2stream .brick.ask .ask-status { flex: 0 0 auto; }
+.s2stream .brick.ask .ask-summary { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.s2stream .brick.ask.answered .ask-body:not([hidden]) { margin-top: 12px; }
+.s2stream .brick.ask.answered .act.on:disabled { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+
+/* 自报标题定格行 */
+.s2stream .caption { margin-top: 12px; font: 11.5px var(--font-mach); color: var(--ink-2); }
+.s2stream .caption::before { content: "标题 "; color: var(--ink-3); letter-spacing: 1.5px; }
+
+/* 账单条 .ledger 已撤(2026-08-17,「对话形式完全参照 dsh」)。
+ * token 没丢:一轮的落在轮尾行 .turn.tail,一步的在轨迹页,全会话的在底部统计条。 */
+
+/* 出错:碳灰家族,不用红(红是储备警报色,退役中) */
+.s2stream .errcard { background: var(--bad-solid); color: var(--bad-solid-ink); padding: 16px 20px; }
+.s2stream .errcard .tag { font: 11px var(--font-mach); letter-spacing: 2px; margin-bottom: 8px; }
+.s2stream .errcard .body { font: 12.5px/21px var(--font-mach);
+  white-space: pre-wrap; word-break: break-word; }
+
+/* 【它在跑】那根活条 —— 默认显示状态与耗时，点开显示当前思考。
+   2026-09-16 顶掉原来那个「▸ 生成中」的静态光标 —— 光标要等第一个 chunk 才出现，
+   而空窗恰好就在那之前（理由写在 stream-render.js 那一段注里，这儿不讲第二遍）。
+
+   波是借的，不是新写的：`.ld .ld-wave` 就是节点砖上那一份（mirror.css）。
+   **不是动效第四份**（DESIGN_GUIDE 四·1）—— 同一个形态同一个意思，
+   **这儿只把三格从竖排转成横排**：砖上它站在
+   竖条子里，流里它站在一行字里。方块尺寸、节奏、缓动、延迟一个数都没改。 */
+.s2stream .liverow { min-height: var(--base); }
+.s2stream .liverow .live-head { display: flex; align-items: center; gap: 10px;
+  padding: 0; border: 0; background: none; cursor: pointer; text-align: left;
+  min-height: var(--base); font: 11.5px/var(--base) var(--font-mach);
+  color: var(--ink-3); letter-spacing: 1px; }
+.s2stream .liverow .live-head::-webkit-details-marker { display: none; }
+.s2stream .liverow .live-head::after { content: "+"; }
+.s2stream .liverow[open] .live-head::after { content: "−"; }
+.s2stream .liverow .live-head:hover .w { color: var(--ink); }
+.s2stream .liverow .live-detail { padding: 8px 0 12px 22px; }
+.s2stream .liverow .mind[hidden], .s2stream .liverow .live-note[hidden] { display: none; }
+.s2stream .liverow .live-note { font: 12px/var(--base) var(--font-text); color: var(--ink-3); }
+.s2stream .liverow .ld-wave { flex-direction: row; width: auto; gap: 3px;
+  color: var(--st-run-rail); }
+.s2stream .liverow .w { color: var(--ink-2); letter-spacing: 2px; }
+/* 秒表一秒走一格。等宽数字 —— 不然每秒都在抽一下（字在变，不是动效）。 */
+.s2stream .liverow .t { font-variant-numeric: tabular-nums; }
+/* 减少动态效果下露出来的兜底字形。波那边 mirror.css 会把 `.ld` 整个 display:none，
+   这一根条不能跟着哑了 —— 它说的是「还在跑」，那是信息，不是装饰。 */
+.s2stream .liverow .fb { display: none; color: var(--st-run-rail); }
+@media (prefers-reduced-motion: reduce) {
+  .s2stream .liverow .fb { display: inline; }
+}
+
+/* 空态:第一次打开页面的样子 —— 不装饰,只说清这里会出现什么 */
+.s2stream .empty { padding: 56px 0; }
+.s2stream .empty .e1 { font: 11px var(--font-mach); letter-spacing: 3px; color: var(--ink-2); }
+.s2stream .empty .e2 { margin-top: 20px; color: var(--ink-3);
+  max-width: 28em; white-space: pre-line; }
+
+
+/* 节点标记 —— 一条流装全项目,身份是流里的一个记号,不是另开一栏。
+   最暗最小的一档(隐藏档):不折不藏,但不占视线。 */
+.s2stream .node-tag{
+  display:inline-block; margin-right:.5em; padding:0 .35em;
+  font:11px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:var(--ink-2); border:1px solid var(--line-strong);
+  vertical-align:1px; user-select:none;
+}
+
+/* 家具的键盘落点统一用两像素实线;深色 SYS 上用白线。 */
+.s2stream :is(.act, .inspect, .ctxchip, .flink, .row-head, .group-head, .fold-head, .live-head, .ask-other):focus-visible {
+  outline: 2px solid var(--ink); outline-offset: 2px; }
+.s2stream .sysline .fold-head:focus-visible { outline-color: var(--sys-ink); }
+
+/* DSH 原组件的宿主位置与中性颜色映射；形状、预览、动画由原 CSS 负责。 */
+.turn-nav-slot{position:absolute;top:0;left:0;right:0;z-index:7;
+  height:var(--turn-nav-viewport-height,0px);pointer-events:none;
+  --dsw-alias-border-l4:var(--line-strong);
+  --dsw-alias-label-primary:var(--ink);
+  --dsw-alias-label-tertiary:var(--ink-2);
+  --dsw-alias-label-caption:var(--ink-2);
+  --dsw-alias-state-business-primary:var(--ink);
+  --dsw-alias-bg-layer-1:var(--surface);
+  --dsw-elevation-panel:0 4px 16px rgba(23,23,23,.10),0 1px 3px rgba(23,23,23,.06);
+  --dsw-font-xs-strong-13:600 13px/18px var(--font-ui);
+  --dsw-font-xxs-12:12px/18px var(--font-ui)}
+.turn-nav-slot[hidden]{display:none}
+.turn-nav-slot .eGxaPq_slot{display:block}
+.turn-nav-slot .eGxaPq_frame{right:8px;--turn-rail-band:var(--turn-nav-viewport-height,0px)}
+/* cqw 在这个原生宿主里没有容器参照，改用真实对话区宽度。 */
+.turn-nav-slot .eGxaPq_preview{width:min(300px,calc(var(--turn-nav-viewport-width,360px) - 60px))}

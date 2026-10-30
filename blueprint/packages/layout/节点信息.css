@@ -1,0 +1,41 @@
+/* 节点档案：身份、收到的请求（情境、边界、期待）、做法、成果；三类职责共用安静的阅读面。 */
+.bp-node-doc{flex:1;min-height:0;overflow:auto;background:var(--bp-surface);color:var(--bp-ink);font:13px/1.75 var(--bp-font-ui);container-type:inline-size}
+.bni-content{box-sizing:border-box;max-width:760px;margin:0 auto;padding:24px 24px 36px;overflow-wrap:anywhere}
+.bni-identity{padding-bottom:22px;border-bottom:1px solid var(--bp-line)}
+.bni-overline{display:flex;align-items:center;justify-content:space-between;gap:12px;font:11px/18px var(--bp-font-mono);color:var(--bp-muted)}
+.bni-status,.bni-small-state{display:inline-flex;align-items:center;gap:6px;font:12px/18px var(--bp-font-ui);color:var(--bp-secondary);flex-shrink:0}
+.bni-status:before,.bni-small-state:before{content:'';width:5px;height:5px;background:currentColor;flex:none}
+.bni-status[data-state=run],.bni-small-state[data-state=run]{color:#276b55}
+.bni-status[data-state=ask],.bni-small-state[data-state=ask]{color:#9b651c}
+.bni-status[data-state=stop],.bni-small-state[data-state=stop]{color:#a34b3c}
+.bni-identity h2{margin:14px 0 2px;font:600 23px/1.4 var(--bp-font-ui);letter-spacing:-.4px}
+.bni-role{margin:0;color:var(--bp-secondary);font-size:12px}
+.bni-facts{margin:18px 0 0;display:flex;flex-wrap:wrap;column-gap:24px;row-gap:9px}
+.bni-fact{min-width:100px;max-width:100%;display:flex;flex-direction:column;gap:1px}
+.bni-fact dt{color:var(--bp-muted);font-size:11px}.bni-fact dd{margin:0;font-size:12px}
+.bni-section{margin-top:24px}.bni-section>h3{margin:0 0 10px;font:600 14px/1.6 var(--bp-font-ui)}
+.bni-original-request{padding:12px 14px;background:var(--bp-soft);white-space:pre-wrap;overflow-wrap:anywhere;tab-size:4}
+.bni-text{min-width:0}.bni-text.s2stream{padding:0;background:transparent;overflow:visible}
+.bni-text .said{padding:0!important;margin:0!important;min-height:0;font:13px/1.8 var(--bp-font-ui);color:var(--bp-ink)}
+.bni-text .said>:first-child{margin-top:0}.bni-text .said>:last-child{margin-bottom:0}
+.bni-text .said :is(h1,h2,h3,h4,h5,h6){font:600 13px/1.65 var(--bp-font-ui);letter-spacing:0}
+.bni-text .said p{margin:8px 0}.bni-text .said pre{max-width:100%;overflow:auto;font-size:12px}
+.bni-text .said table{display:block;max-width:100%;overflow:auto}
+.bni-boundary-item+.bni-boundary-item{margin-top:12px}
+.bni-group-label{margin:12px 0 8px;color:var(--bp-secondary);font-size:12px;font-weight:500}
+.bni-collaborators{list-style:none;margin:0;padding:0;border:1px solid var(--bp-line)}
+.bni-collaborator{padding:11px 12px}.bni-collaborator+.bni-collaborator{border-top:1px solid var(--bp-line)}
+.bni-collaborator-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-weight:600}
+.bni-collaborator p{margin:4px 0 0;color:var(--bp-secondary);font-size:12px}.bni-collaborator small{color:var(--bp-muted);font-size:11px}
+.bni-caption{margin:8px 0;color:var(--bp-muted);font-size:12px}
+.bni-result{padding:12px 14px;background:var(--bp-soft);border-left:2px solid var(--bp-ink)}
+.bni-result-label{margin-bottom:7px;font-weight:600;font-size:12px}
+.bni-report{margin-top:14px}.bni-report h4,.bni-boundary-item h4,.bni-verification h4,.bni-question h4,.bni-waiting h4{margin:0 0 6px;font:500 12px/1.6 var(--bp-font-ui);color:var(--bp-secondary)}
+.bni-waiting{margin-bottom:14px}.bni-waiting ul{margin:0;padding-left:18px;color:var(--bp-secondary);font-size:12px}
+.bni-verification{margin-top:14px}.bni-question{margin-top:16px;padding:12px 14px;border:1px solid var(--bp-control)}
+.bni-question h4{font-weight:600;color:var(--bp-ink)}
+.bni-details{margin-top:12px}.bni-details summary{width:fit-content;max-width:100%;cursor:pointer;color:var(--bp-secondary);font-size:12px}
+.bni-details[open]>summary{margin-bottom:12px}.bni-details summary:focus-visible{outline:2px solid var(--bp-focus);outline-offset:3px}
+.bni-context{margin-top:24px;padding-top:16px;border-top:1px solid var(--bp-line)}
+.bni-error,.bni-loading{margin:20px 24px;color:var(--bp-muted);font-size:12px}.bni-error button{margin-left:12px;padding:3px 8px;border:1px solid var(--bp-control);background:var(--bp-surface);color:var(--bp-ink);cursor:pointer}
+@container(max-width:400px){.bni-content{padding:18px 16px 28px}.bni-identity h2{font-size:21px}.bni-facts{column-gap:18px}.bni-section{margin-top:20px}}

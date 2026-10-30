@@ -1,0 +1,13 @@
+/* 正文与材料共用一个竖排容器，避免原生消息的横向领位把卡片挤到右侧。 */
+.bp-material-message{flex:1;min-width:0;width:100%}
+.bp-chat-materials{box-sizing:border-box;display:grid;gap:10px;margin:10px 0 12px;min-width:0;width:100%}
+.bp-chat-material{min-width:0}
+.bp-chat-material-source{margin:0 0 5px;color:var(--bp-muted);font:11px/18px var(--bp-font-ui)}
+.bp-chat-materials .artifact-card{border-color:var(--bp-line)}
+.bp-chat-materials .artifact-card.image-card{grid-template-columns:min(38%,180px) minmax(0,1fr)}
+.bp-chat-materials .artifact-content{padding:10px 12px}
+.bp-chat-materials .artifact-visual{min-height:96px}
+.bp-chat-material-warning{margin:10px 0;color:var(--bp-muted);font:12px/20px var(--bp-font-ui)}
+.bp-chat-material-warning button{margin-left:8px;padding:2px 6px;border:1px solid var(--bp-line);background:var(--bp-surface);color:var(--bp-secondary);font:inherit;cursor:pointer}
+.bp-chat-material-warning button:hover{background:var(--bp-soft)}
+@media(max-width:420px){.bp-chat-materials .artifact-content{padding:8px}.bp-chat-materials .artifact-card.image-card{grid-template-columns:min(36%,120px) minmax(0,1fr)}}

@@ -1,0 +1,42 @@
+/* helm 与 dock 共用节点结构，颜色、宽度与角色字号区分身份。 */
+.bpc .ncompact:is(.nhelm,.ndock){--node-head:#eef1f3;--node-head-line:#d5dce2;--node-mark:#53616d;--node-meta:#68737e;--node-kind:#53616d;--node-title:#252e37;--node-divider:#c3cbd2;--node-control:#64707c;--node-hover:#e0e6eb;--node-hover-ink:#252e37;--node-focus:#171717;--node-edge:#59636d}
+/* 未启动（DESIGN_GUIDE 3.3）：整块纯灰，顶栏、角色条、字一起褪成无色相的灰。 */
+.bpc .ncompact.o-idle:is(.nhelm,.ndock){--node-head:var(--st-idle-paper);--node-head-line:#CFCFCF;--node-mark:#8A8A8A;--node-meta:#8A8A8A;--node-kind:#7A7A7A;--node-title:#6E6E6E;--node-divider:#C8C8C8;--node-control:#9A9A9A;--node-edge:var(--st-idle-rail)}
+.bpc .ncompact.nhelm{--node-head:#1b222a;--node-head-line:#38434e;--node-mark:#e1e7ed;--node-meta:#aab6c2;--node-kind:#e1e7ed;--node-title:#f5f7fa;--node-divider:#4a5663;--node-control:#b6c1cc;--node-hover:#303c48;--node-hover-ink:#fff;--node-focus:#dce6ef;--node-edge:#1b222a}
+.bpc .ncompact.ndock{--node-button-size:24px;--node-head-height:calc(2 * var(--node-button-size) + 4px);--node-head-top:1.5px;--node-head-bottom:1.5px}
+.bpc .ncompact:is(.nhelm,.ndock)>.node-role-edge{flex:none;height:4px;min-height:4px;background:var(--node-edge)}
+.bpc .ncompact:is(.nhelm,.ndock) .bhead{display:grid;grid-template-columns:32px minmax(0,1fr) 32px;grid-template-rows:20px 20px;gap:0;height:var(--node-head-height,64px);min-height:var(--node-head-height,64px);padding:var(--node-head-top,12px) 0 var(--node-head-bottom,11px) 10px;background:var(--node-head);border-bottom:1px solid var(--node-head-line);box-shadow:none}
+.bpc .ncompact:is(.nhelm,.ndock) .node-role-mark{grid-column:1;grid-row:1 / 3;align-self:center;width:24px;height:24px;fill:none;stroke:var(--node-mark);stroke-width:1.1;stroke-linecap:square;stroke-linejoin:miter}
+.bpc .ncompact:is(.nhelm,.ndock) .node-role-register{opacity:.5}
+.bpc .ncompact:is(.nhelm,.ndock) .num{grid-column:2;grid-row:1;display:flex;align-items:center;gap:5px;min-width:0;margin:0 8px 0 0;color:var(--node-meta);font:9px/20px var(--font-mono);text-transform:none;white-space:nowrap;overflow:hidden}
+.bpc .ncompact:is(.nhelm,.ndock) .node-role-kind{color:var(--node-kind);font-size:18px;line-height:20px;letter-spacing:.02em;font-weight:600}
+.bpc .ncompact.ndock .node-role-kind{font-size:14px}
+.bpc .ncompact:is(.nhelm,.ndock) .node-role-number{min-width:0;overflow:hidden;text-overflow:ellipsis;border-left:1px solid var(--node-divider);padding-left:5px}
+.bpc .ncompact:is(.nhelm,.ndock) .bname{grid-column:2;grid-row:2;align-self:center;height:20px;margin:0 8px 0 0;color:var(--node-title);font:600 14px/20px var(--font-ui);letter-spacing:.02em;text-overflow:ellipsis}
+/* 右侧两格沿用 helm：整列共边，中间一条细线。 */
+.bpc .ncompact:is(.nhelm,.ndock) .node-actions{grid-column:3;grid-row:1 / 3;display:grid;grid-template-rows:repeat(2,minmax(0,1fr));align-self:stretch;width:32px;height:auto;margin:calc(0px - var(--node-head-top,12px)) 0 calc(0px - var(--node-head-bottom,11px));border-left:1px solid var(--node-head-line)}
+.bpc .ncompact:is(.nhelm,.ndock) .node-actions button{width:100%;min-width:0;max-width:none;height:100%;min-height:0;max-height:none;aspect-ratio:auto;border:0;color:var(--node-control)}
+.bpc .ncompact:is(.nhelm,.ndock) .node-actions button+button{border-top:1px solid var(--node-head-line)}
+.bpc .ncompact:is(.nhelm,.ndock) .node-actions .node-icon{width:14px;height:14px}
+.bpc .ncompact:is(.nhelm,.ndock) .node-actions button:hover{background:var(--node-hover);color:var(--node-hover-ink)}
+.bpc .ncompact:is(.nhelm,.ndock) .node-actions button:focus-visible{outline-color:var(--node-focus)}
+.bpc .ncompact:is(.nhelm,.ndock)>.band{height:64px;min-height:64px}
+.bpc .ncompact:is(.nhelm,.ndock) .txt{padding:6px 12px;gap:2px}
+.bpc .ncompact:is(.nhelm,.ndock) .r1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;white-space:normal;height:auto;max-height:34px;font:500 12px/17px var(--font-ui)}
+.bpc .ncompact:is(.nhelm,.ndock) .r2{font-size:10px;line-height:14px}
+.bpc .ncompact:is(.nhelm,.ndock).sel{outline:none;border-color:var(--selection-line);box-shadow:none}
+.bpc .ncompact:is(.nhelm,.ndock).sel::after{content:"";position:absolute;inset:0;border:1px solid var(--selection-line);pointer-events:none;z-index:2}
+/* dock 沿用 run 的右侧两列：首排启停／重置，次排按需翻页；顶栏适应两排按钮。 */
+.bpc .ncompact.ndock .bhead{grid-template-columns:32px minmax(0,1fr) calc(2 * var(--node-button-size));grid-template-rows:repeat(2,var(--node-button-size))}
+.bpc .ndock.has-round-register .bpc-roundbar{padding:0;background:transparent}
+.bpc .ndock.has-round-register .bpc-roundbar button{color:var(--node-control)}
+.bpc .ndock.has-round-register .bpc-roundbar button:hover{background:var(--node-hover);color:var(--node-hover-ink)}
+.bpc .ndock.has-round-register .bpc-roundbar button:disabled{background:none;color:#b6c0c9}
+.bpc .ndock.has-round-register .bpc-roundbar button:focus-visible{outline-color:var(--node-focus)}
+.bpc .ndock.has-round-register .bpc-roundbar svg{stroke-width:1.5}
+.bpc .ncompact.ndock .node-controls{grid-column:3;grid-row:1 / 3;align-self:center;display:grid;grid-template-columns:calc(2 * var(--node-button-size));grid-template-rows:repeat(2,var(--node-button-size));gap:0;width:calc(2 * var(--node-button-size));height:calc(2 * var(--node-button-size))}
+.bpc .ncompact.ndock .node-controls :is(.node-actions,.bpc-roundbar){grid-area:auto;align-self:stretch;display:grid;grid-template-columns:repeat(2,var(--node-button-size));grid-template-rows:var(--node-button-size);width:calc(2 * var(--node-button-size));min-width:0;height:var(--node-button-size);margin:0;border:0}
+.bpc .ncompact.ndock .node-controls button{width:var(--node-button-size);min-width:var(--node-button-size);max-width:var(--node-button-size);height:var(--node-button-size);min-height:var(--node-button-size);max-height:var(--node-button-size);border:0;border-left:1px solid var(--node-head-line)}
+.bpc .ncompact.ndock .node-controls .node-actions button+button{border-top:0}
+.bpc .ncompact.ndock .node-controls .bpc-roundbar button{border-top:1px solid var(--node-head-line)}
+.bpc .ncompact.ndock .node-controls :is(.node-icon,svg){width:12px;height:12px}

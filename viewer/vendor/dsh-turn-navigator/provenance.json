@@ -1,0 +1,8 @@
+{
+  "package": "@deepseek-ai/dsh-client-ui-chat",
+  "version": "0.1.5-rc.2",
+  "componentSource": "https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-chat/src/client/chat/TurnNavigator.tsx",
+  "installedBundleSha256": "6527556d25c7b2a27f2e3bfb96cc2ae3d9244f1213147e245b17684ad8d9e396",
+  "componentBodySha256": "731445cbba3218bbb98cb4908cd7b107df179ec6e2b6960dcbff96d37a91079f",
+  "cssSha256": "10f5d90d2d1b1aca0ad6d45e3abe70482f6661ef43552939614f86732bd8da36"
+}

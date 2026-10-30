@@ -1,0 +1,33 @@
+/* 软件页：照 skill 页的分组和卡片排法，直角、黑白；只有装好那盏灯用状态绿（跟 Agent 选择页的灯同色）。 */
+.bps-page{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:14px;padding:14px 16px 16px;background:var(--bp-surface);color:var(--bp-ink);font:12px/1.6 var(--bp-font-ui)}
+.bps-page button{flex:none;height:26px;padding:0 10px;border:1px solid var(--bp-control);background:var(--bp-surface);color:var(--bp-ink);font:500 12px/24px var(--bp-font-ui);cursor:pointer}
+.bps-page button:hover:not(:disabled){background:var(--bp-hover)}
+.bps-page button:active:not(:disabled){background:var(--bp-selected)}
+.bps-page button:disabled{color:var(--bp-disabled);cursor:default}
+.bps-page :focus-visible{outline:2px solid var(--bp-focus);outline-offset:1px}
+.bps-top{display:flex;align-items:flex-start;gap:12px}
+.bps-lede{flex:1;min-width:0;margin:0;color:var(--bp-secondary)}
+.bps-error{margin:0;padding:8px 10px;border:2px solid var(--bp-ink);font-weight:600}
+.bps-brew{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--bp-control)}
+.bps-brew p{flex:1;min-width:0;margin:0;display:flex;flex-direction:column;color:var(--bp-secondary)}
+.bps-brew strong{color:var(--bp-ink);font-weight:600}
+.bps-group h3{display:flex;align-items:center;gap:8px;margin:0 0 8px;font:600 12px/20px var(--bp-font-ui);color:var(--bp-ink)}
+.bps-count{font:11px/18px var(--bp-font-mono);font-weight:400;color:var(--bp-muted)}
+.bps-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:6px}
+.bps-row{display:flex;flex-direction:column;gap:8px;min-width:0;padding:8px 10px;border:1px solid var(--bp-line);background:var(--bp-surface)}
+.bps-row[data-state=bad]{border-color:var(--bp-ink)}
+.bps-copy{display:flex;flex:1;flex-direction:column;gap:2px;min-width:0;overflow-wrap:anywhere}
+.bps-copy b{font:600 13px/20px var(--bp-font-ui)}
+.bps-desc{color:var(--bp-secondary);line-height:18px}
+.bps-why{margin-top:5px;padding-top:6px;border-top:1px solid var(--bp-line);font-weight:600;line-height:17px;white-space:pre-wrap}
+.bps-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:26px}
+.bps-state{display:inline-flex;align-items:center;gap:6px;color:var(--bp-muted);font-weight:500}
+.bps-state i{width:9px;height:9px;border-radius:50%;box-sizing:border-box;border:1.5px solid var(--bp-control);background:transparent}
+.bps-row[data-state=on] .bps-state{color:var(--bp-ink)}
+.bps-row[data-state=on] .bps-state i{border-color:var(--st-run-rail,#14A177);background:var(--st-run-rail,#14A177)}
+.bps-row[data-state=busy] .bps-state{color:var(--bp-ink)}
+.bps-row[data-state=busy] .bps-state i{border-color:var(--st-run-rail,#14A177);animation:bps-lamp 1s ease-in-out infinite}
+.bps-row[data-state=bad] .bps-state{color:var(--bp-ink);font-weight:600}
+.bps-row[data-state=bad] .bps-state i{border:2px solid var(--bp-ink)}
+@keyframes bps-lamp{50%{background:color-mix(in srgb,var(--st-run-rail,#14A177) 45%,transparent)}}
+@media (prefers-reduced-motion:reduce){.bps-row[data-state=busy] .bps-state i{animation:none;background:color-mix(in srgb,var(--st-run-rail,#14A177) 45%,transparent)}}

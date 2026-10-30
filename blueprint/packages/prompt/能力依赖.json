@@ -1,0 +1,149 @@
+{
+  "impeccable": {
+    "text": true
+  },
+  "open-design": {
+    "commands": [
+      "node"
+    ],
+    "ready": "设计系统、组件与模板资料及检索脚本"
+  },
+  "html-video": {
+    "commands": ["node"],
+    "capability": "renderer",
+    "ready": "HTML 时间轴工程与内置指定时刻截图",
+    "missing": "当前运行方式没有内置截图服务",
+    "solution": "在 Blueprint 桌面 App 中使用动画工程与 render_page。",
+    "note": "动画库随工程保留，不用 CDN；完整 MP4 与音轨混合尚未接入。"
+  },
+  "visualize": {
+    "commands": ["node"],
+    "ready": "本地交互图表起点与项目创建器"
+  },
+  "phaser": {
+    "commands": ["node"],
+    "ready": "本地 Phaser 浏览器库、可玩工程与状态检查",
+    "note": "制作网页 2D 游戏；Godot 原生工程使用 Godot 技能。"
+  },
+  "threejs": {
+    "commands": ["node"],
+    "ready": "本地 Three.js、控制器与模型加载器及交互工程",
+    "note": "浏览器交互 3D；建模、渲染与格式转换用 Blender 技能。"
+  },
+  "blender": {
+    "commands": ["blender"],
+    "ready": "Blender 命令",
+    "solution": "安装 Blender 并使 blender 命令可用；Homebrew 安装会提供这个命令。"
+  },
+  "novel-context": {
+    "commands": ["node"],
+    "ready": "小说章节材料检索与叙事状态工具"
+  },
+  "novel-revision": {
+    "commands": ["node"],
+    "ready": "作者文风资料、重复候选定位与修改对照"
+  },
+  "markitdown": {
+    "commands": ["uv"],
+    "ready": "办公材料转换脚本与固定 Python 依赖",
+    "note": "首次使用下载固定 Python 与依赖，沿用当前项目的缓存目录；不执行表格公式重算。",
+    "solution": "安装 uv 并使 uv 命令可用后重新检查。"
+  },
+  "ppt": {
+    "commands": ["node"],
+    "ready": "独立 PPTX 构建器、图表表格与 JSON 工程",
+    "note": "普通生成无需 Office；实际 PPTX 版面渲染另需匹配的 LibreOffice 与字体。"
+  },
+  "look": {
+    "capability": "renderer",
+    "ready": "内置网页截图",
+    "missing": "当前运行方式没有内置截图服务",
+    "solution": "在 Blueprint 桌面 App 中使用 render_page。",
+    "note": "截图使用内置浏览器；可选的改版像素比较另需 ImageMagick 7。"
+  },
+  "resource-reuse": {
+    "commands": [
+      "node",
+      "curl"
+    ],
+    "ready": "资源检索、实测渠道指南与下载器",
+    "note": "解码、导入和运行按所选资源使用相应工具；下载记录不代替作品效果验证。"
+  },
+  "draw": {
+    "mediaOperation": "image.generate",
+    "ready": "已配置图片生成服务",
+    "missing": "尚未配置有 Key 且支持图片生成的媒体服务",
+    "solution": "在 API 页面添加图片服务及其生成模型；不需要电脑操控权限。"
+  },
+  "ffmpeg": {
+    "commands": [
+      "ffmpeg",
+      "ffprobe"
+    ],
+    "ready": "音视频处理命令",
+    "solution": "安装 FFmpeg 后重新检查；视频和音频预览已内置，无需 FFmpeg。"
+  },
+  "godot": {
+    "commands": [
+      "godot"
+    ],
+    "ready": "Godot 命令",
+    "note": "导出模板、图形运行与缓存位置须按实际任务确认。",
+    "solution": "安装 Godot 并使 godot 命令可用；网页作品可使用内置预览与截图。"
+  },
+  "graphviz": {
+    "commands": [
+      "dot"
+    ],
+    "ready": "Graphviz 命令",
+    "solution": "安装 Graphviz 后重新检查；也可直接制作 SVG 或 HTML 图表。"
+  },
+  "imagemagick": {
+    "commands": [
+      "magick"
+    ],
+    "ready": "ImageMagick 7 命令",
+    "solution": "安装 ImageMagick 7 后重新检查；浏览器能够完成的简单绘制可用 HTML、SVG 和 render_page。"
+  },
+  "pdf": {
+    "commands": [
+      "pdftotext",
+      "pdftoppm"
+    ],
+    "ready": "PDF 提取与转图命令",
+    "solution": "安装 Poppler 后重新检查；用户打开 PDF 的内置预览不需要 Poppler。"
+  },
+  "typst": {
+    "commands": [
+      "typst"
+    ],
+    "ready": "Typst 命令",
+    "solution": "安装 Typst 后重新检查；HTML 文档可直接预览。"
+  },
+  "uv": {
+    "commands": [
+      "uv"
+    ],
+    "ready": "Python 依赖管理命令",
+    "note": "Python 与第三方库按任务取得，缓存和安装放在项目临时目录。",
+    "solution": "安装 uv 后重新检查；可由 App 内置 Node 完成的任务直接使用 Node。"
+  },
+  "playwright-cli": {
+    "unsupported": "当前 App 尚未接入交互式浏览器自动化；外部浏览器与项目命令隔离不兼容",
+    "solution": "读取公开网页用 web_fetch，网页截图用 render_page；登录、点击和填表暂需用户操作。命令升权不能补齐这项集成。"
+  },
+  "peekaboo": {
+    "unsupported": "当前 App 尚未接入控制其他桌面程序的能力",
+    "solution": "暂需用户操作其他 App。仅开启屏幕录制或辅助功能权限不能补齐工具集成；不要让用户为此授予整机权限。"
+  },
+  "av-review": {
+    "commands": ["python3", "ffmpeg", "ffprobe"],
+    "ready": "录屏与音频的带时刻卡片、联系表、提问与细看脚本",
+    "note": "画面用 DeepSeek（DEEPSEEK_API_KEY），声音用 MiMo（MIMO_API_KEY），缺一个只做另一半；ImageMagick 可选，用来在联系表上标时刻。"
+  },
+  "audio": {
+    "commands": ["python3", "ffmpeg", "ffprobe"],
+    "ready": "剪接、无缝循环与一次体检脚本",
+    "note": "找现成音乐、音效用 resource-reuse；听感用 av-review（要 MiMo）。"
+  }
+}

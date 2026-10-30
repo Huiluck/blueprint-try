@@ -1,0 +1,22 @@
+{
+  "name": "@blueprint/context",
+  "version": "0.0.0",
+  "private": true,
+  "description": "节点眼前有什么：系统提示（按种拼）、节点前缀、末尾复述。只读名册和节点文档，从不写；不注册工具",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./skills": "./src/技能加载.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "4.0.5-alpha.1",
+    "@deepseek-ai/dsh-llm": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-tools": "0.2.1-alpha.2",
+    "@deepseek-ai/dsh-skill-filesystem": "0.2.1-alpha.2"
+  }
+}

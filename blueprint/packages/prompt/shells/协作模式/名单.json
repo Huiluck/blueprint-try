@@ -1,0 +1,44 @@
+[
+  {
+    "id": "spark",
+    "label": "spark",
+    "description": "还没想好要什么，需要Blueprint与我一起构思",
+    "aliases": [],
+    "prompt": "协作模式/solo",
+    "guide": [
+      "说说你脑子里的样子，模糊也没关系",
+      "会先给你看几组不同的东西，听你哪里对味、哪里不对，一起把想要的感觉找出来",
+      "你认了那一页结论就开始做，过程中不再来问你"
+    ]
+  },
+  {
+    "id": "build",
+    "label": "build",
+    "description": "我大概知道我要什么，执行的具体方案多问我",
+    "aliases": [
+      "co-create",
+      "conduct",
+      "light-collab",
+      "execute",
+      "high-collab"
+    ],
+    "prompt": "协作模式/build",
+    "guide": [
+      "说说你想做什么",
+      "会先和你把要做的东西对清楚，计划给你过目后再做",
+      "之后需要你拿主意的地方，还会来问你"
+    ]
+  },
+  {
+    "id": "solo",
+    "label": "solo",
+    "description": "我都说清楚了，全部自己决断，不用问我",
+    "aliases": [],
+    "prompt": "协作模式/solo",
+    "guide": [
+      "说说你想做什么，以及一定要遵守的要求",
+      "接下来会自己做完，不来问你；遇到选择自己判断",
+      "要求和底线请在这里一次说清"
+    ]
+  }
+]

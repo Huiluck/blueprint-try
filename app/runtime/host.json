@@ -1,0 +1,13 @@
+[
+  { "id": "web", "config": { "searchProvider": "blueprint-search", "fetchProvider": "http" } },
+  { "id": "web-search-deepseek", "disabled": true },
+  { "id": "web-fetch-http", "disabled": true },
+  { "id": "webserver", "disabled": true },
+  { "insert": [
+    { "id": "blueprint-search", "name": "./search.mjs" },
+    { "id": "blueprint-fetch-http", "name": "./fetch.mjs", "config": {} },
+    { "id": "blueprint-webserver", "name": "./boundary.mjs", "inject": ["webStartup"], "config": { "host": "127.0.0.1", "port": 0, "compression": "gzip", "compressionLevel": 1, "compressionThresholdBytes": 1024 } }
+  ] },
+  { "id": "web-runtime", "config": { "openBrowser": false, "printUrl": true, "surfaceContext": true } },
+  { "id": "sandbox-policy", "config": { "mode": "workspace-write", "workspaceRoot": { "__jsExpr": "process.env.BLUEPRINT_DATA_HOME" } } }
+]

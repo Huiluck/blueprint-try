@@ -1,0 +1,865 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-08",
+  "timezone": "Asia/Tokyo",
+  "scope": "25 条渠道与用途路线，非 25 个独立网站；无账号、无 API Key，测试用途未做版权审查。只覆盖所列样例、版本与验证层级。",
+  "channels": [
+    {
+      "id": "polyhaven",
+      "name": "Poly Haven",
+      "categories": [
+        "模型",
+        "建模",
+        "材质",
+        "PBR",
+        "HDRI",
+        "环境光",
+        "3D"
+      ],
+      "bestFor": "写实道具、表面材质、环境光",
+      "acquisition": "资产目录 /assets?type=all；选定 id 后 /files/{id}；模型取 gltf.1k.gltf 并保留 include 的相对路径；贴图取 Diffuse/nor_gl/Rough 的 1k.jpg；环境取 hdri.1k.hdr。",
+      "verification": "模型与依赖、3 张 PBR、HDR 原件解析；Blender 实际渲染；Godot 导入和数据读取。",
+      "scope": {
+        "tested": "wooden_table_02 模型及 4 个依赖、brick_wall_001 三张贴图、venice_sunset 1K HDR。",
+        "limits": [
+          "模型依赖按 include 原路径保存。",
+          "高分辨率版本未下载实测。",
+          "API 使用独特 User-Agent；脚本使用 BlueprintResourceReuseResearch/1.0。"
+        ],
+        "godotRenderTested": false
+      },
+      "guide": "references/视觉渠道.md",
+      "url": "https://polyhaven.com/",
+      "samples": [
+        {
+          "path": "样例/polyhaven/wooden_table_02/textures/wooden_table_02_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/wooden_table_02/wooden_table_02_diff_1k.jpg",
+          "bytes": 178379,
+          "sha256": "2334ac3e23d69222322515d9bad066b4e90d7d81989fe231b8fb12f39179ad9e"
+        },
+        {
+          "path": "样例/polyhaven/wooden_table_02/textures/wooden_table_02_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/wooden_table_02/wooden_table_02_nor_gl_1k.jpg",
+          "bytes": 122129,
+          "sha256": "9470e08e5dab4ab6a7cafab2a488a50fb54fa8f38890e9032c39dcbf7f5846d2"
+        },
+        {
+          "path": "样例/polyhaven/wooden_table_02/wooden_table_02.bin",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/wooden_table_02/wooden_table_02.bin",
+          "bytes": 7576,
+          "sha256": "52ed7cc67b3aa403375cf9bd18050e8cc21bcced6532a0183c1a733f0965df6d"
+        },
+        {
+          "path": "样例/polyhaven/wooden_table_02/textures/wooden_table_02_arm_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/wooden_table_02/wooden_table_02_arm_1k.jpg",
+          "bytes": 174545,
+          "sha256": "b970a81e4b03f3b8a341c9eb639f112fff1782d681c846255ebc9073cd803ced"
+        },
+        {
+          "path": "样例/polyhaven/wooden_table_02/wooden_table_02_1k.gltf",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/wooden_table_02/wooden_table_02_1k.gltf",
+          "bytes": 2687,
+          "sha256": "bb38e301840cb629d72c43c83fdb7fb308518efe2d0bc01e1ed0e9a9e43ed9d3"
+        },
+        {
+          "path": "样例/polyhaven/brick_wall_001/brick_wall_001_diffuse_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_wall_001/brick_wall_001_diffuse_1k.jpg",
+          "bytes": 574381,
+          "sha256": "6a1233ec0186703de830354d89f122991e61e67fb67e0846c7eaf6c5aefea902"
+        },
+        {
+          "path": "样例/polyhaven/brick_wall_001/brick_wall_001_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_wall_001/brick_wall_001_nor_gl_1k.jpg",
+          "bytes": 295279,
+          "sha256": "8afbe3919308b168a6b7235fe7b930f670cfffa1a34de39ee790d55c9d7bda09"
+        },
+        {
+          "path": "样例/polyhaven/brick_wall_001/brick_wall_001_rough_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_wall_001/brick_wall_001_rough_1k.jpg",
+          "bytes": 211093,
+          "sha256": "a23342b02e6c5af106aaece16130aa9153a801cb1a84d5f3e0d06ce248677f38"
+        },
+        {
+          "path": "样例/polyhaven/venice_sunset/venice_sunset_1k.hdr",
+          "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k.hdr",
+          "bytes": 1440400,
+          "sha256": "92fe2b29b1957828fb8925a57633540bbba5bf380d9285ed553443e834249352"
+        }
+      ]
+    },
+    {
+      "id": "ambientcg",
+      "name": "ambientCG",
+      "categories": [
+        "材质",
+        "纹理",
+        "PBR",
+        "texture"
+      ],
+      "bestFor": "真实表面、建筑/地面材质",
+      "acquisition": "GET /api/v2/full_json?q=bricks&type=Material&limit=3&include=downloadData,imageData&sort=Popular；在 foundAssets[].downloadFolders.default.downloadFiletypeCategories 的 downloads 中取 attribute=1K-JPG；跟 downloadLink 下载 ZIP。",
+      "verification": "ZIP CRC、7 张图解析；Color/NormalGL/Roughness 实际 PBR 渲染；Godot 导入颜色图。",
+      "scope": {
+        "tested": "Bricks105 的 1K-JPG 包；CRC 全包通过，7 个图文件解码；Color/NormalGL/Roughness 在 Blender 挂接并渲染。",
+        "limits": [
+          "1K 是长边标签，本次 Color 实际 1024×512。",
+          "包内预制 blend/tres/mtlx/usdc 只验证包完整性，没有直接导入这些预制格式。"
+        ],
+        "godotRenderTested": false
+      },
+      "guide": "references/视觉渠道.md",
+      "url": "https://ambientcg.com/",
+      "samples": [
+        {
+          "path": "样例/ambientcg/Bricks105_1K-JPG.zip",
+          "url": "https://ambientcg.com/get?file=Bricks105_1K-JPG.zip",
+          "bytes": 4840980,
+          "sha256": "d81326d3193b279c226d24eb0dd311fa0126ff208f9e7248adfb9f8dc94be0db"
+        }
+      ]
+    },
+    {
+      "id": "kenney",
+      "name": "Kenney",
+      "categories": [
+        "UI",
+        "界面",
+        "像素",
+        "地图",
+        "模型",
+        "低模",
+        "2D",
+        "3D"
+      ],
+      "bestFor": "风格一致的 2D、UI、低模游戏美术",
+      "acquisition": "GET 资产详情页，HTML 中取 a[id=donate-text] 的 href；直接下载 ZIP；无需处理捐赠弹窗。",
+      "verification": "3 个 ZIP CRC，PNG/SVG/GLB 解析；按钮、图集、橡树 Godot 导入，橡树 Blender 渲染。",
+      "scope": {
+        "tested": "ui-pack、tiny-town、nature-kit 3 个 ZIP；所有 PNG/SVG/GLB 解析；橡树 GLB Blender 渲染，按钮/城镇图集/橡树 Godot 导入。",
+        "limits": [
+          "网页 HTML 的属性可能是单引号，使用 HTMLParser。",
+          "包内 FBX/OBJ/DAE/STL、音效和内置字体没有逐一导入实测。",
+          "整套 All-in-1 是另一商品；这里跑通的是每个详情页的免费 ZIP。"
+        ],
+        "godotRenderTested": false
+      },
+      "guide": "references/视觉渠道.md",
+      "url": "https://kenney.nl/assets",
+      "samples": [
+        {
+          "path": "样例/kenney/ui-pack.zip",
+          "url": "https://kenney.nl/media/pages/assets/ui-pack/f651646eab-1718203990/kenney_ui-pack.zip",
+          "bytes": 1229750,
+          "sha256": "a8a14a234911eb648c062622915c93e79e94e97cb7f9f375a70f6617f1174318"
+        },
+        {
+          "path": "样例/kenney/tiny-town.zip",
+          "url": "https://kenney.nl/media/pages/assets/tiny-town/a415fbeb49-1735736916/kenney_tiny-town.zip",
+          "bytes": 182243,
+          "sha256": "9768692dccff1d706408a5aedd6ca4f6cd1409506cbc84cb2f862919764be977"
+        },
+        {
+          "path": "样例/kenney/nature-kit.zip",
+          "url": "https://kenney.nl/media/pages/assets/nature-kit/37ac38a37b-1677698939/kenney_nature-kit.zip",
+          "bytes": 10537521,
+          "sha256": "fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d"
+        }
+      ]
+    },
+    {
+      "id": "khronos",
+      "name": "Khronos glTF Sample Assets",
+      "categories": [
+        "模型",
+        "骨骼",
+        "动作",
+        "动画",
+        "GLB",
+        "3D"
+      ],
+      "bestFor": "骨骼动画与 glTF 特性验证；也可作测试角色",
+      "acquisition": "官方 GitHub 仓库对应 Models/{模型}/glTF-Binary/{模型}.glb 的 raw 直链。Fox 的确切实测 URL 见 samples。",
+      "verification": "GLB 解析；Godot 骨骼和 3 个动作可读；Blender Run 顶点变形和两帧渲染。",
+      "scope": {
+        "tested": "Fox.glb；3 动作+1 骨架；Blender Run 动作两个时刻的变形与渲染；Godot 3 个动作都可读。",
+        "limits": [
+          "只测试 Fox 的 glTF 核心特性，未测仓库其他扩展。",
+          "Fox 包围盒约 41×142×76 源单位，放入项目时需适配尺寸。",
+          "URL 指向 main，下载时内容可能变；保留下载 SHA256。"
+        ],
+        "godotRenderTested": false
+      },
+      "guide": "references/视觉渠道.md",
+      "url": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/Fox",
+      "samples": [
+        {
+          "path": "样例/khronos/Fox.glb",
+          "url": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Fox/glTF-Binary/Fox.glb",
+          "bytes": 162852,
+          "sha256": "d97044e701822bac5a62696459b27d7b375aada5de8574ed4362edbba94771f7"
+        }
+      ]
+    },
+    {
+      "id": "iconify",
+      "name": "Iconify",
+      "categories": [
+        "图标",
+        "SVG",
+        "UI",
+        "icon"
+      ],
+      "bestFor": "UI、操作提示、地图标记、状态图标",
+      "acquisition": "GET /search?query=gamepad&limit=32；从 icons 中取 prefix:name；GET /{prefix}/{name}.svg?color=%2393c5fd&height=64。",
+      "verification": "SVG 解析；显式 height=64 后 Godot 导入为 64×64。",
+      "scope": {
+        "tested": "mdi:gamepad SVG；XML 解析、ImageMagick 栅格化；Godot 导入 64×64。",
+        "limits": [
+          "默认 SVG 为 1em×1em，实测 Godot 会导入 1×1；显式数值 height=64 已验证。",
+          "本次 SVG 支持图标 API 样例，不保证每个图标套件样式一致。"
+        ],
+        "godotRenderTested": false
+      },
+      "guide": "references/视觉渠道.md",
+      "url": "https://icon-sets.iconify.design/",
+      "samples": [
+        {
+          "path": "样例/iconify/mdi-gamepad.svg",
+          "url": "https://api.iconify.design/mdi/gamepad.svg?color=%2393c5fd&height=64",
+          "bytes": 197,
+          "sha256": "768ed02443be36333de32601d4423545c52241c217a039fb73b31b52662db9cc"
+        }
+      ]
+    },
+    {
+      "id": "cleveland",
+      "name": "Cleveland Museum of Art",
+      "categories": [
+        "图片",
+        "艺术",
+        "藏品",
+        "image"
+      ],
+      "bestFor": "博物馆藏品、绘画、器物图、真实艺术参考",
+      "acquisition": "GET /api/artworks/?q=landscape&has_image=1&cc0=1&limit=3；从 data[].images.print.url 取得印刷 JPEG。",
+      "verification": "1536×1931 JPEG 完整解码和 Godot 导入。",
+      "scope": {
+        "tested": "Virgin and Child in a Landscape 的 print JPEG，1536×1931；完整解码与 Godot 导入。",
+        "limits": [
+          "本次取 print 变体，不把 web 缩略图或 metadata 当原件。",
+          "API filesize=2639784，实际下载=2643198；图片完整解码，记录两值。",
+          "full TIFF 没有下载实测。"
+        ],
+        "godotRenderTested": false
+      },
+      "guide": "references/视觉渠道.md",
+      "url": "https://www.clevelandart.org/open-access",
+      "samples": [
+        {
+          "path": "样例/cleveland/1972.47_print.jpg",
+          "url": "https://openaccess-cdn.clevelandart.org/1972.47/1972.47_print.jpg",
+          "bytes": 2643198,
+          "sha256": "5c55edbbe6038ceeee5fe443a33f8e0978259bfedebb427b6757065be470a3f9"
+        }
+      ]
+    },
+    {
+      "id": "googlefonts",
+      "name": "Google Fonts",
+      "categories": [
+        "字体",
+        "中文",
+        "界面",
+        "font"
+      ],
+      "bestFor": "中英文界面字体、动态字形与排版",
+      "acquisition": "官方 google/fonts 仓库 raw 文件；本次 ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf。",
+      "verification": "变量 TTF 和 31036 字形解析；中文实际绘制；Godot FontFile 加载。",
+      "scope": {
+        "tested": "Noto Sans SC 变量 TTF，31036 glyphs；素材复用 4 字有字形；Pillow 400 字重实际绘制；Godot FontFile 载入中文。",
+        "limits": [
+          "本次验证 TTF，不把 Google Fonts 网页/CSS 链接当字体原件。",
+          "变量字体的默认轴为 100（Thin），需按实际应用选择字重；Pillow 400 已实测。",
+          "URL 指向 main，下载时内容可能变。"
+        ],
+        "godotRenderTested": false
+      },
+      "guide": "references/视觉渠道.md",
+      "url": "https://fonts.google.com/noto/specimen/Noto+Sans+SC",
+      "samples": [
+        {
+          "path": "样例/googlefonts/NotoSansSC[wght].ttf",
+          "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf",
+          "bytes": 17772300,
+          "sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da"
+        }
+      ]
+    },
+    {
+      "id": "nasa",
+      "name": "NASA Image and Video Library",
+      "categories": [
+        "图片",
+        "摄影",
+        "航天",
+        "photo"
+      ],
+      "bestFor": "任务摄影、工程/天文/地球图片",
+      "acquisition": "GET /search?q=apollo%20moon&media_type=image&page_size=3；取 data[0].nasa_id，再 GET /asset/{nasa_id}；在 collection.items[].href 中取 ~orig 的 jpg/png 路径，以 https 下载。",
+      "verification": "5307×7961 原件 JPEG 完整解码和 Godot 导入。",
+      "scope": {
+        "tested": "Apollo 14 Moon Tree 的原始 JPEG，5307×7961；完整解码与 Godot 导入。",
+        "limits": [
+          "本次仅验证图片路径，未验证视频、音频或字幕取得。",
+          "搜索结果 links 中的预览图没有当作原图；由 /asset 明确选 ~orig。"
+        ],
+        "godotRenderTested": false
+      },
+      "guide": "references/视觉渠道.md",
+      "url": "https://images.nasa.gov/",
+      "samples": [
+        {
+          "path": "样例/nasa/jsc2026e396708~orig.jpg",
+          "url": "https://images-assets.nasa.gov/image/jsc2026e396708/jsc2026e396708~orig.jpg",
+          "bytes": 7430653,
+          "sha256": "d31bc6f86105810c498a2d9fdd0453d397d9a0247e98875c3b09c64c82e317c8"
+        }
+      ]
+    },
+    {
+      "id": "kenney-ui-audio",
+      "name": "Kenney",
+      "categories": [
+        "音效",
+        "声音",
+        "UI",
+        "audio",
+        "sfx"
+      ],
+      "bestFor": "游戏与应用 UI 点击、开关、悬停音效",
+      "acquisition": "GET 素材页，读取 Continue without donating 的 ZIP href（当前是单引号），GET 原包。",
+      "verification": "ZIP CRC 通过；实际有 51 个 Audio/*.ogg 和 1 个 Preview.ogg，52 个全部 ffprobe + 完整 ffmpeg 解码通过；官网 Files=50 是页面标注。",
+      "scope": "验证音效原件格式与完整解码；未进行主观听感/项目混音评价。",
+      "guide": "references/动画音视频渠道.md",
+      "url": "https://kenney.nl/assets/ui-audio",
+      "samples": [
+        {
+          "path": "样例/Kenney-UI-Audio原包.zip",
+          "url": "https://kenney.nl/media/pages/assets/ui-audio/490d233f68-1677590494/kenney_ui-audio.zip",
+          "bytes": 411949,
+          "sha256": "946fc23a63d535d693eb31b2eabb80c8c28d6351e2186b344ceb71b2cb1d5eb6"
+        }
+      ]
+    },
+    {
+      "id": "mixkit-sfx",
+      "name": "Mixkit SFX",
+      "categories": [
+        "音效",
+        "声音",
+        "audio",
+        "sfx"
+      ],
+      "bestFor": "写实音效、转场、环境声、游戏提示声",
+      "acquisition": "从页面下载按钮 data-download--button-modal-url-value 取得 modal，再读 data-download--modal-url-value 取得 WAV 原件；不使用含 preview 的 MP3。",
+      "verification": "Arcade retro game over / ID 213，PCM S16LE WAV、44100 Hz、双声道、1.666667 秒；完整解码通过。",
+      "scope": "下载与解码已验证，主观听感未试听。",
+      "guide": "references/动画音视频渠道.md",
+      "url": "https://mixkit.co/free-sound-effects/",
+      "samples": [
+        {
+          "path": "样例/Mixkit-Arcade-retro-game-over.wav",
+          "url": "https://assets.mixkit.co/active_storage/sfx/213/213.wav",
+          "bytes": 294730,
+          "sha256": "57362e9978aab5f00d2d1da9e6e2a95a261ef1f7ac03d25e9b34706d22681277"
+        }
+      ]
+    },
+    {
+      "id": "mixkit-music",
+      "name": "Mixkit Music",
+      "categories": [
+        "音乐",
+        "配乐",
+        "audio",
+        "music"
+      ],
+      "bestFor": "整曲配乐、视频底乐、片头与背景音乐",
+      "acquisition": "从 Download Free Music 按钮读 modal URL，再读取其实际下载 URL；当前这首音乐的下载和播放器共用同一整曲 MP3。",
+      "verification": "Hip Hop 02 / Lily J / ID 738，115.0171 秒、44100 Hz、双声道、320 kbps MP3；完整解码通过。",
+      "scope": "此条下载动作返回完整音乐文件；不据此把其他来源试听地址当原件。主观听感未试听。",
+      "guide": "references/动画音视频渠道.md",
+      "url": "https://mixkit.co/free-stock-music/",
+      "samples": [
+        {
+          "path": "样例/Mixkit-Hip-Hop-02.mp3",
+          "url": "https://assets.mixkit.co/music/738/738.mp3",
+          "bytes": 4600684,
+          "sha256": "4b7bc45aedd38bf43e67d550177aeaafa367ec32a3a6498f8ffd9ec5132e268e"
+        }
+      ]
+    },
+    {
+      "id": "mixkit-video",
+      "name": "Mixkit Video",
+      "categories": [
+        "视频",
+        "实拍",
+        "背景",
+        "video"
+      ],
+      "bestFor": "短片 B-roll、背景视频、人物与自然写实素材",
+      "acquisition": "读取详情页 Full HD radio 的 value（/free-stock-video/download/43151/?context=sidebar&type=1080p），GET modal，读实际下载 URL，再下载 MP4。",
+      "verification": "H.264、1920×1080、24000/1001 fps、15.306958 秒、无音轨；完整视频解码通过，第 5 秒抽帧实际查看为两位徒步者穿行树林。",
+      "scope": "本次实测 Full HD；网页另列 720p/4K，但未下载验证，不将其列为已实测规格。",
+      "guide": "references/动画音视频渠道.md",
+      "url": "https://mixkit.co/free-stock-video/couple-exploring-a-forest-43151/",
+      "samples": [
+        {
+          "path": "样例/Mixkit-Couple-exploring-a-forest-FullHD.mp4",
+          "url": "https://assets.mixkit.co/videos/43151/43151-1080.mp4",
+          "bytes": 49932368,
+          "sha256": "778c1dc96f959896997d490b4e4d1a591b342dfc0c81904e24970113b437b7fb"
+        }
+      ]
+    },
+    {
+      "id": "quaternius-animation",
+      "name": "Quaternius Universal Animation Library Standard",
+      "categories": [
+        "动作",
+        "动画",
+        "人物",
+        "骨骼",
+        "GLB",
+        "animation"
+      ],
+      "bestFor": "人形基础移动、idle、战斗、交互与表情动作",
+      "acquisition": "GET /purchase -> 取 csrf -> POST /download_url -> GET 返回的匿名免费页 -> 读取 Standard 的 data-upload_id 和新 csrf -> POST /file/<upload_id>?source=game_download -> GET 返回的签名 ZIP URL。签名 URL 会过期，复跑时重新生成。",
+      "verification": "ZIP CRC 通过。含 Unity FBX / Unreal-Godot GLB，各有普通和 RM 文件。两个 GLB 均有 43 个 animation（含 A_TPose）、65 个 joints。普通 GLB 在 Blender 5.1.2 导入为 1 个 armature、65 骨骼、2 mesh、43 action；11 个 walk/idle action 起点与中间帧有 52 或 64 根骨骼矩阵改变，无采样错误。",
+      "scope": "仅普通 GLB 做 Blender 导入与采样；RM 的 root motion 含义来自包内 README，未验证根位移或在目标人物上的重定向；FBX/Unity/Godot/Unreal 专门导入未检验。免费包不包含 .blend，Pro/Source 是付费。",
+      "guide": "references/动画音视频渠道.md",
+      "url": "https://quaternius.itch.io/universal-animation-library",
+      "samples": [
+        {
+          "path": "样例/Quaternius-Universal-Animation-Library-Standard.zip",
+          "url": "https://itchio-mirror.cb031a832f44726753d6267436f3b414.r2.cloudflarestorage.com/upload2/game/3408034/17958403?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=3edfcce40115d057d0b5606758e7e9ee%2F20261008%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20261008T055336Z&X-Amz-Expires=60&X-Amz-SignedHeaders=host&X-Amz-Signature=2f054e6e94fca439d86195614ed1d557852dfec22b6e1ce033579ee523a4d17e",
+          "bytes": 15904933,
+          "sha256": "cc73fc4e495b82958207316596317a3f40b9fa38065bde1027937452da537724"
+        }
+      ]
+    },
+    {
+      "id": "lottie-starfish",
+      "name": "Airbnb lottie-web 官方示例",
+      "categories": [
+        "动画",
+        "矢量",
+        "网页",
+        "Lottie",
+        "SVG",
+        "animation"
+      ],
+      "bestFor": "网页/应用矢量动画、角色小动效、动画格式与播放器示例",
+      "acquisition": "读官方仓库当前 commit/path，再从 raw.githubusercontent.com 取得 JSON 与同版本播放器；本次固定 commit bede03d25d232826e0c9dca1733d542d8a7754fb。",
+      "verification": "JSON 是 800×600、60 fps、301 帧、15 layers、1 asset，没有外链图片。用本地 headless Chromium 和下载的播放器渲染 frame 90/150/200，无 page error；3 帧均有非背景像素且实际像素各不相同，已查看第90帧为黄色海星及表情。",
+      "scope": "检验 Web SVG renderer；未检验移动端、AE 源文件编辑。前 0/30 帧角色在画面外，不据生成 SVG 就判可见。",
+      "guide": "references/动画音视频渠道.md",
+      "url": "https://github.com/airbnb/lottie-web/tree/master/test/animations",
+      "samples": [
+        {
+          "path": "样例/Lottie-starfish.json",
+          "url": "https://raw.githubusercontent.com/airbnb/lottie-web/bede03d25d232826e0c9dca1733d542d8a7754fb/test/animations/starfish.json",
+          "bytes": 24780,
+          "sha256": "8a87402d48c24b8f3045679505536c8ad4c5dfe26703adb92429a9a13765c3cd"
+        },
+        {
+          "path": "样例/Lottie-player.js",
+          "url": "https://raw.githubusercontent.com/airbnb/lottie-web/bede03d25d232826e0c9dca1733d542d8a7754fb/build/player/lottie.js",
+          "bytes": 625450,
+          "sha256": "134b7463eec8de573fb3c6778c3c13368fb89f336b1b905e752f0be80de6a4c9"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-retro-synth",
+      "name": "OpenGameArt / rubberduck",
+      "categories": [
+        "音效",
+        "声音",
+        "复古",
+        "audio",
+        "sfx"
+      ],
+      "bestFor": "复古/合成游戏音效，以及可编辑声音参数的源文件",
+      "acquisition": "读取页面 File(s) 的 50-CC0-retro-synth-SFX.zip href，GET ZIP；音频与 source/ 下 LMMS XPF 一起取得。",
+      "verification": "ZIP CRC 通过；50 个 OGG 全部完整解码通过；50 个 XPF XML 源文件可解析。",
+      "scope": "未安装 LMMS，因此未检验 XPF 的 LMMS 导入和修改声音效果。即用部分为 OGG，XPF 作为可编辑候选。",
+      "guide": "references/动画音视频渠道.md",
+      "url": "https://opengameart.org/content/50-cc0-retro-synth-sfx",
+      "samples": [
+        {
+          "path": "样例/OpenGameArt-retro-synth原包.zip",
+          "url": "https://opengameart.org/sites/default/files/50-CC0-retro-synth-SFX.zip",
+          "bytes": 1938142,
+          "sha256": "db9370bfbe228d1fc3912ec455ad358129eeec593169fc02701ff48d888db9cb"
+        }
+      ]
+    },
+    {
+      "id": "cmu-walk",
+      "name": "CMU Graphics Lab Motion Capture Database",
+      "categories": [
+        "动作",
+        "动捕",
+        "源数据",
+        "mocap",
+        "animation"
+      ],
+      "bestFor": "原始真实动作数据、运动分析、专业 mocap 流程的来源",
+      "acquisition": "从 subject 页同时下载同一 subject 的 .asf 骨架和 .amc 动作；实测 Subject 02 / Motion 01 的 walk。",
+      "verification": "ASF 1.10、30 个骨骼；AMC 343 帧、29 条轨道/帧，27 条轨道发生变化；所有值可读且轨道宽度与骨架 DOF 匹配。官网该行 fps=120。",
+      "scope": "未检验 ASF/AMC 导入 Blender/引擎、转 BVH/GLB 或目标人物重定向。它是进阶源数据渠道，不能当即插即用角色动作包。",
+      "guide": "references/动画音视频渠道.md",
+      "url": "https://mocap.cs.cmu.edu/search.php?subjectnumber=02",
+      "samples": [
+        {
+          "path": "样例/CMU-Subject02骨架.asf",
+          "url": "https://mocap.cs.cmu.edu/subjects/02/02.asf",
+          "bytes": 7268,
+          "sha256": "c9f5ff45b4437b279f58b95dacf017afd3135373096274df69436a9354d796cf"
+        },
+        {
+          "path": "样例/CMU-Subject02-walk.amc",
+          "url": "https://mocap.cs.cmu.edu/subjects/02/02_01.amc",
+          "bytes": 273444,
+          "sha256": "1503c481f4726e640c77888f0c841dd3be0694684bcd32296cf53685c6fc1492"
+        }
+      ]
+    },
+    {
+      "id": "godot-official-demos",
+      "name": "Godot official demonstration projects",
+      "categories": [
+        "引擎",
+        "程序",
+        "工程",
+        "游戏",
+        "粒子",
+        "2D",
+        "3D",
+        "Godot"
+      ],
+      "bestFor": "2D/3D 平台与粒子工程",
+      "acquisition": "git sparse clone or fixed codeload archive",
+      "verification": "Godot 4.7.2 导入并运行 120 物理帧，场景 488/630/34 个后代节点；无头运行。",
+      "scope": "Resource import, script parsing, 120 physics frames, scene instantiation. Headless dummy renderer; no GPU rendering or export verified.",
+      "versions": {
+        "source_commit": "6ad6167e0577fe3622c18546138f456b107ce93c",
+        "source_tag": "4.7-6ad6167",
+        "runtime": "Godot 4.7.2.stable.official.ed1daf0bf"
+      },
+      "guide": "references/程序引擎渠道.md",
+      "url": "https://github.com/godotengine/godot-demo-projects",
+      "samples": [
+        {
+          "path": "样例原件/Godot-Demos-4.7-6ad6167.zip",
+          "url": "https://codeload.github.com/godotengine/godot-demo-projects/zip/6ad6167e0577fe3622c18546138f456b107ce93c",
+          "bytes": 251081467,
+          "sha256": "8c7fce46854280984f57bb58eecf949383fac394e939365bed48612ecb95f308"
+        }
+      ]
+    },
+    {
+      "id": "kenney-starter-kit",
+      "name": "Kenney 3D Platformer Starter Kit",
+      "categories": [
+        "工程",
+        "游戏",
+        "人物",
+        "控制器",
+        "Godot",
+        "starter"
+      ],
+      "bestFor": "带素材、动画、声音的完整平台游戏起点",
+      "acquisition": "fixed codeload archive",
+      "verification": "Godot 4.7.2 场景加载、角色移动、金币 0→1 与 HUD 同步；无头运行。",
+      "scope": "195 scene descendants, 120 physics frames, actual InputMap move_right movement 1.734596, coin increment and HUD sync. Headless; graphics and export not verified.",
+      "versions": {
+        "source_commit": "3fa8a04b1c01ab23db43123d4ce814a34c3fc7f0",
+        "source_engine": "Godot 4.6",
+        "runtime": "Godot 4.7.2.stable.official.ed1daf0bf"
+      },
+      "guide": "references/程序引擎渠道.md",
+      "url": "https://github.com/KenneyNL/Starter-Kit-3D-Platformer",
+      "samples": [
+        {
+          "path": "样例原件/Kenney-3D-Platformer-3fa8a04.zip",
+          "url": "https://codeload.github.com/KenneyNL/Starter-Kit-3D-Platformer/zip/3fa8a04b1c01ab23db43123d4ce814a34c3fc7f0",
+          "bytes": 4565232,
+          "sha256": "aae74237d4fe047aa6074e209c7bb7eec2ddfbfc110547818230a2da4cb924b9"
+        }
+      ]
+    },
+    {
+      "id": "three-official-examples",
+      "name": "Three.js official examples and npm engine",
+      "categories": [
+        "引擎",
+        "程序",
+        "特效",
+        "着色器",
+        "网页",
+        "WebGL",
+        "Three.js"
+      ],
+      "bestFor": "网页 3D、贴图模型、GLSL 特效与后期",
+      "acquisition": "fixed raw GitHub files and exact npm tarball",
+      "verification": "three@0.180.0 本地 WebGL 渲染立方体和 lava shader；4 个 shader programs。",
+      "scope": "Local WebGL render, texture loading, animated cube, GLSL lava and postprocessing, four shader programs; no remote dependencies during run.",
+      "versions": {
+        "source_tag": "r180",
+        "npm": "three@0.180.0"
+      },
+      "guide": "references/程序引擎渠道.md",
+      "url": "https://github.com/mrdoob/three.js/tree/r180/examples",
+      "samples": [
+        {
+          "path": "样例原件/three-r180-webgl_geometry_cube.html",
+          "url": "https://raw.githubusercontent.com/mrdoob/three.js/r180/examples/webgl_geometry_cube.html",
+          "bytes": 1772,
+          "sha256": "3c2b5ad8fafd73eea2bd086f70b9ce1d772327467e4cf6858d001cc9a96f1030"
+        },
+        {
+          "path": "样例原件/three-r180-webgl_shader_lava.html",
+          "url": "https://raw.githubusercontent.com/mrdoob/three.js/r180/examples/webgl_shader_lava.html",
+          "bytes": 5324,
+          "sha256": "3c65e82675a869e7aab058730089df871e544e89c88c3a13eae70152a1908fd5"
+        },
+        {
+          "path": "样例原件/three-0.180.0.tgz",
+          "url": "https://registry.npmjs.org/three/-/three-0.180.0.tgz",
+          "bytes": 7750248,
+          "sha256": "ad66d724565ee29a2467277fa84daa5ed0211d6b8d446e9ef29f6bae0cd14144"
+        }
+      ]
+    },
+    {
+      "id": "phaser-complete-game",
+      "name": "Phaser official first game tutorial",
+      "categories": [
+        "引擎",
+        "程序",
+        "工程",
+        "游戏",
+        "网页",
+        "2D",
+        "Phaser"
+      ],
+      "bestFor": "可运行的网页 2D 游戏及精灵素材",
+      "acquisition": "official CDN ZIP and exact npm tarball",
+      "verification": "phaser@3.90.0 本地完整游戏运行；移动、落地、物理拾取及得分 0→10。",
+      "scope": "Local complete game, sprite assets, animation, keyboard movement and floor collision; relocating an active star into the player body triggers original physics overlap callback, score 10 and remaining star count 11. Runtime copy replaces original CDN engine reference.",
+      "versions": {
+        "source": "tutorial ZIP SHA256 snapshot",
+        "original_html_engine": "3.11.0 CDN reference",
+        "tested_local_engine": "phaser@3.90.0"
+      },
+      "guide": "references/程序引擎渠道.md",
+      "url": "https://phaser.io/tutorials/making-your-first-phaser-3-game/part1",
+      "samples": [
+        {
+          "path": "样例原件/Phaser3-FirstGame-Tutorial.zip",
+          "url": "https://cdn.phaser.io/tutorials/making-your-first-phaser-3-game/phaser3-tutorial-src.zip",
+          "bytes": 19411,
+          "sha256": "3b6185eaa37a7e057db6d4dd32d838b485b4be055d1e20577abc30b7a26c0f52"
+        },
+        {
+          "path": "样例原件/phaser-3.90.0.tgz",
+          "url": "https://registry.npmjs.org/phaser/-/phaser-3.90.0.tgz",
+          "bytes": 22611407,
+          "sha256": "c4e3a8da498ab94aa8859c7a32cb89140d94bfd95d769bee36a98cdef1bea6e6"
+        }
+      ]
+    },
+    {
+      "id": "babylon-snippet",
+      "name": "Babylon.js official versioned Playground snippet and npm engine",
+      "categories": [
+        "引擎",
+        "程序",
+        "场景",
+        "网页",
+        "WebGL",
+        "Babylon.js"
+      ],
+      "bestFor": "直接可编辑的网页 3D 场景代码",
+      "acquisition": "anonymous snippet API and exact npm tarball",
+      "verification": "固定 snippet + babylonjs@8.32.0 本地 WebGL 实际渲染红色地面、相机与灯光。",
+      "scope": "Original saved createScene function executed with local UMD Engine, red ground scene rendered with camera and light. No external models required by tested snippet.",
+      "versions": {
+        "snippet": "2KRNG9/2150",
+        "engine": "babylonjs@8.32.0"
+      },
+      "guide": "references/程序引擎渠道.md",
+      "url": "https://playground.babylonjs.com/#2KRNG9#2150",
+      "samples": [
+        {
+          "path": "样例原件/Babylon-Playground-2KRNG9-2150.json",
+          "url": "https://snippet.babylonjs.com/2KRNG9/2150",
+          "bytes": 1301,
+          "sha256": "bb8f4072290b59d600b1b7fee5904e07d8b49f32d982d2ccd9847148a622c1b4"
+        },
+        {
+          "path": "样例原件/babylonjs-8.32.0.tgz",
+          "url": "https://registry.npmjs.org/babylonjs/-/babylonjs-8.32.0.tgz",
+          "bytes": 11188993,
+          "sha256": "4143fafef8f0eb25aa6cd2812abaacc9e6aa9088e235ba1c3b40231511c66620"
+        }
+      ]
+    },
+    {
+      "id": "shadcn-source-component",
+      "name": "shadcn Radix Accordion source and registry",
+      "categories": [
+        "组件",
+        "界面",
+        "网页",
+        "UI",
+        "React",
+        "shadcn"
+      ],
+      "bestFor": "可编辑的 React UI 组件源码",
+      "acquisition": "fixed raw source/registry JSON; live registry separately sampled",
+      "verification": "固定 Accordion TSX 编译与样式通过，实际点击由关闭到展开。",
+      "scope": "Source from fixed release commit compiled and rendered; click toggles accordion closed to open; computed font size 14px. Requires cn utility, alias, Radix dependencies and style compilation. Source content equals live snapshot.",
+      "versions": {
+        "release_tag": "shadcn@2.3.0",
+        "source_commit": "c8c4027b6b192822ea2952b225ee4760cddedf0d",
+        "react": "19.1.0",
+        "radix_accordion": "1.2.11",
+        "esbuild": "0.25.9",
+        "tailwind_cli": "4.1.13"
+      },
+      "guide": "references/程序引擎渠道.md",
+      "url": "https://ui.shadcn.com/docs/registry",
+      "samples": [
+        {
+          "path": "样例原件/shadcn-2.3.0-accordion.tsx",
+          "url": "https://raw.githubusercontent.com/shadcn-ui/ui/c8c4027b6b192822ea2952b225ee4760cddedf0d/apps/www/registry/new-york/ui/accordion.tsx",
+          "bytes": 2015,
+          "sha256": "00dd6eef660f08ce85154106fa0fa4d943ed699c5ca7b06bb08732978bcebb49"
+        },
+        {
+          "path": "样例原件/shadcn-2.3.0-accordion.json",
+          "url": "https://raw.githubusercontent.com/shadcn-ui/ui/c8c4027b6b192822ea2952b225ee4760cddedf0d/apps/www/public/r/styles/new-york/accordion.json",
+          "bytes": 3179,
+          "sha256": "af2a6c966d4077ae002eb95b6b4513e86c53bfd02cabb7b3a5700ed0d7191bc1"
+        },
+        {
+          "path": "样例原件/shadcn-accordion.json",
+          "url": "https://ui.shadcn.com/r/styles/new-york/accordion.json",
+          "bytes": 3179,
+          "sha256": "af2a6c966d4077ae002eb95b6b4513e86c53bfd02cabb7b3a5700ed0d7191bc1"
+        }
+      ]
+    },
+    {
+      "id": "lucide-react-icons",
+      "name": "Lucide React icon components",
+      "categories": [
+        "组件",
+        "图标",
+        "SVG",
+        "React",
+        "Lucide"
+      ],
+      "bestFor": "可调用的 React SVG 图标组件",
+      "acquisition": "exact npm tarball",
+      "verification": "lucide-react@0.468.0 实际渲染 2 个非空 SVG。",
+      "scope": "Downloaded package used for Download and ChevronDown React components; two rendered SVGs, nonempty icon paths.",
+      "versions": {
+        "npm": "lucide-react@0.468.0",
+        "react": "19.1.0"
+      },
+      "guide": "references/程序引擎渠道.md",
+      "url": "https://lucide.dev/guide/react",
+      "samples": [
+        {
+          "path": "样例原件/lucide-react-0.468.0.tgz",
+          "url": "https://registry.npmjs.org/lucide-react/-/lucide-react-0.468.0.tgz",
+          "bytes": 2739588,
+          "sha256": "2d28371e4c354765e6a2e47c23468fff1c65494b312e98e7713aff63079e891a"
+        }
+      ]
+    },
+    {
+      "id": "cannon-es-physics",
+      "name": "Cannon-es standalone 3D physics",
+      "categories": [
+        "程序",
+        "物理",
+        "碰撞",
+        "3D",
+        "physics"
+      ],
+      "bestFor": "独立 3D 物理、重力和碰撞",
+      "acquisition": "exact npm tarball",
+      "verification": "cannon-es@0.20.0 在 Node 运行 180 步；碰撞触发，球稳定在 y≈1。",
+      "scope": "ES module imported in Node; sphere/plane simulation for 180 steps, collision event and stable resting y within 0.05 of 1.",
+      "versions": {
+        "npm": "cannon-es@0.20.0",
+        "node": "22.19.0"
+      },
+      "guide": "references/程序引擎渠道.md",
+      "url": "https://github.com/pmndrs/cannon-es",
+      "samples": [
+        {
+          "path": "样例原件/cannon-es-0.20.0.tgz",
+          "url": "https://registry.npmjs.org/cannon-es/-/cannon-es-0.20.0.tgz",
+          "bytes": 164649,
+          "sha256": "8bb8590fb142095d506d5a5fe13b0331430d05363eff8b6e33fac83c9dd14a84"
+        }
+      ]
+    },
+    {
+      "id": "trimesh-python-geometry",
+      "name": "Trimesh Python mesh processing via PyPI",
+      "categories": [
+        "程序",
+        "模型",
+        "建模",
+        "网格",
+        "转换",
+        "Python",
+        "geometry"
+      ],
+      "bestFor": "程序生成、检查和转换网格",
+      "acquisition": "pip exact-version install and canonical files.pythonhosted.org wheel direct links",
+      "verification": "trimesh 4.8.3 + numpy 2.0.2 创建网格，GLB 导出和重载，12 面、体积 6、封闭性通过。",
+      "scope": "Create mesh, GLB export and reload, watertightness, 12 faces and volume 6. Pure-Python trimesh wheel portable; retained numpy wheel specific to tested Python/macOS architecture.",
+      "versions": {
+        "trimesh": "4.8.3",
+        "numpy": "2.0.2",
+        "python": "3.9.6",
+        "platform": "macOS arm64"
+      },
+      "guide": "references/程序引擎渠道.md",
+      "url": "https://pypi.org/project/trimesh/4.8.3/",
+      "samples": [
+        {
+          "path": "样例原件/trimesh-4.8.3-py3-none-any.whl",
+          "url": "https://files.pythonhosted.org/packages/8e/bc/f36afd1ad03d09cd0d311be5951f2dd705a824f34dd871779d42c277d741/trimesh-4.8.3-py3-none-any.whl",
+          "bytes": 735464,
+          "sha256": "f9f1622ecac5f3bed5b65d3a748bb536481f52cd4e4e120e0b637cabe6cf1542"
+        },
+        {
+          "path": "样例原件/numpy-2.0.2-cp39-cp39-macosx_14_0_arm64.whl",
+          "url": "https://files.pythonhosted.org/packages/96/ff/06d1aa3eeb1c614eda245c1ba4fb88c483bee6520d361641331872ac4b82/numpy-2.0.2-cp39-cp39-macosx_14_0_arm64.whl",
+          "bytes": 5306976,
+          "sha256": "2b2955fa6f11907cf7a70dab0d0755159bca87755e831e47932367fc8f2f2d0b"
+        }
+      ]
+    }
+  ]
+}

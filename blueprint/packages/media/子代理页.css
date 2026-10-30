@@ -1,0 +1,70 @@
+.bpa-page{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:14px 16px 16px;background:var(--bp-surface);color:var(--bp-ink);font:12px/1.6 var(--bp-font-ui)}
+.bpa-page button{height:26px;padding:0 10px;border:1px solid var(--bp-control);background:var(--bp-surface);color:var(--bp-ink);font:500 12px/24px var(--bp-font-ui);cursor:pointer}
+.bpa-page button:hover:not(:disabled){background:var(--bp-hover)}
+.bpa-page button:active:not(:disabled){background:var(--bp-selected)}
+.bpa-page button:disabled{color:var(--bp-disabled);cursor:default}
+.bpa-page :focus-visible{outline:2px solid var(--bp-focus);outline-offset:1px}
+.bpa-lede{margin:0;color:var(--bp-secondary)}
+.bpa-error{margin:0;padding:8px 10px;border:2px solid var(--bp-ink);font-weight:600}
+.bpa-save{position:sticky;bottom:-16px;flex:none;display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:12px 0;background:var(--bp-surface);border-top:1px solid var(--bp-line)}
+.bpa-save span{color:var(--bp-secondary)}
+.bpa-page .bpa-save button{height:30px;padding:0 18px}
+.bpa-card{flex:none;border:1px solid var(--bp-line);background:var(--bp-surface)}
+.bpa-card[data-on]{border-color:var(--bp-control)}
+.bpa-head{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--bp-line)}
+.bpa-head b{font:600 14px/20px var(--bp-font-ui)}
+.bpa-head span{flex:1;min-width:0;color:var(--bp-secondary)}
+.bpa-page .bpa-switch{flex:none;position:relative;width:38px;height:22px;padding:0;border:1px solid var(--bp-control);background:var(--bp-soft);transition:background-color .16s ease-out,border-color .16s ease-out}
+.bpa-switch span{position:absolute;top:3px;left:3px;width:14px;height:14px;background:var(--bp-control);transition:transform .16s ease-out,background-color .16s ease-out}
+.bpa-page .bpa-switch[aria-checked=true]{background:var(--bp-ink);border-color:var(--bp-ink)}
+.bpa-switch[aria-checked=true] span{transform:translateX(16px);background:var(--bp-surface)}
+.bpa-page .bpa-switch:hover:not(:disabled){border-color:var(--bp-ink)}
+.bpa-page .bpa-switch[aria-checked=true]:hover:not(:disabled){background:var(--bp-secondary)}
+.bpa-page .bpa-switch:disabled{opacity:.5}
+/* 打勾清单：每步一行。做好的墨色实心 ✓，卡住的 2px 墨框「!」加粗，没轮到的空心编号——只靠明度和线宽，不加色相（只有就绪那行的灯用状态绿）。 */
+.bpa-steps{list-style:none;margin:0;padding:2px 12px}
+.bpa-steps li{display:grid;grid-template-columns:18px 52px minmax(0,1fr) auto;align-items:center;column-gap:10px;min-height:38px;padding:6px 0;border-bottom:1px solid var(--bp-line)}
+.bpa-steps li:last-child{border-bottom:0}
+.bpa-mark{flex:none;box-sizing:border-box;width:18px;height:18px;display:grid;place-items:center;border:1px solid var(--bp-control);font:600 11px/1 var(--bp-font-mono);color:var(--bp-muted)}
+.bpa-steps li[data-state=ok] .bpa-mark{background:var(--bp-ink);border-color:var(--bp-ink);color:var(--bp-surface)}
+.bpa-steps li[data-state=bad] .bpa-mark{border:2px solid var(--bp-ink);color:var(--bp-ink)}
+.bpa-k{font-weight:600;white-space:nowrap}
+.bpa-v{min-width:0;color:var(--bp-secondary);overflow-wrap:anywhere}
+.bpa-steps li[data-state=bad] .bpa-v{color:var(--bp-ink);font-weight:600}
+.bpa-btn{flex:none}
+.bpa-pick{display:flex;flex-wrap:wrap;gap:6px}
+.bpa-pick select{flex:1 1 120px;min-width:0;height:28px;padding:0 6px;border:1px solid var(--bp-control);border-radius:4px;background:var(--bp-surface);color:var(--bp-ink);font:12px/26px var(--bp-font-ui)}
+.bpa-pick select:first-child{flex:1 1 110px}
+.bpa-pick select:last-child{flex:1.4 1 150px}
+.bpa-pick select:hover:not(:disabled){border-color:var(--bp-ink)}
+.bpa-pick select:disabled{color:var(--bp-disabled)}
+.bpa-note{display:block;margin-top:4px}
+/* 卡头下面一行：开关拨不动的原因（加粗）；DSH 锁着开、关着时说清楚意味着什么（浅色）。 */
+.bpa-card-error{margin:0;padding:6px 12px;border-bottom:1px solid var(--bp-line);color:var(--bp-ink);font-weight:600}
+.bpa-card-hint{margin:0;padding:6px 12px;border-bottom:1px solid var(--bp-line);color:var(--bp-secondary)}
+/* 选择偏好：两行输入框占满内容和按钮两列，打勾和步骤名对着第一行。 */
+.bpa-steps li.bpa-when{align-items:start}
+.bpa-steps li.bpa-when .bpa-mark,.bpa-steps li.bpa-when .bpa-k{margin-top:5px}
+.bpa-steps li.bpa-when .bpa-v{grid-column:3 / 5;color:var(--bp-secondary);font-weight:400}
+.bpa-steps li.bpa-when textarea{display:block;box-sizing:border-box;width:100%;min-height:48px;padding:5px 7px;border:1px solid var(--bp-control);border-radius:4px;background:var(--bp-surface);color:var(--bp-ink);font:12px/1.5 var(--bp-font-ui);resize:vertical}
+.bpa-steps li.bpa-when textarea:hover:not(:disabled){border-color:var(--bp-ink)}
+.bpa-steps li.bpa-when textarea:disabled{color:var(--bp-disabled)}
+.bpa-steps li.bpa-when[data-state=bad] .bpa-note{color:var(--bp-ink);font-weight:600}
+/* 就绪一行：程序、登录、测试三盏灯。亮是实心翡翠绿（跟图纸上运行中、完成同一个状态色），不亮是空心灰圈，正在查的那盏轻轻闪；右边「去登录」「检测」。 */
+.bpa-lamps{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.bpa-lamp{display:inline-flex;align-items:center;gap:6px;color:var(--bp-muted);font-weight:500}
+.bpa-lamp i{width:9px;height:9px;border-radius:50%;box-sizing:border-box;border:1.5px solid var(--bp-control);background:transparent}
+.bpa-lamp[data-lamp=on]{color:var(--bp-ink)}
+.bpa-lamp[data-lamp=on] i{border-color:var(--st-run-rail,#14A177);background:var(--st-run-rail,#14A177)}
+.bpa-lamp[data-lamp=now] i{border-color:var(--st-run-rail,#14A177);animation:bpa-lamp 1s ease-in-out infinite}
+@keyframes bpa-lamp{50%{background:color-mix(in srgb,var(--st-run-rail,#14A177) 45%,transparent)}}
+.bpa-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.bpa-acts{display:flex;gap:6px;align-self:start}
+.bpa-steps li.bpa-ready{align-items:start}
+.bpa-steps li.bpa-ready .bpa-mark,.bpa-steps li.bpa-ready .bpa-k{margin-top:1px}
+.bpa-steps li.bpa-ready[data-state=bad] .bpa-v{font-weight:400;color:var(--bp-secondary)}
+.bpa-steps li.bpa-ready[data-state=bad] .bpa-note{color:var(--bp-ink);font-weight:600}
+/* 灯没亮够时灰掉的一行：步骤名和小字一起变淡，输入框垫浅灰。 */
+.bpa-steps li.bpa-off .bpa-k,.bpa-steps li.bpa-off .bpa-note{color:var(--bp-disabled)}
+.bpa-steps li.bpa-when.bpa-off textarea{background:var(--bp-soft)}
+@media (prefers-reduced-motion:reduce){.bpa-page .bpa-switch,.bpa-switch span{transition:none}.bpa-lamp[data-lamp=now] i{animation:none;background:color-mix(in srgb,var(--st-run-rail,#14A177) 45%,transparent)}}

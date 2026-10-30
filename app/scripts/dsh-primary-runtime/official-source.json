@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/deepseek-ai/deepseek-harness",
+  "ref": "dsh-v0.2.1-alpha.2",
+  "commit": "d743267388641bc76f17c45ce8b4c231aed1d32c",
+  "files": {
+    "prepare.ts": "f2a61674ab2283f2ee23aeef9c84265c738f22bf101eaa3ef43814235ed48fb6",
+    "lock.json": "733c3c53d95ae524bddb123e1319c48ecacb0dc729be956c25188f930c095bd5",
+    "LICENSE": "ebb4f09972aee8608be255debaf78451a68e95c290f55c240dec2ecfa16ea6be",
+    "prune-python-tests.ts": "030e3db3e733ac0e4a3ded3762bdba498cbc57f91405567aef40c02018319881",
+    "smoke.py": "c6c2c1b4da445fc567e845b84a4cb272576db3bf3884faa9bff33a55149f03ee"
+  }
+}

@@ -1,0 +1,214 @@
+# Blueprint —— 节点的组装单。所有节点和它们伸出去的帮手会话，都照这一张装。
+#
+# 这是 AGENT 平面的组装：每个节点就是一个点名 `blueprint` 这个 preset 的 dsh 会话；
+# 帮手会话出生时照请求者这张单组装（composeFrom），拿到的是同一套工具与自有帮助提示。
+# 注册表、沙箱、持久化、模型路由、子 agent 服务和 spawn 后端在 host 那张接线图上（blueprint/cordis.patch.yml 与 dsh 自带的 bundle）。
+#
+# 本清单供源码薄声明与桌面原生 preset 共用。
+# 相对入口从本文件所在的 blueprint/ 解析，不依赖启动目录或 DSH_HOME。
+#
+# 所有节点挂同一套工具；帮手会话通过原生 toolFilter 排除节点专用工具和递归委派。
+#
+# `node`（节点之间，名册唯一的写者）＋ `context`（节点眼前，只读），底下是 `roster`（库，不挂）。
+# 上下文重建沿用 dsh 压缩接缝，在最底下的压缩组里。
+# ⚠️ 只挂**真的能加载**的包（案底 A2）：写了一个还没有代码的包名，dsh 当场起不来。
+
+# ── 节点 ─────────────────────────────────────────────────────────────────────
+
+# context 提供当前工具目录，node 注册查看与调用入口；目录服务限在本 preset，双方共用同一 realm。
+- id: blueprint-runtime
+  name: cordis:group
+  group: true
+  isolate:
+    blueprintToolCatalog: true
+  config:
+    - id: blueprint-context
+      name: '@blueprint/context'
+    - id: blueprint-node
+      name: '@blueprint/node'
+      config:
+        executionRuntimeEntries:
+          - !!js "process.getBuiltinModule('node:url').pathToFileURL(process.getBuiltinModule('node:module').createRequire(profileContext.installAnchor).resolve('@deepseek-ai/dsh-ptc-runtime-node')).href"
+        externalProviderEntries:
+          - !!js "process.getBuiltinModule('node:url').pathToFileURL(process.getBuiltinModule('node:module').createRequire(profileContext.installAnchor).resolve('@deepseek-ai/dsh-subagent-codex')).href"
+          - !!js "process.getBuiltinModule('node:url').pathToFileURL(process.getBuiltinModule('node:module').createRequire(profileContext.installAnchor).resolve('@deepseek-ai/dsh-subagent-claude-code')).href"
+
+# 问用户。提问卡只给 run（照 dsh 原样，10-28）；helm、dock、spark 照旧在对话里问（问卡 1）。
+- id: tool-ask-user
+  name: '@deepseek-ai/dsh-tool-ask-user'
+
+# ── run 照 dsh 标准模式补齐（10-28 用户：run 和 dsh 对话页一模一样）──────────────
+# 行与配置照抄 dsh-web-app 的 standard preset。todo、present、计划模式、fork、子代理控制只给 run 看
+# （context 工具目录按节点类型筛，原生 preset 只装一次、工具对所有节点注册）。
+# 定时提醒（tool-schedule）不挂：到点会叫醒会话，run 交回后被叫醒什么也做不了；等长任务用后台任务。
+- id: tool-todo
+  name: '@deepseek-ai/dsh-tool-todo'
+  config:
+    allowParallelInProgress: true
+
+- id: present
+  name: '@deepseek-ai/dsh-tool-present'
+
+# 计划模式：用户在 run 的输入框选「计划」或打 /plan 进入，run 写好计划用 exit_plan_mode 交审；
+# 规则段 plan:policy 只放行给 run。段落原文照抄 dsh standard preset。
+- id: planning
+  name: cordis:group
+  group: true
+  isolate:
+    planMode: true
+  config:
+    - id: plan-mode
+      name: '@deepseek-ai/dsh-plan-mode'
+      config:
+        section: |
+          You are in plan mode. Stay in plan mode until exit_plan_mode succeeds or the user switches the session mode. Imperative language to implement changes means plan the implementation, not execute it. A user's conversational agreement — including an answer confirming something you asked — approves nothing and does not end plan mode; fold the confirmed decision into the plan and submit it through exit_plan_mode.
+
+          Explore first. Use non-mutating reads, searches, static analysis, and checks to ground the plan in the actual repository. Do not edit or write files, change configuration, run formatters or code generation that rewrites tracked files, commit, or otherwise carry out the plan. Prefer existing functions and patterns over new machinery.
+
+          The tool catalog stays the same across modes for request-cache stability. These plan-mode rules override any later tool description or guidance that suggests using mutation tools; those tools remain listed to keep the tool catalog unchanged. Do not use todo_write to track this planning phase: it tracks implementation after an approved plan, while the plan itself belongs in exit_plan_mode.
+
+          Resolve discoverable facts by inspection. Use ask_user_question only for user-owned choices or material ambiguity that inspection cannot answer. Do not ask the user where code lives or how current behavior works when you can find out.
+
+          Make the plan decision-complete: state the goal and success criteria; group implementation changes by subsystem; identify public API, schema, and data-flow changes; cover edge cases, failure modes, tests, acceptance criteria, and explicit assumptions. Keep it concise enough to review but detailed enough that another engineer can implement it without making design decisions.
+
+          When ready, call exit_plan_mode with the complete plan markdown, starting with a # title. Make exit_plan_mode the only and final tool call in that assistant response: it presents the plan for approval, and implementation begins only in a later step after approval. Do not paste the final plan as a plain reply or ask "should I proceed?" through prose or ask_user_question. If review rejects it, incorporate the feedback and present again. If the review channel is unavailable or aborted, stay in plan mode and ask the user to switch modes manually; do not proceed with implementation.
+
+# 当前时间与 AGENTS.md／CLAUDE.md：这两样每步往对话里追加一条消息，dsh 不分节点类型，挂上就是所有节点都有。
+# 项目根标记加「系统文档」：老项目放在仓库的 项目/ 下、自己没有 .git，不加会一路找到仓库根，把开发用的 CLAUDE.md 读进节点。
+- id: time-context
+  name: '@deepseek-ai/dsh-time-context'
+
+- id: agent-instructions
+  name: '@deepseek-ai/dsh-agent-instructions'
+  config:
+    maxBytes: 65536
+    projectRootMarkers:
+      - .git
+      - 系统文档
+
+# 同会话目标与权限采用官方工具；驱动只在宿主注册一次。
+- id: tool-goal
+  name: '@deepseek-ai/dsh-tool-goal'
+
+# 官方固定迭代；独立 Workflow realm，子轮采用全新 spawn 与自己的工作角色。
+- id: blueprint-ralph
+  name: cordis:group
+  group: true
+  isolate:
+    workflowEngine: true
+  config:
+    - id: ralph-workflow
+      name: '@deepseek-ai/dsh-workflow-ptc'
+      config:
+        provider: blueprint-ralph
+    - id: tool-ralph
+      name: '@deepseek-ai/dsh-tool-ralph'
+      config:
+        subagentProvider: blueprint-ralph
+        maxRounds: 64
+
+# run 开 run：直接用 dsh 自带的 subagent，后端是 host 上 dsh-base 自带的 spawn（fork 后端同在 host）。dock、run 看得见（context 工具目录按节点类型筛）；
+# 开出来的会话不在名册上，按帮手放行（node 的 预测.js），深度照 dsh 默认 1，它不再往下开。
+# 选模型（modelSelectionSettings）、subagent_fork 与子代理控制照 dsh standard，只给 run；dock 的 subagent 不带选模型的字段。
+- id: tool-subagent
+  name: '@deepseek-ai/dsh-tool-subagent'
+  config:
+    provider: spawn
+    toolName: subagent
+    modelSelectionSettings: true
+
+- id: tool-subagent-fork
+  name: '@deepseek-ai/dsh-tool-subagent'
+  config:
+    provider: fork
+    toolName: subagent_fork
+
+- id: tool-subagent-control
+  name: '@deepseek-ai/dsh-tool-subagent-control'
+
+- id: tool-subagent-list-agents
+  name: '@deepseek-ai/dsh-tool-subagent-control/list-agents'
+
+# Codex／Claude Code 不给节点当工具：选了它们的 run 由它们自己当（叶 6，node 的 外部run.js 用命令行启动），
+# 两家提供方仍在 cordis.patch.yml 里，随包的程序和项目隔离的只读代码目录从它们那里取。
+
+# ── 干活的工具 ────────────────────────────────────────────────────────────────
+
+# Session 当前目录与自主 Git 工作树由 dsh 记录；正式节点产物空间仍由 node 管理。
+- id: tool-working-directory
+  name: '@deepseek-ai/dsh-tool-working-directory'
+- id: tool-worktree
+  name: '@deepseek-ai/dsh-experimental-tool-worktree'
+
+# 查文字。dsh 现成的，web-app bundle 把面向模型的这一行关了，在这儿开。
+# web_search 沿用 dsh；web_fetch 由 node 注册，仍走 dsh web 服务，正文落项目、只展示原文片段。
+- id: tool-web
+  name: '@deepseek-ai/dsh-tool-web'
+  config:
+    fetch: false
+    searchTimeoutMs: 60000
+
+# 读、写、改文件，读图片 —— dsh 现成的（read／write／edit／read_image）。`fs` 服务和它的策略在 host 上。
+- id: tool-fs
+  name: '@deepseek-ai/dsh-tool-fs'
+
+# 找文件 —— dsh 现成的（glob／grep）。
+- id: tool-fs-search
+  name: '@deepseek-ai/dsh-tool-fs-search'
+  config:
+    sampleOverCapGlobResults: false
+
+# 跑命令 —— dsh 现成的 bash。沙箱默认档只许写项目文件夹。
+- id: tool-bash
+  name: '@deepseek-ai/dsh-tool-bash'
+
+# 需要跨调用 shell/REPL 状态或交互输入时，沿用官方持续终端服务。
+- id: tool-terminal
+  name: '@deepseek-ai/dsh-tool-terminal'
+
+# 后台任务的把手（`job_output`／`job_list`／`job_kill`）：长命令不占着一轮。
+- id: tool-jobs
+  name: '@deepseek-ai/dsh-tool-jobs'
+
+# skill：一份一个文件夹，放 `blueprint/packages/prompt/skill/<名>/SKILL.md`（模型读的字都住 prompt 包）。
+# 目录里每份只占一行名字＋一句话，正文只有真要用的那一个 `skill` 一下才读进来。加一份＝建一个文件夹，这儿不加行。
+# 路径相对当前 preset 解析，不依赖启动目录或 DSH_HOME；与 dsh 自带 preset 使用同一种写法。
+- id: skill-filesystem
+  name: '@blueprint/context/skills'
+  config:
+    customSkillDirs:
+      - !!js "process.getBuiltinModule('node:url').fileURLToPath(new URL('./packages/prompt/skill/', baseUrl))"
+
+- id: tool-skill
+  name: '@deepseek-ai/dsh-tool-skill'
+
+# ── 会话内压缩（归 dsh）──────────────────────────────────────────────────────
+#
+# **必须挂在这一组里** —— 组 isolate 了 compaction，组外拿不到 ctx.compaction。
+# 阶段间按节点文档重建；工作中不按压力自动压，过 remindFromTokens 起每涨 remindEveryTokens 提醒一次，
+# 节点自己用 compact 收起（最新文档＋它写的要点＋近期 retainTokens 原文）；请求超窗时按文档救一次。
+# run 和它开的子会话照 dsh 默认的 compaction-basic 走（快满自动压成摘要、超窗压完重试，10-28），不提醒、不给 compact。
+# 工具结果裁剪器保留在同一 realm。
+- id: compaction
+  name: cordis:group
+  group: true
+  isolate:
+    compaction: true
+    toolResultPruner: true
+  config:
+    - id: blueprint-compaction
+      name: '@blueprint/node/compaction'
+      config:
+        remindFromTokens: 500000
+        remindEveryTokens: 100000
+        retainTokens: 40000
+
+    - id: command-compact
+      name: '@deepseek-ai/dsh-command-compact'
+
+    - id: tool-result-pruner
+      name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+      config:
+        thresholdChars: 8192
+        headChars: 4096
+        tailChars: 1024

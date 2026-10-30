@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>__作品标题__</title><link rel="stylesheet" href="作品样式.css">
+  <script type="importmap">{"imports":{"three":"./依赖/three/build/three.module.js","three/addons/":"./依赖/three/examples/jsm/"}}</script>
+</head>
+<body>
+  <main>
+    <header><div><p class="eyebrow">SPATIAL EXHIBIT</p><h1>__作品标题__</h1></div><button id="镜头复位" type="button">镜头复位</button></header>
+    <p class="guide">拖拽旋转 · 滚轮缩放 · 点选展品并改变颜色</p>
+    <div class="workbench">
+      <div id="空间画布" aria-label="交互 3D 展台"></div>
+      <aside>
+        <p class="eyebrow">EXHIBIT DETAILS</p><h2 id="展品名称">晶体展品</h2>
+        <p class="detail">拖拽观察轮廓与光线，选择一个展品，再试试不同配色。</p>
+        <div id="展品列表" aria-label="展品选择"></div>
+        <p class="label">展品配色</p><div id="颜色列表" aria-label="配色选择"></div>
+        <p id="场景状态" role="status" aria-live="polite">正在载入空间…</p>
+      </aside>
+    </div>
+  </main>
+  <script type="module" src="空间场景.mjs"></script>
+</body>
+</html>

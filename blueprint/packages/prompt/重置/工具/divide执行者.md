@@ -1,0 +1,1 @@
+- executor：只给 run，登记或派出时填打开了的 agent（{{可选执行者}}）；不填由 DeepSeek 做。

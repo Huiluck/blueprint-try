@@ -1,0 +1,19 @@
+{
+  "name": "@blueprint/prompt",
+  "version": "0.0.0",
+  "private": true,
+  "description": "文字的唯一出处：节点核心（shells/）、工具说明书（工具/）、按需读取的对策与技能（skill/）。不是插件",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "shells",
+    "工具",
+    "skill"
+  ],
+  "dependencies": { "yaml": "^2.8.1" }
+}
