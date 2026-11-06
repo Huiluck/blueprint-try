@@ -10,9 +10,9 @@
 
 ## 使用
 
-当前桌面窗口打开与 `./dsh web` 相同的 dsh 根界面，加载 base、web-app、Blueprint 三层 bundle。图纸、看板和品牌随 Blueprint bundle 加载。以下旧版界面操作说明仍可在 `/studio/` 对照；新项目表单、Brief 和 Blueprint 专用技能面板本段尚未迁入新窗口。
+当前桌面窗口打开 dsh 网页界面的根，加载 base、web-app、Blueprint 三层 bundle。图纸、看板和品牌随 Blueprint bundle 加载。旧版 `/studio/` 页面已下线，访问 `/studio/` 会 302 到新界面，只有 `/studio/api/*` 数据接口保留；新项目表单、Brief 和 Blueprint 专用技能面板本段尚未迁入新窗口。
 
-打开 Blueprint，先确认系统 DSH 已配置模型：默认读取 `~/.dsh`（Windows 为 `%USERPROFILE%\.dsh`）的 `desktop` profile；桌面版放行 `BLUEPRINT_SYSTEM_DSH_HOME`、`BLUEPRINT_SYSTEM_DSH_PROFILE` 两个变量，可据此指向其他 home 或 profile，其余 `BLUEPRINT_*` 在启动时仍被清理。模型凭据取 `<BLUEPRINT_SYSTEM_DSH_HOME>/.credentials.yaml`（默认 `~/.dsh/.credentials.yaml`）。Blueprint 启动时只读导入这些对话模型连接；新建项目时在表单里从系统 DSH 的模型目录选择模型即可开始，模型服务的费用由所选服务商收取。右上角的连接管理只管理图片、视频、音频等媒体服务，添加、编辑或删除对话模型 API 的入口已移除。系统 DSH 尚未配置模型时，首页显示“请先在系统 DSH 中配置模型 provider”的空态，应用仍可正常启动。
+打开 Blueprint，先确认系统 DSH 已配置模型：默认读取 `~/.dsh`（Windows 为 `%USERPROFILE%\.dsh`）的 `desktop` profile；桌面版放行 `BLUEPRINT_SYSTEM_DSH_HOME`、`BLUEPRINT_SYSTEM_DSH_PROFILE` 两个变量，可据此指向其他 home 或 profile，其余 `BLUEPRINT_*` 在启动时仍被清理。模型凭据在 `<BLUEPRINT_SYSTEM_DSH_HOME>/.credentials.yaml` 存在时使用该文件（默认 `~/.dsh/.credentials.yaml`），缺失时落在应用数据目录的 `engine/.credentials.yaml`。Blueprint 启动时只读导入这些对话模型连接；新建项目时在表单里从系统 DSH 的模型目录选择模型即可开始，模型服务的费用由所选服务商收取。右上角的连接管理只管理图片、视频、音频等媒体服务，添加、编辑或删除对话模型 API 的入口已移除。系统 DSH 尚未配置模型时，首页显示“请先在系统 DSH 中配置模型 provider”的空态，应用仍可正常启动。
 
 设置齿轮旁边的问号是帮助（首页在顶栏齿轮左边，进了项目在左窗竖栏齿轮上面）：设置看不懂、API 不会加、哪里报错、想装插件，都可以直接问。它是一条普通的 dsh 会话（cordis 预设，不设沙箱、不弹确认），工作目录是数据目录里的 `助理/`，读那里的 `AGENTS.md`（原文在 `prompt/助理/AGENTS.md`）；用同一个模型连接，费用照算。系统 DSH 还没配置模型时，点开先提示先在系统 DSH 中配置模型 provider。
 
@@ -24,7 +24,7 @@
 
 模型失败直接显示“响应超时”或“接口限流”，等待与开始自动重试各有可见记录。重试策略随系统 DSH 的 provider 配置导入；未设置 `retryPolicy` 时按原生默认：对空响应、限流、服务端、超时与传输失败最多重试五次，退避从 500 毫秒起、最长 10 秒，带 10% 抖动。Blueprint 不再为对话连接补写默认重试策略，也不修改系统 provider 配置。
 
-在 API 管理（媒体 API）中选择图片、视频、音频模板，填写基础地址与 Key，添加模型并勾选它实际支持的用途。对话模型连接不在这里增删改，只读展示系统 DSH 的 provider。已保存的媒体服务供所有节点按任务自主发现和调用，包含生成、理解与音频转文字；可处理本项目文件和当前会话上传的媒体附件。生成候选保存在项目的 `.blueprint-tmp/生成/`，保留生成说明；选中的由 `shelve` 上架到 `素材/`，附为什么拿、用途与来源，生成检索目录和内页。异步视频任务可在重启后继续查询，已上架文件仍可按原任务查询。媒体调用按对应服务商计费，接口返回的用量保存在本地任务回执；顶部费用汇总目前仍来自对话模型账本。
+在 API 管理（媒体 API）中选择图片、视频、音频模板，填写基础地址与 Key，添加模型并勾选它实际支持的用途。这一页只列媒体服务；对话模型在系统 DSH 的设置中管理，Blueprint 不再提供聊天 provider 的增删改。已保存的媒体服务供所有节点按任务自主发现和调用，包含生成、理解与音频转文字；可处理本项目文件和当前会话上传的媒体附件。生成候选保存在项目的 `.blueprint-tmp/生成/`，保留生成说明；选中的由 `shelve` 上架到 `素材/`，附为什么拿、用途与来源，生成检索目录和内页。异步视频任务可在重启后继续查询，已上架文件仍可按原任务查询。媒体调用按对应服务商计费，接口返回的用量保存在本地任务回执；顶部费用汇总目前仍来自对话模型账本。
 
 第一版适配 [OpenAI 媒体接口](https://developers.openai.com/api/reference/resources/images)、[Gemini generateContent](https://ai.google.dev/api/generate-content)、[fal 队列接口](https://fal.ai/docs/documentation/model-apis/inference/queue) 和 [硅基流动图片接口](https://docs.siliconflow.cn/docs/api/images-generations-post)。硅基流动模板预填 `Tongyi-MAI/Z-Image-Turbo`，默认 `image_size: "1280x1280"`；支持参考图的其他图片模型也经同一 JSON 端点调用。返回的临时图片地址会立即下载，取图失败可按同一任务重试，不重新生成。硅基流动的视频、音频专用协议尚未适配。其他服务商使用相同协议时可填写自己的地址与模型；专用协议需要增加适配器。媒体直接输入合计上限为 20MB、每次最多 8 个文件，超过时先压缩或截取相关部分。
 
@@ -121,21 +121,21 @@ npm --prefix app run smoke:render
 
 固定新版源码回归可按文件跑：`cd app && node --import ./scripts/native-node-protocol-check.mjs?register --test tests/<名称>.test.mjs`；Blueprint 源码包的单测把路径换成 `../blueprint/packages/<包>/<名称>.test.js`。`--import` 注册的解析钩子让 `blueprint/` 源码里的 `@deepseek-ai/*`、`zod`、`yaml` 从 App 依赖解析；源码包的单测不带钩子直接跑会因源码目录没有自己的 `node_modules` 而找不到这些包。全量测试用 `npm test`（在 `app/` 内；仓库根目录用 `npm --prefix app test`），它带同一钩子；也可把 `node` 换成随 App 的 `app/node_modules/node/bin/node`（固定 22.23.3）。`node app/scripts/source-profile-check.mjs` 只在临时目录检查源码装配。
 
-系统全局 `dsh` 与 Blueprint 内置引擎仍独立升级；Blueprint 只在启动时读取系统 DSH 的模型 provider 与凭据路径，不修改系统 profile；媒体服务 Key 保存在本机凭据存储：系统 DSH 的 `.credentials.yaml` 存在时与模型 Key 同一份，否则落在应用数据目录的 `engine/.credentials.yaml`。源码入口 `./dsh` 按本文件夹 `package.json` 的引擎版本选择 CLI，并使 profile 依赖指向同一引擎；全局版本不匹配时使用按版本隔离的 `app/.build/source-cli-<版本>/`；解析本身只读，`./dsh` 在实际启动时显式对齐 profile 依赖。缓存缺失时运行 `npm --prefix app run prepare:cli` 安装固定版本。桌面版仍由生产依赖和锁文件决定引擎版本。
+系统全局 `dsh` 与 Blueprint 内置引擎仍独立升级；Blueprint 只在启动时读取系统 DSH 的模型 provider 与凭据路径，不修改系统 profile。模型与媒体 Key 保存在本机凭据存储：系统 DSH 的 `.credentials.yaml` 存在时共用该文件，否则落在应用数据目录的 `engine/.credentials.yaml`。源码 CLI 由 `app/scripts/source-cli.mjs` 按 `app/package.json` 的引擎版本解析，缓存位于按版本隔离的 `app/.build/source-cli-<版本>/`；解析本身只读，profile 依赖对齐由调用方显式选择。缓存缺失时运行 `npm --prefix app run prepare:cli` 安装固定版本。桌面版仍由生产依赖和锁文件决定引擎版本。
 
-2026-11 核对：Blueprint 源码入口、测试与新构建固定为 `0.2.1-rc.5`，五个引擎补丁同为该版本。聊天模型 provider 只从系统 DSH 只读导入：默认 home `~/.dsh`、profile `desktop`；桌面版放行 `BLUEPRINT_SYSTEM_DSH_HOME`、`BLUEPRINT_SYSTEM_DSH_PROFILE` 覆盖，其余 `BLUEPRINT_*` 仍在启动时清理。模型凭据取 `<BLUEPRINT_SYSTEM_DSH_HOME>/.credentials.yaml`（默认 `~/.dsh/.credentials.yaml`）。系统 DSH 未安装、未配置模型或 YAML 损坏时，应用照常启动，首页显示“请先在系统 DSH 中配置模型 provider”的空态。以下基础接缝已经适配：
+2026-11 核对：Blueprint 源码 CLI、测试与新构建固定为 `0.2.1-rc.5`，五个引擎补丁同为该版本。聊天模型 provider 只从系统 DSH 只读导入：默认 home `~/.dsh`、profile `desktop`；桌面版放行 `BLUEPRINT_SYSTEM_DSH_HOME`、`BLUEPRINT_SYSTEM_DSH_PROFILE` 覆盖，其余 `BLUEPRINT_*` 仍在启动时清理。模型凭据在 `<BLUEPRINT_SYSTEM_DSH_HOME>/.credentials.yaml` 存在时使用该文件（默认 `~/.dsh/.credentials.yaml`），缺失时落在应用数据目录的 `engine/.credentials.yaml`。系统 DSH 未安装、未配置模型或 YAML 损坏时，应用照常启动，首页显示“请先在系统 DSH 中配置模型 provider”的空态。以下基础接缝已经适配：
 
-这次项目更新同时以新版能力为目标。Git 工作树、Claude Code／Codex 正式节点、用户与 Agent 终端及持续循环的 25 组能力清单和接入判断，见 [DeepSeek Harness能力更新研究](../草稿/DeepSeek%20Harness更新研究/能力清单与接入方案.md)。分阶段实施与当前进度见 [完整升级计划](../草稿/DeepSeek%20Harness更新研究/完整升级计划.md)。研发基线为 `0.2.1-rc.5`；下表记录的是基础兼容接缝。
+这次项目更新同时以新版能力为目标。Git 工作树、Claude Code／Codex 正式节点、用户与 Agent 终端及持续循环的 25 组能力清单和接入判断，以及分阶段实施与当前进度，见研究材料《DeepSeek Harness 能力更新研究》《完整升级计划》（未随本仓库提供）。研发基线为 `0.2.1-rc.5`；下表记录的是基础兼容接缝。
 
 | 接缝 | 当前装配 |
 | --- | --- |
 | preset | 官方 `dsh-agent-preset-registry` 管声明；源码与 App 共用 `blueprint/agent.cordis.yml`。源码的薄声明入口只解析 Blueprint 的 profile 直链，原生插件保持官方解析与生命周期。 |
-| 设置 | App 自有原生 profile、bundle 默认层与个人 patch；系统 DSH 的 `agent-default-model`、`llm-pi-ai`、`llm-deepseek`、`llm-deepseek-account` 行只读导入，凭据指向系统 DSH home 下的 `.credentials.yaml`；媒体连接经 `config-editor/settings` 保存，旧 settings 导入保留备份，媒体连接使用稳定的 `blueprint-media` Config 行。 |
+| 设置 | App 自有原生 profile、bundle 默认层与个人 patch；系统 DSH 的 `agent-default-model`、`llm-pi-ai`、`llm-deepseek`、`llm-deepseek-account` 行只读导入，系统 DSH home 下的 `.credentials.yaml` 存在时凭据使用该文件，否则落到应用数据目录的 `engine/.credentials.yaml`；媒体连接经 `config-editor/settings` 保存，旧 settings 导入保留备份，媒体连接使用稳定的 `blueprint-media` Config 行。 |
 | 会话与等待 | v3→v4 只读冷迁移保留旧等待记录及迁移后的名称；新等待只使用原生 Inbox 和 blocked 轮尾，不再写扩展事件，session-events 补丁已撤下。输入身份、claim 间隙、停止与阶段报告走官方纯投影；新版 Jobs 使用 SessionId 和 settled 订阅。 |
 | 多模态 | 图片保留原生附件和预算卸载；精简版补丁 `multimodal-0.2.1-rc.5.patch` 仅补音视频与并行图片的工具归属，按精确版本选取。音视频直接输入目前仅支持 OpenAI Completions，其他协议明确拒绝。 |
 | 当前目录与工作树 | 官方 workingDirectory 与 worktrees 服务，共用源码／App 工具接线。文件、搜索、命令及专用文件工具采用当前目录；项目身份、技能选择、归档和正式 Git 成果仍按原项目定位。 |
 | Claude Code 与 Codex | 官方 external activation 与两种独立启动工具，继承当前目录或指定工作树。原生 manager 管理取消、清理和完成通知；启动回执保留提供方、编号和实际目录。它们目前是一次性执行，不能恢复同一外部会话或收续聊；正式节点的责任、纸条与成果管理继续由 Blueprint 承担。 |
-| 持续终端 | 官方 `terminals/terminal-bash/tool-terminal` 提供六个 Agent 工具，保留 shell／REPL，后台发送复用 Jobs。用户 Terminal 页沿独立 `terminalController` 和官方 React-free `ClientTerminals`，支持输入、尺寸、多个标签与同宿主重连屏幕恢复。 |
+| 持续终端 | 官方 `terminals/terminal-bash/tool-terminal` 提供六个 Agent 工具，保留 shell／REPL，后台发送复用 Jobs。用户 Terminal 页由 dsh 自带的右侧栏终端插件提供，支持输入、尺寸、多个标签与同宿主重连屏幕恢复。 |
 | 程序工具 | 官方 PTC 的 `run_code`、SDK 与已有 Node runtime 已完成 Blueprint 提示、内部调用、阶段报告和成果／材料协同；内部结果只作持久展示，模型只收程序最终输出与原生追加背景。默认仍采用原生工具与按需目录，产品模式入口和通用 Workflow 尚未开放。 |
 | 依赖与构建 | DSH 与 Cordis 配套版本、锁文件和构建检查已同步。`prepare --output <新目录>` 可生成完整隔离包，独立 CLI 缓存保留旧版。 |
 
@@ -145,7 +145,7 @@ Claude Code 默认采用官方 `acceptEdits`，可编辑文件和使用原生准
 
 终端进程继承项目文件和宿主管理端口边界。用户面板保留交互环境，不经过模型预测或审批；其输出不进入模型上下文。正式结束、重启和 Stop All 等待 Agent 终端释放，单节点停止只中断当前发送并保留 shell；用户面板有独立关闭入口。宿主重启后不能恢复旧 PTY，浏览器显示缺失状态，由用户新开。Seatbelt 包装下原生空闲活动判据为 unknown，不能依赖无人持有后的自动回收；显式关闭与所有者／宿主释放仍由原生管理。
 
-终端浏览器资源在 prepare 时从精确版本的发布 ESM 构建，随独立运行包搬运并校验 SHA-256；源码 `./dsh` 使用所选 CLI 安装中的同版资源。完整缓存复用，损坏或缺失明确修复／拒绝，不借用另一份 App 依赖。
+用户终端的 xterm 与 FitAddon 随 dsh 自带的右侧栏终端插件按需加载；Blueprint 不再为终端页面单独构建、搬运或校验浏览器资源，运行包里也没有额外的终端资源缓存。`/studio/api/terminal` 数据接口保留。
 
 隔离完整宿主已验证新项目工具链、临时项目重启恢复、等待后唤醒、子会话取消和上下文重建。`node app/scripts/harness-compatibility-check.mjs <新版依赖目录> [结果.json]` 可用合成会话复查格式、扩展事件和补丁，不使用用户数据或真实模型。通过冷读不等于旧项目已经可继续执行；写模式会发布新代际，切换前应备份并在副本上验证。
 
