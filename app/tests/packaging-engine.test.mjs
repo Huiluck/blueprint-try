@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdtemp, mkdir, writeFile, readFile, readlink, symlink, rm, cp, lstat, access, realpath } from 'node:fs/promises'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -11,7 +11,7 @@ import { prepareOptions, prepareRuntime } from '../scripts/prepare.mjs'
 import { scenarioOptions, prepareScenario } from '../scripts/prepare-scenario-smoke.mjs'
 import { corePackages } from '../scripts/files.mjs'
 
-const version = '0.2.1-alpha.2'
+const version = JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')).dependencies['@deepseek-ai/dsh-llm']
 const appManifest = { name: 'blueprint-packaging-fixture', version: '0.1.18', dependencies: {
   '@deepseek-ai/dsh-llm': version, '@deepseek-ai/dsh-session': version,
 }, devDependencies: { node: '22.23.3' }, overrides: { '@deepseek-ai/dsh-session': version } }
