@@ -10,7 +10,7 @@ import { spawnSync } from 'node:child_process'
 import { ensureMultimodalPatch, inspectMultimodalPatch, multimodalPatchForVersion } from '../scripts/multimodal-patch.mjs'
 import { patchCommand } from '../scripts/patch-command.mjs'
 
-const engineRoot = process.env.BLUEPRINT_MULTIMODAL_ENGINE_ROOT || fileURLToPath(new URL('../.build/deepseek-harness-alpha-protocol/', import.meta.url))
+const engineRoot = process.env.BLUEPRINT_MULTIMODAL_ENGINE_ROOT || fileURLToPath(new URL('../', import.meta.url))
 const modules = join(engineRoot, 'node_modules')
 let native
 if (existsSync(join(engineRoot, 'package.json'))) {
@@ -23,6 +23,7 @@ if (existsSync(join(engineRoot, 'package.json'))) {
 test('按精确版本选择补丁，未知版本不试打旧代码', () => {
   assert.match(multimodalPatchForVersion('0.1.5-rc.2'), /multimodal\.patch$/)
   assert.match(multimodalPatchForVersion('0.2.1-alpha.2'), /multimodal-0\.2\.1-alpha\.2\.patch$/)
+  assert.match(multimodalPatchForVersion('0.2.1-rc.5'), /multimodal-0\.2\.1-rc\.5\.patch$/)
   assert.equal(multimodalPatchForVersion('0.2.0-rc.2'), undefined)
 })
 
