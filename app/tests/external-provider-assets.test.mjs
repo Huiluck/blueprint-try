@@ -12,12 +12,17 @@ import { dirname, join, relative } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { inspectExternalProviderAssets, assertExternalProviderAssets } from '../scripts/external-provider-assets.mjs'
 
-const engine = '0.2.1-alpha.2', codex = '0.153.4', sdk = '0.3.263', claude = '2.1.263'
+const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
+// 引擎版本唯一来源是 app manifest（dependencies['@deepseek-ai/dsh-llm']）：fixture 跟着它走，升级引擎不再改本文件。
+const engine = manifest.dependencies['@deepseek-ai/dsh-llm']
+// 资产版本跟提供方在 rc.5 里的精确钉版；下面「跟随 manifest 与本机安装」那条会把它们钉到真实 provider manifest。
+const codex = '0.153.4', sdk = '0.3.263', claude = '2.1.263'
+const modules = fileURLToPath(new URL('../node_modules', import.meta.url))
 // codexVersion: null＝跟提供方钉的版本；不给就读 App package.json 的 overrides（App 升过 Codex，见下面那条）。
 const selected = { engineVersion: engine, codexVersion: null, platform: 'darwin', arch: 'arm64' }
 // 本机真装的那份：Codex 认 App 定的版本。
 const installed = { ...selected, codexVersion: undefined }
-const appCodex = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')).overrides['@openai/codex']
+const appCodex = manifest.overrides['@openai/codex']
 const json = async (path, value) => { await mkdir(dirname(path), { recursive: true }); await writeFile(path, JSON.stringify(value)) }
 
 async function fixture(t) {
@@ -61,6 +66,7 @@ test('缺少所选平台optional载荷或二进制时提前失败，不采用宿
 
 test('provider、wrapper/SDK与平台包版本必须与官方精确固定相符', async t => {
   const f = await fixture(t)
+  // 旧 alpha 引擎（以及任何非当前精确版本）都不能被放行；这里是故意写错的版本，不是待升级的 fixture。
   await f.update('@deepseek-ai/dsh-subagent-codex', { version: '0.2.1-alpha.1' })
   await assert.rejects(inspectExternalProviderAssets(f.modules, selected), /提供方版本不一致/)
   await f.update('@deepseek-ai/dsh-subagent-codex', { version: engine, dependencies: { '@openai/codex': `^${codex}` } })
@@ -115,8 +121,21 @@ test('本机安装的官方固定载荷实际执行版本与元数据相符，�
   assert.equal(result.claudeCode.version, claude)
 })
 
+// rc.5：本机安装的官方 provider 与 manifest 必须同版；资产常量跟提供方钉版一致。只核对元数据，不执行二进制。
+test('fixture 的引擎与资产版本跟随 manifest 和本机安装的官方 provider', async () => {
+  const provider = async name => JSON.parse(await readFile(join(modules, `@deepseek-ai/${name}/package.json`), 'utf8'))
+  const codexProvider = await provider('dsh-subagent-codex'), claudeProvider = await provider('dsh-subagent-claude-code')
+  assert.equal(codexProvider.dependencies['@openai/codex'], codex, 'fixture 的 Codex 版本须跟提供方钉版')
+  assert.equal(claudeProvider.dependencies['@anthropic-ai/claude-agent-sdk'], sdk, 'fixture 的 SDK 版本须跟提供方钉版')
+  assert.equal(JSON.parse(await readFile(join(modules, '@anthropic-ai/claude-agent-sdk/package.json'), 'utf8')).claudeCodeVersion, claude)
+  const result = await inspectExternalProviderAssets(modules, { ...installed, platform: process.platform, arch: process.arch })
+  assert.equal(result.engine, engine)
+  assert.equal(result.codex.providerVersion, engine); assert.equal(result.codex.version, appCodex)
+  assert.equal(result.claudeCode.providerVersion, engine); assert.equal(result.claudeCode.sdkVersion, sdk)
+  assert.equal(result.claudeCode.version, claude)
+})
+
 const nativePlatform = process.platform === 'darwin' && process.arch === 'arm64'
-const modules = fileURLToPath(new URL('../node_modules', import.meta.url))
 const native = name => import(pathToFileURL(join(modules, '@deepseek-ai', name, 'lib/index.js')).href)
 async function deadline(promise) {
   let timer
