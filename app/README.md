@@ -10,11 +10,11 @@
 
 ## 使用
 
-当前桌面窗口打开与 `./dsh web` 相同的 dsh 根界面，加载 base、web-app、Blueprint 三层 bundle。图纸、看板和品牌随 Blueprint bundle 加载。以下旧版界面操作说明仍可在 `/studio/` 对照；新项目表单、Brief 和 Blueprint 专用技能面板本段尚未迁入新窗口。
+当前桌面窗口打开 dsh 网页界面的根，加载 base、web-app、Blueprint 三层 bundle。图纸、看板和品牌随 Blueprint bundle 加载。旧版 `/studio/` 页面已下线，访问 `/studio/` 会 302 到新界面，只有 `/studio/api/*` 数据接口保留；新项目表单、Brief 和 Blueprint 专用技能面板本段尚未迁入新窗口。
 
-打开 Blueprint，在右上角的连接管理中填写自己的 API 地址、Key 和模型，选择默认模型，然后新建项目。模型服务的费用由所选服务商收取。
+打开 Blueprint，先确认系统 DSH 已配置模型：默认读取 `~/.dsh`（Windows 为 `%USERPROFILE%\.dsh`）的 `desktop` profile；桌面版放行 `BLUEPRINT_SYSTEM_DSH_HOME`、`BLUEPRINT_SYSTEM_DSH_PROFILE` 两个变量，可据此指向其他 home 或 profile，其余 `BLUEPRINT_*` 在启动时仍被清理。模型凭据在 `<BLUEPRINT_SYSTEM_DSH_HOME>/.credentials.yaml` 存在时使用该文件（默认 `~/.dsh/.credentials.yaml`），缺失时落在应用数据目录的 `engine/.credentials.yaml`。Blueprint 启动时只读导入这些对话模型连接；新建项目时在表单里从系统 DSH 的模型目录选择模型即可开始，模型服务的费用由所选服务商收取。右上角的连接管理只管理图片、视频、音频等媒体服务，添加、编辑或删除对话模型 API 的入口已移除。系统 DSH 尚未配置模型时，首页显示“请先在系统 DSH 中配置模型 provider”的空态，应用仍可正常启动。
 
-设置齿轮旁边的问号是帮助（首页在顶栏齿轮左边，进了项目在左窗竖栏齿轮上面）：设置看不懂、API 不会加、哪里报错、想装插件，都可以直接问。它是一条普通的 dsh 会话（cordis 预设，不设沙箱、不弹确认），工作目录是数据目录里的 `助理/`，读那里的 `AGENTS.md`（原文在 `prompt/助理/AGENTS.md`）；用同一个模型连接，费用照算。还没连模型时，点开先引去连接模型。
+设置齿轮旁边的问号是帮助（首页在顶栏齿轮左边，进了项目在左窗竖栏齿轮上面）：设置看不懂、API 不会加、哪里报错、想装插件，都可以直接问。它是一条普通的 dsh 会话（cordis 预设，不设沙箱、不弹确认），工作目录是数据目录里的 `助理/`，读那里的 `AGENTS.md`（原文在 `prompt/助理/AGENTS.md`）；用同一个模型连接，费用照算。系统 DSH 还没配置模型时，点开先提示先在系统 DSH 中配置模型 provider。
 
 新建项目的 Brief 可通过「插入文件 / 图片」、拖入文件或粘贴图片添加参考材料，图片显示缩略图，附件可移除。最多 20 个文件、合计 20 MB；创建失败保留草稿，成功后附件保存到项目的 `素材/Brief/`，文件引用进入初始需求，节点开始工作前即可读取。
 
@@ -22,13 +22,13 @@
 
 新项目按人机协作频率选择模式：高度协作，各层多数有实际取舍的决策一起做；轻度协作，总节点方案由用户确认、子节点方案自动通过，各节点的问题由用户回答；solo，与轻度协作用同一套系统，仅自动选择默认第一项、自动同意各节点方案。各层及同层接续轮继承选择；需求是否清楚、任务难度与品质目标分别判断。旧 co-create 按高度协作理解，execute 按轻度协作理解。
 
-模型失败直接显示“响应超时”或“接口限流”，等待与开始自动重试各有可见记录。所有模型连接的默认重试冷却约 10、20、40 秒，之后最多 60 秒再试，最多重试五次；新连接与升级后尚未设定策略的旧连接采用此值，已有自定义策略保留。
+模型失败直接显示“响应超时”或“接口限流”，等待与开始自动重试各有可见记录。重试策略随系统 DSH 的 provider 配置导入；未设置 `retryPolicy` 时按原生默认：对空响应、限流、服务端、超时与传输失败最多重试五次，退避从 500 毫秒起、最长 10 秒，带 10% 抖动。Blueprint 不再为对话连接补写默认重试策略，也不修改系统 provider 配置。
 
-在 API 管理中选择图片、视频、音频模板，填写基础地址与 Key，添加模型并勾选它实际支持的用途。已保存的媒体服务供所有节点按任务自主发现和调用，包含生成、理解与音频转文字；可处理本项目文件和当前会话上传的媒体附件。生成候选保存在项目的 `.blueprint-tmp/生成/`，保留生成说明；选中的由 `shelve` 上架到 `素材/`，附为什么拿、用途与来源，生成检索目录和内页。异步视频任务可在重启后继续查询，已上架文件仍可按原任务查询。媒体调用按对应服务商计费，接口返回的用量保存在本地任务回执；顶部费用汇总目前仍来自对话模型账本。
+在 API 管理（媒体 API）中选择图片、视频、音频模板，填写基础地址与 Key，添加模型并勾选它实际支持的用途。这一页只列媒体服务；对话模型在系统 DSH 的设置中管理，Blueprint 不再提供聊天 provider 的增删改。已保存的媒体服务供所有节点按任务自主发现和调用，包含生成、理解与音频转文字；可处理本项目文件和当前会话上传的媒体附件。生成候选保存在项目的 `.blueprint-tmp/生成/`，保留生成说明；选中的由 `shelve` 上架到 `素材/`，附为什么拿、用途与来源，生成检索目录和内页。异步视频任务可在重启后继续查询，已上架文件仍可按原任务查询。媒体调用按对应服务商计费，接口返回的用量保存在本地任务回执；顶部费用汇总目前仍来自对话模型账本。
 
 第一版适配 [OpenAI 媒体接口](https://developers.openai.com/api/reference/resources/images)、[Gemini generateContent](https://ai.google.dev/api/generate-content)、[fal 队列接口](https://fal.ai/docs/documentation/model-apis/inference/queue) 和 [硅基流动图片接口](https://docs.siliconflow.cn/docs/api/images-generations-post)。硅基流动模板预填 `Tongyi-MAI/Z-Image-Turbo`，默认 `image_size: "1280x1280"`；支持参考图的其他图片模型也经同一 JSON 端点调用。返回的临时图片地址会立即下载，取图失败可按同一任务重试，不重新生成。硅基流动的视频、音频专用协议尚未适配。其他服务商使用相同协议时可填写自己的地址与模型；专用协议需要增加适配器。媒体直接输入合计上限为 20MB、每次最多 8 个文件，超过时先压缩或截取相关部分。
 
-`draw` skill 保留画面准备与成果检查的方法，在有媒体工具时从 API 目录选择服务，再通过 `media_call` 生成或编辑；旧环境没有媒体工具时仍可使用随附脚本。API 连接负责地址、模型能力与 Key，skill 负责如何取得适用的图片。个人 Key 只存本机，不进入发布源码或安装包。
+`draw` skill 保留画面准备与成果检查的方法，在有媒体工具时从 API 目录选择服务，再通过 `media_call` 生成或编辑；旧环境没有媒体工具时仍可使用随附脚本。媒体 API 连接负责地址、模型能力与 Key，skill 负责如何取得适用的图片。个人 Key 只存本机，不进入发布源码或安装包。
 
 关闭窗口后任务继续运行；应用菜单里的“退出 Blueprint”停止执行并保存过程。重开后停在项目首页，从最近项目或「全部项目」打开原项目，使用 Start All 继续。更新或替换应用不会删除用户数据。
 
@@ -52,7 +52,7 @@ skill 面板区分已启用和当前条件：缺少程序、媒体 API 配置、
 
 ImageMagick、FFmpeg、uv、Poppler 等仍需对应外部程序。交互式浏览器和控制其他桌面 App 尚未接入，现版不推荐启动外部 Chrome、Playwright 或 Peekaboo，也不引导用户授予整机操控权限。内置预览、媒体播放与网页截图不需要屏幕录制或辅助功能权限。可用性检查保留用户 skill 开关，不修改项目、API Key 或项目隔离。
 
-所有模型共用同一个 `web_search` 工具，通过 DuckDuckGo 公共搜索页面取得网页标题、链接和摘要，无需搜索 Key 或模型厂商的联网开关。换模型、添加 API 连接均不影响搜索；当前模型负责提出查询、阅读结果，并按需用 `web_fetch` 读取原文。只返回真实搜索来源，结果随原生工具记录保存。公共搜索服务的验证、限流或网络失败会明确报错，不把错误页面当成无结果。
+所有模型共用同一个 `web_search` 工具，通过 DuckDuckGo 公共搜索页面取得网页标题、链接和摘要，无需搜索 Key 或模型厂商的联网开关。换模型、添加媒体 API 连接均不影响搜索；当前模型负责提出查询、阅读结果，并按需用 `web_fetch` 读取原文。只返回真实搜索来源，结果随原生工具记录保存。公共搜索服务的验证、限流或网络失败会明确报错，不把错误页面当成无结果。
 
 网页抓取兼容 TUN 代理的 Fake-IP 解析：仅当系统 DNS 返回 `198.18.0.0/15` 路由地址时，通过 HTTPS 公共 DNS 获取真实地址，再沿用引擎的公网检查和固定地址连接；内网地址、超时、正文大小和重定向限制仍由引擎处理。
 
@@ -78,7 +78,7 @@ ImageMagick、FFmpeg、uv、Poppler 等仍需对应外部程序。交互式浏�
 
 ## 从源码运行与打包
 
-在 Apple Silicon Mac 或 Windows 11 x64 上使用 Node 22.19 或以上版本。Windows 构建还需要 Git for Windows（补丁脚本用其中的 GNU patch），并把 Git 的 `usr\bin` 加入 PATH 或在 `BLUEPRINT_PATCH` 指定 `patch.exe`。以下命令在仓库根目录执行：
+在 Apple Silicon Mac 或 Windows 11 x64 上使用 Node 22.19 或以上版本。Windows 上应用引擎补丁还需要 Git for Windows 的 GNU patch：脚本会先找 Git 安装目录里的 `patch.exe`，找不到时在准备运行包阶段直接失败，`npm test` 中核对补丁的用例同样会失败；可把 Git 的 `usr\bin` 加入 PATH，或用 `BLUEPRINT_PATCH` 指定 `patch.exe`。以下命令在仓库根目录执行：
 
 ```sh
 npm --prefix app ci
@@ -92,7 +92,9 @@ npm --prefix app run pack
 npm --prefix app run dist
 ```
 
-产物在 `app/dist/`：macOS 生成 DMG 和 ZIP，Windows 生成 `Blueprint-<版本>-x64.exe`（NSIS 安装程序，默认按当前用户安装）。macOS 开发预览使用本地临时签名以接入通知，构建会检查签名完整性；正式分发时须配置自己的开发者签名与公证。构建资源独立于电脑上的全局 DSH，不修改全局引擎。
+产物在 `app/dist/`：macOS 生成 DMG 和 ZIP，Windows 生成 `Blueprint-<版本>-x64.exe`（NSIS 安装程序，默认按当前用户安装）。macOS 开发预览使用本地临时签名以接入通知，构建会检查签名完整性；正式分发时须配置自己的开发者签名与公证。构建资源独立于电脑上的全局 DSH，不修改全局引擎；运行时只读取系统 DSH 的模型配置与凭据路径，不修改其 profile。
+
+`npm --prefix app run prepare:runtime` 单独生成 `app/.build/runtime`；其 `runtime-manifest.json` 记录 `engine`（应为 `0.2.1-rc.5`）、`node`（内置 Node，`v22.23.3`）与五个补丁的 SHA-256（`patchSha256`、`externalPatchSha256`、`nativeReadPatchSha256`、`previewReadRecoveryPatchSha256`、`toolJsonRepairPatchSha256`），补丁重复执行应为无操作。
 
 没有公证或代码签名时，第一次打开会被系统拦下。macOS 的 DMG 安装窗口写着打开方法，右下角另放 `打不开请看.txt`；Windows 会显示 SmartScreen，点「更多信息」→「仍要运行」。DMG 背景和说明文件在 `app/installer/`，改了背景文字后运行 `node app/scripts/dmg-background.mjs` 重出图。
 
@@ -117,23 +119,23 @@ npm --prefix app run smoke:render
 
 已有项目运行时，可用 `node app/scripts/prepare-scenario-smoke.mjs` 在新目录准备固定引擎的隔离副本，再以 `BLUEPRINT_SMOKE_RUNTIME=<输出目录>` 运行 `node app/scripts/project-skills-smoke.mjs`。它使用临时数据与模拟模型核对七类项目的技能选择，不改变正在使用的运行包；不要在此时执行会重建原运行包的 `smoke:skills`。
 
-固定新版源码回归可用 `app/node_modules/node/bin/node --import './app/scripts/native-node-protocol-check.mjs?register' --test blueprint/packages/<包>/*.test.js`，它使用 App 依赖而不改现用 profile。`node app/scripts/source-profile-check.mjs` 只在临时目录检查源码装配。
+固定新版源码回归可按文件跑：`cd app && node --import ./scripts/native-node-protocol-check.mjs?register --test tests/<名称>.test.mjs`；Blueprint 源码包的单测把路径换成 `../blueprint/packages/<包>/<名称>.test.js`。`--import` 注册的解析钩子让 `blueprint/` 源码里的 `@deepseek-ai/*`、`zod`、`yaml` 从 App 依赖解析；源码包的单测不带钩子直接跑会因源码目录没有自己的 `node_modules` 而找不到这些包。全量测试用 `npm test`（在 `app/` 内；仓库根目录用 `npm --prefix app test`），它带同一钩子；也可把 `node` 换成随 App 的 `app/node_modules/node/bin/node`（固定 22.23.3）。`node app/scripts/source-profile-check.mjs` 只在临时目录检查源码装配。
 
-系统全局 `dsh` 与 Blueprint 引擎独立升级。源码入口 `./dsh` 按本文件夹 `package.json` 的引擎版本选择 CLI，并使 profile 依赖指向同一引擎；全局版本不匹配时使用按版本隔离的 `app/.build/source-cli-<版本>/`；解析本身只读，`./dsh` 在实际启动时显式对齐 profile 依赖。缓存缺失时运行 `npm --prefix app run prepare:cli` 安装固定版本。桌面版仍由生产依赖和锁文件决定引擎版本。
+系统全局 `dsh` 与 Blueprint 内置引擎仍独立升级；Blueprint 只在启动时读取系统 DSH 的模型 provider 与凭据路径，不修改系统 profile。模型与媒体 Key 保存在本机凭据存储：系统 DSH 的 `.credentials.yaml` 存在时共用该文件，否则落在应用数据目录的 `engine/.credentials.yaml`。源码 CLI 由 `app/scripts/source-cli.mjs` 按 `app/package.json` 的引擎版本解析，缓存位于按版本隔离的 `app/.build/source-cli-<版本>/`；解析本身只读，profile 依赖对齐由调用方显式选择。缓存缺失时运行 `npm --prefix app run prepare:cli` 安装固定版本。桌面版仍由生产依赖和锁文件决定引擎版本。
 
-2026-10-12 核对：全局命令为 npm 默认发布版 `0.2.0-rc.2`；Blueprint 源码入口与新构建固定为 `0.2.1-alpha.2`。现用旧服务未重启，升级核验使用独立运行包。以下基础接缝已经适配：
+2026-11 核对：Blueprint 源码 CLI、测试与新构建固定为 `0.2.1-rc.5`，五个引擎补丁同为该版本。聊天模型 provider 只从系统 DSH 只读导入：默认 home `~/.dsh`、profile `desktop`；桌面版放行 `BLUEPRINT_SYSTEM_DSH_HOME`、`BLUEPRINT_SYSTEM_DSH_PROFILE` 覆盖，其余 `BLUEPRINT_*` 仍在启动时清理。模型凭据在 `<BLUEPRINT_SYSTEM_DSH_HOME>/.credentials.yaml` 存在时使用该文件（默认 `~/.dsh/.credentials.yaml`），缺失时落在应用数据目录的 `engine/.credentials.yaml`。系统 DSH 未安装、未配置模型或 YAML 损坏时，应用照常启动，首页显示“请先在系统 DSH 中配置模型 provider”的空态。以下基础接缝已经适配：
 
-这次项目更新同时以新版能力为目标。Git 工作树、Claude Code／Codex 正式节点、用户与 Agent 终端及持续循环的 25 组能力清单和接入判断，见 [DeepSeek Harness能力更新研究](../草稿/DeepSeek%20Harness更新研究/能力清单与接入方案.md)。分阶段实施与当前进度见 [完整升级计划](../草稿/DeepSeek%20Harness更新研究/完整升级计划.md)。研发基线为 `0.2.1-alpha.2`；下表记录的是基础兼容接缝。
+这次项目更新同时以新版能力为目标。Git 工作树、Claude Code／Codex 正式节点、用户与 Agent 终端及持续循环的 25 组能力清单和接入判断，以及分阶段实施与当前进度，见研究材料《DeepSeek Harness 能力更新研究》《完整升级计划》（未随本仓库提供）。研发基线为 `0.2.1-rc.5`；下表记录的是基础兼容接缝。
 
 | 接缝 | 当前装配 |
 | --- | --- |
 | preset | 官方 `dsh-agent-preset-registry` 管声明；源码与 App 共用 `blueprint/agent.cordis.yml`。源码的薄声明入口只解析 Blueprint 的 profile 直链，原生插件保持官方解析与生命周期。 |
-| 设置 | App 自有原生 profile、bundle 默认层与个人 patch；模型连接、默认模型、媒体连接与重试策略经 `config-editor/settings` 保存。旧 settings 导入保留备份，媒体连接使用稳定的 `blueprint-media` Config 行。 |
+| 设置 | App 自有原生 profile、bundle 默认层与个人 patch；系统 DSH 的 `agent-default-model`、`llm-pi-ai`、`llm-deepseek`、`llm-deepseek-account` 行只读导入，系统 DSH home 下的 `.credentials.yaml` 存在时凭据使用该文件，否则落到应用数据目录的 `engine/.credentials.yaml`；媒体连接经 `config-editor/settings` 保存，旧 settings 导入保留备份，媒体连接使用稳定的 `blueprint-media` Config 行。 |
 | 会话与等待 | v3→v4 只读冷迁移保留旧等待记录及迁移后的名称；新等待只使用原生 Inbox 和 blocked 轮尾，不再写扩展事件，session-events 补丁已撤下。输入身份、claim 间隙、停止与阶段报告走官方纯投影；新版 Jobs 使用 SessionId 和 settled 订阅。 |
-| 多模态 | 图片保留原生附件和预算卸载；精简版补丁仅补音视频与并行图片的工具归属，按精确版本选取。音视频直接输入目前仅支持 OpenAI Completions，其他协议明确拒绝。 |
+| 多模态 | 图片保留原生附件和预算卸载；精简版补丁 `multimodal-0.2.1-rc.5.patch` 仅补音视频与并行图片的工具归属，按精确版本选取。音视频直接输入目前仅支持 OpenAI Completions，其他协议明确拒绝。 |
 | 当前目录与工作树 | 官方 workingDirectory 与 worktrees 服务，共用源码／App 工具接线。文件、搜索、命令及专用文件工具采用当前目录；项目身份、技能选择、归档和正式 Git 成果仍按原项目定位。 |
 | Claude Code 与 Codex | 官方 external activation 与两种独立启动工具，继承当前目录或指定工作树。原生 manager 管理取消、清理和完成通知；启动回执保留提供方、编号和实际目录。它们目前是一次性执行，不能恢复同一外部会话或收续聊；正式节点的责任、纸条与成果管理继续由 Blueprint 承担。 |
-| 持续终端 | 官方 `terminals/terminal-bash/tool-terminal` 提供六个 Agent 工具，保留 shell／REPL，后台发送复用 Jobs。用户 Terminal 页沿独立 `terminalController` 和官方 React-free `ClientTerminals`，支持输入、尺寸、多个标签与同宿主重连屏幕恢复。 |
+| 持续终端 | 官方 `terminals/terminal-bash/tool-terminal` 提供六个 Agent 工具，保留 shell／REPL，后台发送复用 Jobs。用户 Terminal 页由 dsh 自带的右侧栏终端插件提供，支持输入、尺寸、多个标签与同宿主重连屏幕恢复。 |
 | 程序工具 | 官方 PTC 的 `run_code`、SDK 与已有 Node runtime 已完成 Blueprint 提示、内部调用、阶段报告和成果／材料协同；内部结果只作持久展示，模型只收程序最终输出与原生追加背景。默认仍采用原生工具与按需目录，产品模式入口和通用 Workflow 尚未开放。 |
 | 依赖与构建 | DSH 与 Cordis 配套版本、锁文件和构建检查已同步。`prepare --output <新目录>` 可生成完整隔离包，独立 CLI 缓存保留旧版。 |
 
@@ -143,11 +145,11 @@ Claude Code 默认采用官方 `acceptEdits`，可编辑文件和使用原生准
 
 终端进程继承项目文件和宿主管理端口边界。用户面板保留交互环境，不经过模型预测或审批；其输出不进入模型上下文。正式结束、重启和 Stop All 等待 Agent 终端释放，单节点停止只中断当前发送并保留 shell；用户面板有独立关闭入口。宿主重启后不能恢复旧 PTY，浏览器显示缺失状态，由用户新开。Seatbelt 包装下原生空闲活动判据为 unknown，不能依赖无人持有后的自动回收；显式关闭与所有者／宿主释放仍由原生管理。
 
-终端浏览器资源在 prepare 时从精确版本的发布 ESM 构建，随独立运行包搬运并校验 SHA-256；源码 `./dsh` 使用所选 CLI 安装中的同版资源。完整缓存复用，损坏或缺失明确修复／拒绝，不借用另一份 App 依赖。
+用户终端的 xterm 与 FitAddon 随 dsh 自带的右侧栏终端插件按需加载；Blueprint 不再为终端页面单独构建、搬运或校验浏览器资源，运行包里也没有额外的终端资源缓存。`/studio/api/terminal` 数据接口保留。
 
 隔离完整宿主已验证新项目工具链、临时项目重启恢复、等待后唤醒、子会话取消和上下文重建。`node app/scripts/harness-compatibility-check.mjs <新版依赖目录> [结果.json]` 可用合成会话复查格式、扩展事件和补丁，不使用用户数据或真实模型。通过冷读不等于旧项目已经可继续执行；写模式会发布新代际，切换前应备份并在副本上验证。
 
-对本项目优先评估：新版工具调度故障恢复与过期图片重传，可改善长任务的可靠性；Office skills 与共享 Python／Node 依赖可减少办公情境对外部安装的依赖，但需要另行准备和打包资源；实验性 Browser Use 能补交互网页验证，需按项目隔离后接入。`0.2.1-alpha.2` 另提供 Session 状态记录、动态系统提示／工具变化及流式请求超时修复，值得在项目适配后评估；全局升级没有自动给 Blueprint 接入这些功能。官方更新见 [0.2.0-rc.1](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.2.0-rc.1)、[0.2.0-rc.2](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.2.0-rc.2) 和 [0.2.1-alpha.2](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.2.1-alpha.2)。
+对本项目优先评估：新版工具调度故障恢复与过期图片重传，可改善长任务的可靠性；Office skills 与共享 Python／Node 依赖可减少办公情境对外部安装的依赖，但需要另行准备和打包资源；实验性 Browser Use 能补交互网页验证，需按项目隔离后接入。`0.2.1-rc.5` 另提供 Session 状态记录、动态系统提示／工具变化及流式请求超时修复，值得在项目适配后评估；全局升级没有自动给 Blueprint 接入这些功能。官方更新见 [0.2.0-rc.1](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.2.0-rc.1)、[0.2.0-rc.2](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.2.0-rc.2) 和 [0.2.1-rc.5](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.2.1-rc.5)。
 
 导出精简的发布源码：
 
@@ -159,7 +161,7 @@ npm --prefix app run export
 
 ## 结构
 
-`blueprint/packages/` 保存系统的七个部件，`viewer/` 保存界面，`app/desktop/` 是桌面窗口，`app/runtime/` 是固定的运行装配，`app/scripts/` 管准备、检查和发布。引擎版本及多模态补丁随应用一起固定；应用运行时不安装插件或依赖。
+`blueprint/packages/` 保存系统的七个部件，`viewer/` 保存界面，`app/desktop/` 是桌面窗口，`app/runtime/` 是固定的运行装配，`app/scripts/` 管准备、检查和发布。引擎版本及五个引擎补丁随应用一起固定到 `0.2.1-rc.5`；应用运行时不安装插件或依赖。
 
 Blueprint 自己的源码以 GNU AGPL-3.0（仅第 3 版）发布，全文见 `LICENSE`：可以自由使用、修改和分发；分发修改版或拿它提供网络服务时，须以同一许可公开对应源码。上游及随附组件各按原许可，声明见 `app/THIRD_PARTY_NOTICES.md`。精简导出目录与安装包不含用户 Key、私人项目、历史账本或研究原料。
 
@@ -167,11 +169,17 @@ Blueprint 自己的源码以 GNU AGPL-3.0（仅第 3 版）发布，全文见 `L
 
 节点 preset 的原生压缩后端是 `@blueprint/node/compaction`，默认 `thresholdTokens: 300000`，由原生 tokenMeter 实际测量。中途压缩保留近期 `retainTokens: 40000` 的原文，边界扩展到完整步骤；历史续工摘要通过原生 LLM 服务生成，上限 `summaryMaxTokens: 8192`。`app/runtime/backend.mjs` 按各包的 `package.json` exports 解析入口与子路径，独立宿主也能加载该后端；实现与部署接线见 node 包和共用的 `blueprint/agent.cordis.yml`。
 
-原生冷读优化固定于 `0.2.1-alpha.2`：`native-read-patch.mjs` 核对并安装 `native-read-0.2.1-alpha.2.patch`，源码启动、CLI 准备与 App 资源准备共用。补丁合并同时进行的历史目录观察，以最多 16 份会话头并行读取、按原顺序校验与返回；会话头按文件身份记住，每次列举仍逐个 stat、身份一变即重读；目录与按 ID 查账本并行探，`list()` 用同一次观察算语料版本。迁移前后的子会话成员与正文版本校验保留。调用者独立取消，全部退出才取消共享扫描；原错误、重复 ID 检查与只读行为不变。版本或补丁接缝不合则停止安装，资源清单记录补丁签。
+内置引擎固定为 `0.2.1-rc.5`，五个补丁也按这一精确版本选取，放在 `app/patches/`：`multimodal-0.2.1-rc.5.patch`、`native-external-0.2.1-rc.5.patch`、`native-read-0.2.1-rc.5.patch`、`preview-read-recovery-0.2.1-rc.5.patch`、`tool-json-repair-0.2.1-rc.5.patch`。各 `*-patch.mjs` 核对引擎版本与补丁接缝后安装。分工：`prepare:runtime`（`prepare.mjs`，`start`、打包与单独准备运行包都走它）应用全部五个补丁；`prepare:cli`（`source-cli.mjs --prepare`，为源码运行准备固定 CLI）只应用 `native-read`、`preview-read-recovery`、`tool-json-repair` 与 `native-external` 四个，音视频扩展只在 App 运行包准备阶段应用。上一版的旧补丁文件只作历史留档，不参与 rc.5 构建。版本不认识、接缝不合或已装引擎混装时停止安装，资源清单记录补丁签。
 
-预览读取恢复固定于 `0.2.1-alpha.2`：`preview-read-recovery-patch.mjs` 核对并安装同名补丁，源码启动、CLI 准备与 App 资源准备共用，资源清单记录补丁签。图片等完整字节预览的单次读取超过 15 秒就取消并重试一次；再次超时，原生预览退出加载、显示“文件预览读取超时，请重试”和原重试入口。关闭页签或手动刷新即清理旧请求和定时器，迟到结果不覆盖新图。明确的文件错误沿原逻辑显示。此补丁处理读取悬挂，不证明长时间运行后的最初触发原因已解决。
+音视频输入固定于 `0.2.1-rc.5`：`multimodal-patch.mjs` 核对并安装 `multimodal-0.2.1-rc.5.patch`，补充音视频附件与并行图片的工具归属；只在 App 运行包准备（`prepare.mjs`）阶段安装，源码 CLI 准备不含这一补丁。图片仍保留原生附件和预算卸载；音视频直接输入目前仅支持 OpenAI Completions，其他协议明确拒绝。
 
-工具参数修补固定于 `0.2.1-alpha.2`：`tool-json-repair-patch.mjs` 核对并安装 `tool-json-repair-0.2.1-alpha.2.patch`，源码启动、CLI 准备与 App 资源准备共用。DeepSeek 写坏的工具参数在块结束时先修补：字符串里的真换行等控制字符转义；字符串或括号到结尾没收，就补上引号和括号，没收的字符串以多出来的右括号结尾时那个括号算结构；整个对象收完后又多写右括号的，去掉多的；最外层中途提前收了、后面接着逗号写下一个键的，去掉提前收尾的括号和多的右括号，键接回最外层（后面接的不是逗号就不动）；中途写了一个对不上任何开着的括号的右括号（收了 plan 又多写一个 `]`），去掉它，对得上更深一层开括号的不猜。改补丁后已装的引擎要先用旧补丁反向卸掉再装新的。修好的必须是对象。修不好的，整步仍按 `MALFORMED_RESPONSE` 退回，报错首行之后一个坏调用一行：工具（`call_tool` 带内层名）、文件、解析错误、附近原文；出错重试据此填 `重置/叫醒/工具参数坏了.md`。截断（max-tokens）照旧由组装器整批丢弃工具调用。版本或补丁接缝不合则停止安装，资源清单记录补丁签。
+外部 worker 列表固定于 `0.2.1-rc.5`：`native-external-patch.mjs` 核对并安装 `native-external-0.2.1-rc.5.patch`，补在 `@deepseek-ai/dsh-subagent` 与 `@deepseek-ai/dsh-tool-subagent` 上；由 App 运行包准备与源码 CLI 准备共用。补丁只读列出已公告的外部 activation 与官方启动结果，供 `读取外部协助`／`停止外部协助` 使用；不创建会话、不恢复执行，外部 worker 仍是一次性执行。
+
+原生冷读优化固定于 `0.2.1-rc.5`：`native-read-patch.mjs` 核对并安装 `native-read-0.2.1-rc.5.patch`；由 App 运行包准备与源码 CLI 准备共用。补丁合并同时进行的历史目录观察，以最多 16 份会话头并行读取、按原顺序校验与返回；会话头按文件身份记住，每次列举仍逐个 stat、身份一变即重读；目录与按 ID 查账本并行探，`list()` 用同一次观察算语料版本。迁移前后的子会话成员与正文版本校验保留。调用者独立取消，全部退出才取消共享扫描；原错误、重复 ID 检查与只读行为不变。版本或补丁接缝不合则停止安装，资源清单记录补丁签。
+
+预览读取恢复固定于 `0.2.1-rc.5`：`preview-read-recovery-patch.mjs` 核对并安装 `preview-read-recovery-0.2.1-rc.5.patch`；由 App 运行包准备与源码 CLI 准备共用，资源清单记录补丁签。图片等完整字节预览的单次读取超过 15 秒就取消并重试一次；再次超时，原生预览退出加载、显示“文件预览读取超时，请重试”和原重试入口。关闭页签或手动刷新即清理旧请求和定时器，迟到结果不覆盖新图。明确的文件错误沿原逻辑显示。此补丁处理读取悬挂，不证明长时间运行后的最初触发原因已解决。
+
+工具参数修补固定于 `0.2.1-rc.5`：`tool-json-repair-patch.mjs` 核对并安装 `tool-json-repair-0.2.1-rc.5.patch`；由 App 运行包准备与源码 CLI 准备共用。DeepSeek 写坏的工具参数在块结束时先修补：字符串里的真换行等控制字符转义；字符串或括号到结尾没收，就补上引号和括号，没收的字符串以多出来的右括号结尾时那个括号算结构；整个对象收完后又多写右括号的，去掉多的；最外层中途提前收了、后面接着逗号写下一个键的，去掉提前收尾的括号和多的右括号，键接回最外层（后面接的不是逗号就不动）；中途写了一个对不上任何开着的括号的右括号（收了 plan 又多写一个 `]`），去掉它，对得上更深一层开括号的不猜。改补丁后已装的引擎要先用旧补丁反向卸掉再装新的。修好的必须是对象。修不好的，整步仍按 `MALFORMED_RESPONSE` 退回，报错首行之后一个坏调用一行：工具（`call_tool` 带内层名）、文件、解析错误、附近原文；出错重试据此填 `重置/叫醒/工具参数坏了.md`。截断（max-tokens）照旧由组装器整批丢弃工具调用。版本或补丁接缝不合则停止安装，资源清单记录补丁签。
 
 项目与存储：新用户默认把项目保存在系统文稿目录的 `Blueprint/项目/`。设置与新项目页可查看并更改位置，首页直接使用默认位置；新项目页的保存位置位于项目名称右侧，桌面版使用系统文件夹选择器。更改只决定之后新建的项目，旧项目保留原路径并继续显示；应用配置、会话账本和日志仍保存在应用数据目录。测试脚本单独指定临时项目位置，不使用真实用户文稿目录。
 
