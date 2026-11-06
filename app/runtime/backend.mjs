@@ -35,7 +35,12 @@ const { provideCmdline } = await import('@deepseek-ai/dsh-cmdline')
 const launchEnvironment = createLaunchEnvironmentSnapshot([{ source: 'process', values: { ...process.env } }])
 const disposeProxy = await installProxyFromEnvironment(launchEnvironment, message => process.stderr.write(`${message}\n`))
 const { readSystemProviderRows, providerPatchRows } = await import(pathToFileURL(join(resourceRoot, 'system-providers.mjs')).href)
-const systemProviderRows = providerPatchRows(await readSystemProviderRows())
+// 系统 DSH 配置是只读的可选导入：读取失败只提示到 stderr，Blueprint 继续以空 provider 列表启动。
+let systemProviderImport
+try { systemProviderImport = await readSystemProviderRows() }
+catch (error) { systemProviderImport = { rows: [], credentialsPath: '', warning: `系统 DSH 模型配置读取异常：${error?.message}` } }
+if (systemProviderImport.warning) process.stderr.write(`Blueprint: 系统 DSH 模型配置：${systemProviderImport.warning}\n`)
+const systemProviderRows = providerPatchRows(systemProviderImport)
 const composition = await readDesktopComposition({ resourceRoot, sourceRoot, promptDir: process.env.BLUEPRINT_PROMPT_DIR,
   resolvePlugin: name => import.meta.resolve(name), systemProviderRows })
 const { configPath, bundleDir, profileContext } = await prepareDesktopProfile({ engineHome: process.env.DSH_HOME,

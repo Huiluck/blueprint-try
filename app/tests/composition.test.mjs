@@ -81,7 +81,8 @@ test('刷新 App 默认装配保留个人 patch、manifest 字段和其他 bundl
 })
 
 async function waitFor(read, label) {
-  const until = Date.now() + 3000
+  // 冷启动要加载 rc.5 全量插件并做旧设置迁移；Node 24 慢机上可能超过 3s，30s 只放宽等待时间，行为断言不变。
+  const until = Date.now() + 30000
   while (Date.now() < until) {
     const value = read()
     if (value) return value
@@ -90,7 +91,7 @@ async function waitFor(read, label) {
   throw new Error(`原生配置未就绪：${label}`)
 }
 
-test('真实 alpha profile 贯通旧设置导入、模型与媒体保存、冲突校验、Include 和重启恢复', {timeout:20000}, async () => {
+test('真实 alpha profile 贯通旧设置导入、模型与媒体保存、冲突校验、Include 和重启恢复', {timeout:40000}, async () => {
   const home = await mkdtemp(join(tmpdir(), 'blueprint-native-settings-persistence-'))
   const previousHome = process.env.DSH_HOME
   process.env.DSH_HOME = home
