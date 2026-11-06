@@ -37,6 +37,24 @@ test('源码与桌面共用 canonical 工具清单，解析依赖和技能路径
     [pathToFileURL(require.resolve('@deepseek-ai/dsh-ptc-runtime-node')).href])
 })
 
+test('系统 DSH provider 行导入到 patch 链，位于 host.json 覆盖之前', async () => {
+  const systemProviderRows = [
+    { id: 'agent-default-model', config: { provider: 'opencode-go', model: 'deepseek-v4.1-flash' } },
+    { id: 'llm-pi-ai', config: { providers: { 'opencode-go': { api: 'openai-completions' } } } },
+    { id: 'credentials', config: { path: join(tmpdir(), 'system-credentials.yaml') } },
+  ]
+  const result = await readDesktopComposition({ resourceRoot: join(appRoot, 'runtime'), sourceRoot: repo,
+    promptDir: '/isolated-data/prompt', resolvePlugin: name => pathToFileURL(require.resolve(name)).href, systemProviderRows })
+  const overrides = JSON.parse(await readFile(join(appRoot, 'runtime/host.json'), 'utf8'))
+  const start = result.patches.length - overrides.length - systemProviderRows.length
+  assert.deepEqual(result.patches.slice(start, start + systemProviderRows.length), systemProviderRows,
+    '系统 provider 行原样接在 bundle 补丁之后')
+  assert.equal(result.patches.findIndex(row => row.id === 'credentials'), start + systemProviderRows.length - 1,
+    'credentials 覆盖行随系统 provider 行导入')
+  assert.ok(result.patches.slice(-overrides.length).every(row => overrides.some(item => item.id === row.id)),
+    '宿主覆盖仍是 patch 链最后一段')
+})
+
 test('刷新 App 默认装配保留个人 patch、manifest 字段和其他 bundle，清空 Loader 根', async () => {
   const home = await mkdtemp(join(tmpdir(), 'blueprint-native-profile-files-'))
   try {
