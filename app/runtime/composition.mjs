@@ -9,7 +9,7 @@ export const desktopBundles = ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-ap
 const yamlOptions = { customTags: [{ tag: 'tag:yaml.org,2002:js', resolve: value => ({ __jsExpr: value }) }] }
 const json = value => JSON.stringify(value, null, 2) + '\n'
 
-export async function readDesktopComposition({ resourceRoot, sourceRoot, promptDir, resolvePlugin }) {
+export async function readDesktopComposition({ resourceRoot, sourceRoot, promptDir, resolvePlugin, systemProviderRows = [] }) {
   const preset = parse(await readFile(join(sourceRoot, 'blueprint/preset.yml'), 'utf8'))
   const plugins = parse(await readFile(join(sourceRoot, 'blueprint/agent.cordis.yml'), 'utf8'), yamlOptions)
   const patches = parse(await readFile(join(sourceRoot, 'blueprint/cordis.patch.yml'), 'utf8'), yamlOptions)
@@ -53,7 +53,7 @@ export async function readDesktopComposition({ resourceRoot, sourceRoot, promptD
   const webserver = overrides.flatMap(row => row.insert || []).find(row => row.id === 'blueprint-webserver')
   if (!webserver) throw new Error('Blueprint webserver 覆盖形状不合')
   webserver.config.port = port
-  return { patches: [...patches, ...overrides], plugins, preset, clientPackages }
+  return { patches: [...patches, ...systemProviderRows, ...overrides], plugins, preset, clientPackages }
 }
 
 export async function prepareDesktopProfile({ engineHome, installAnchor, cwd, patches = [], plugins, preset, clientPackages = [], mediaSettingsPath }) {

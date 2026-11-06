@@ -34,8 +34,10 @@ const { installProxyFromEnvironment } = await import('@deepseek-ai/dsh-http-prox
 const { provideCmdline } = await import('@deepseek-ai/dsh-cmdline')
 const launchEnvironment = createLaunchEnvironmentSnapshot([{ source: 'process', values: { ...process.env } }])
 const disposeProxy = await installProxyFromEnvironment(launchEnvironment, message => process.stderr.write(`${message}\n`))
+const { readSystemProviderRows, providerPatchRows } = await import(pathToFileURL(join(resourceRoot, 'system-providers.mjs')).href)
+const systemProviderRows = providerPatchRows(await readSystemProviderRows())
 const composition = await readDesktopComposition({ resourceRoot, sourceRoot, promptDir: process.env.BLUEPRINT_PROMPT_DIR,
-  resolvePlugin: name => import.meta.resolve(name) })
+  resolvePlugin: name => import.meta.resolve(name), systemProviderRows })
 const { configPath, bundleDir, profileContext } = await prepareDesktopProfile({ engineHome: process.env.DSH_HOME,
   installAnchor, cwd: dataHome, ...composition })
 const profile = loadProfileDirectory('Blueprint', profileContext.dir, profileContext.installAnchor)
@@ -83,8 +85,6 @@ ctx = await boot('Blueprint', configPath, readProfilePatches('Blueprint', profil
 })
 for (const listener of readiness) listener()
 readiness.clear()
-const { 补已有连接重试策略 } = await import(pathToFileURL(join(sourceRoot, 'blueprint/packages/studio/src/连接.js')).href)
-await 补已有连接重试策略(ctx.get('settings'))
 const origin = `http://127.0.0.1:${ctx.webServer.port}`
 const url = ctx.connection.authenticatedUrl(`${origin}/`)
 const ready = { type: 'ready', origin, url, token: process.env.BLUEPRINT_SESSION_TOKEN }
