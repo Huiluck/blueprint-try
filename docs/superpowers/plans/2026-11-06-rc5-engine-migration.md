@@ -21,6 +21,7 @@
 - 系统 DSH 配置只读导入：默认 home `%USERPROFILE%\.dsh`、profile `desktop`；环境变量覆盖 `BLUEPRINT_SYSTEM_DSH_HOME`、`BLUEPRINT_SYSTEM_DSH_PROFILE`。
 - 媒体服务（`kind='media'`）保留完整增删改测能力，不迁移。
 - 分支 `r1/rc5`；每个任务独立提交；里程碑后推送到 `try`（https://github.com/Huiluck/blueprint-try.git）。
+- 单文件测试命令若会 import `blueprint/` 源码，必须使用 `node --import ./scripts/native-node-protocol-check.mjs?register --test <file>`（`npm test` 已带该解析钩子）；裸 `node --test` 会因 `@deepseek-ai/*` 解析失败而报 ERR_MODULE_NOT_FOUND。计划中个别任务写的裸命令按此规则修正。
 - Blueprint 源码 AGPL-3.0-only；DSH MIT 声明保留。
 
 ## Review Focus
@@ -500,7 +501,7 @@ Expected: FAIL（模块不存在）
 
 - [ ] **Step 3: 实现模块与接线**
 
-新建 `app/runtime/system-providers.mjs`（使用 `yaml` 的 `parse`）；改 `composition.mjs` 签名与 patch 顺序；改 `backend.mjs` 传入并删除重试策略调用。`app/tests/composition.test.mjs` 增加一条：传入 `systemProviderRows` 时，其行出现在 `result.patches` 中且位于 host.json overrides 之前、credentials 覆盖行存在。
+新建 `app/runtime/system-providers.mjs`（使用 `yaml` 的 `parse`）；改 `composition.mjs` 签名与 patch 顺序；改 `backend.mjs` 传入并删除重试策略调用（动态 import 用 `join(resourceRoot, 'system-providers.mjs')`，模块与 backend.mjs 同级；`sourceRoot/runtime/...` 是笔误，开发态/打包态都不存在）。`app/tests/composition.test.mjs` 增加一条：传入 `systemProviderRows` 时，其行出现在 `result.patches` 中且位于 host.json overrides 之前、credentials 覆盖行存在。
 
 Run: `cd app && node --test tests/system-providers.test.mjs tests/composition.test.mjs`
 Expected: PASS
