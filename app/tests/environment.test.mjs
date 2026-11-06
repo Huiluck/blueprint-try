@@ -53,3 +53,34 @@ test('启动环境不继承旧引擎与 Node 模块位置，保留普通设置�
   assert.ok(paths.includes(join(root, 'custom/bin')))
   assert.equal(environment.NODE_PATH, join(root, 'old/node_modules'))
 })
+
+test('系统 DSH 的 home/profile 覆盖透传，其余 BLUEPRINT_* 仍被清除，显式设置的内置值不受影响', () => {
+  const root = windows ? 'C:\\Blueprint 环境' : '/Blueprint 环境'
+  const home = join(root, 'new/user')
+  const environment = {
+    PATH: join(root, 'bin'),
+    BLUEPRINT_SYSTEM_DSH_HOME: join(root, 'system', '.dsh'),
+    BLUEPRINT_SYSTEM_DSH_PROFILE: 'studio',
+    BLUEPRINT_SYSTEM_DSH: join(root, 'old/system-dsh'),
+    BLUEPRINT_PROMPT_DIR: join(root, 'old/prompt'),
+    BLUEPRINT_PORT: '4319',
+    BLUEPRINT_SESSION_TOKEN: 'old-token',
+    BLUEPRINT_DATA_HOME: join(root, 'old/data'),
+  }
+  const dataHome = join(root, 'new/data')
+  const env = createBackendEnvironment({ environment, home, payload: join(root, 'new/app'), dataHome })
+  // 系统 DSH 的两个只读导入入口原样到达 backend。
+  assert.equal(env.BLUEPRINT_SYSTEM_DSH_HOME, environment.BLUEPRINT_SYSTEM_DSH_HOME)
+  assert.equal(env.BLUEPRINT_SYSTEM_DSH_PROFILE, 'studio')
+  // 其余 BLUEPRINT_* 仍被清除，不能覆盖本次启动的内置值。
+  for (const name of ['BLUEPRINT_SYSTEM_DSH', 'BLUEPRINT_PROMPT_DIR', 'BLUEPRINT_PORT', 'BLUEPRINT_SESSION_TOKEN']) {
+    assert.equal(env[name], undefined, `应清除 ${name}`)
+  }
+  // 显式赋值的变量以本次启动为准，不受调用方环境里的同名旧值影响。
+  assert.equal(env.BLUEPRINT_DATA_HOME, dataHome)
+  assert.equal(env.BLUEPRINT_DOCUMENTS_HOME, join(home, 'Documents'))
+  assert.equal(env.BLUEPRINT_DESKTOP_RENDERER, '1')
+  // 只改副本：调用方环境对象不被就地删除。
+  assert.equal(environment.BLUEPRINT_PROMPT_DIR, join(root, 'old/prompt'))
+  assert.equal(environment.BLUEPRINT_SYSTEM_DSH_HOME, join(root, 'system', '.dsh'))
+})
