@@ -44,7 +44,6 @@ test('已准备的源码 CLI 真正 boot 和 mount canonical preset，拒绝借 
   assert.deepEqual(status.goalTools, ['get_goal', 'create_goal', 'update_goal'])
   assert.equal(status.goalServicesVerified, true)
   assert.equal(status.ralphVerified, true)
-  assert.equal(status.terminalClientReady, true)
   assert.equal(status.terminalControllerVerified, true)
   assert.deepEqual(status.officeSkills, ['office-docx', 'office-pptx', 'office-xlsx'])
   await assert.rejects(access(unused), { code: 'ENOENT' })

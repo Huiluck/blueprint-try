@@ -9,7 +9,6 @@ import { spawnSync } from 'node:child_process'
 import { sourceCliOptions, resolveSourceCli, alignProfileDependencies } from './source-cli.mjs'
 import { inspectNativeExternalPatch } from './native-external-patch.mjs'
 import { assertExternalProviderAssets } from './external-provider-assets.mjs'
-import { ensureTerminalClientAssets } from './terminal-client-assets.mjs'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repository = resolve(appRoot, '..')
@@ -17,7 +16,7 @@ export async function checkSourceProfile() {
   const manifest = JSON.parse(await readFile(join(appRoot, 'package.json'), 'utf8'))
   const home = await mkdtemp(join(tmpdir(), 'Blueprint-native-source-profile-'))
   const previousCwd = process.cwd()
-  const environmentKeys = ['DSH_HOME', 'DSH_TELEMETRY_DISABLED', 'BLUEPRINT_DATA_HOME', 'BLUEPRINT_DOCUMENTS_HOME', 'BLUEPRINT_PROMPT_DIR', 'BLUEPRINT_TERMINAL_ASSETS_DIR']
+  const environmentKeys = ['DSH_HOME', 'DSH_TELEMETRY_DISABLED', 'BLUEPRINT_DATA_HOME', 'BLUEPRINT_DOCUMENTS_HOME', 'BLUEPRINT_PROMPT_DIR']
   const previousEnvironment = Object.fromEntries(environmentKeys.map(key => [key, process.env[key]]))
   let ctx
   try {
@@ -28,7 +27,6 @@ export async function checkSourceProfile() {
     const nativeModules = dirname(dirname(cli))
     assert.equal((await inspectNativeExternalPatch(nativeModules)).alreadyApplied, true, '源码启动前必须安装精确外部执行扩展')
     await assertExternalProviderAssets(nativeModules, { engineVersion: options.version })
-    const terminalAssets = await ensureTerminalClientAssets(nativeModules)
     await alignProfileDependencies(cli, options)
     await mkdir(join(modules, '@blueprint'), { recursive: true })
     const dependencies = {}
@@ -70,7 +68,6 @@ export async function checkSourceProfile() {
     process.env.BLUEPRINT_DATA_HOME = home
     process.env.BLUEPRINT_DOCUMENTS_HOME = join(home, '模拟文稿')
     process.env.BLUEPRINT_PROMPT_DIR = join(repository, 'blueprint/packages/prompt')
-    process.env.BLUEPRINT_TERMINAL_ASSETS_DIR = terminalAssets.directory
     process.chdir(project)
     const profileContext = { name: 'web', dir: profile, patchPath: join(profile, 'cordis.patch.yml'),
       installAnchor: join(cli, 'package.json'), cwd: project, home, startedBundles: bundles, overlays: [], telemetryDisabledEnv: '1' }
@@ -174,7 +171,7 @@ export async function checkSourceProfile() {
     return { engine: options.version, sourceProfile: 'web', passed: true, userDataUsed: false,
       canonicalMounted: true, canonicalBaseVerified: true, nativePluginVersions, providerEntriesVerified: true, declarationDisposed: true,
       externalTools: tools.slice(0, 2), terminalTools, goalTools, goalServicesVerified: true, ralphVerified: true,
-      terminalControllerVerified: true, terminalClientReady: terminalAssets.ready, officeSkills, modelRequested: false }
+      terminalControllerVerified: true, officeSkills, modelRequested: false }
   } finally {
     try { await ctx?.fiber.dispose() }
     finally {

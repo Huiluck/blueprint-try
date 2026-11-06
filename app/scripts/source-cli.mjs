@@ -215,15 +215,12 @@ export async function main(argv = process.argv.slice(2)) {
   const manifest = JSON.parse(await readFile(join(appRoot, 'package.json'), 'utf8'))
   const options = sourceCliOptions(argv, manifest)
   const external = !!manifest.dependencies['@deepseek-ai/dsh-subagent-codex']
-  const terminal = !!manifest.dependencies['@deepseek-ai/dsh-api-terminal-controller']
-  let assets, terminalAssets
+  let assets
   if (external) assets = await import('./external-provider-assets.mjs')
-  if (terminal) terminalAssets = await import('./terminal-client-assets.mjs')
   if (options.action === '--prepare') {
-    await prepareSourceCli(options, manifest, spawnSync, external || terminal ? async prefix => {
+    await prepareSourceCli(options, manifest, spawnSync, external ? async prefix => {
       try {
-        if (external) await assets.inspectExternalProviderAssets(join(prefix, 'node_modules'), { engineVersion: options.version })
-        if (terminal) await terminalAssets.inspectTerminalClientInputs(join(prefix, 'node_modules'))
+        await assets.inspectExternalProviderAssets(join(prefix, 'node_modules'), { engineVersion: options.version })
         return true
       }
       catch { return false }
@@ -245,11 +242,6 @@ export async function main(argv = process.argv.slice(2)) {
       await ensureNativeExternalPatch(modules)
       await assets.assertExternalProviderAssets(modules, { engineVersion: options.version })
     } else await assets.inspectExternalProviderAssets(modules, { engineVersion: options.version })
-  }
-  if (terminal) {
-    const modules = dirname(dirname(directory))
-    if (options.action === '--prepare') await terminalAssets.ensureTerminalClientAssets(modules)
-    else await terminalAssets.inspectTerminalClientInputs(modules)
   }
   if (options.alignProfile) await alignProfileDependencies(directory, options)
   console.log(join(directory, 'lib/bin.js'))

@@ -4,7 +4,7 @@ Blueprint bundles DeepSeek Harness 0.2.1-alpha.2, Node.js and Electron. Each pro
 
 Official external providers additionally bundle OpenAI Codex CLI 0.163.0 (Apache-2.0; pinned by this App through `overrides` in place of the provider's 0.153.4), Anthropic Claude Agent SDK 0.3.263 and its Claude Code 2.1.263 platform executable. Anthropic's retained `LICENSE.md` and platform notice govern those components; the DeepSeek MIT notice below does not apply to them. Their exact versions and platform packages are checked before preparing an independent runtime.
 
-The terminal browser assets include xterm.js 6.0.0, FitAddon 0.11.0 and the official DeepSeek client models, with Zustand 4.5.7 and Immer 10.1.1 (MIT). Their original license files remain with the production packages. The browser bundle records input versions and SHA-256 checksums in `terminal-client/terminal-assets-manifest.json`.
+The terminal browser UI ships inside the pinned Harness packages (`@deepseek-ai/dsh-client-ui-sidebar-terminal`), which bundle xterm.js 6.0.0, FitAddon 0.11.0 and the official DeepSeek client models, with Zustand 4.5.7 and Immer 10.1.1 (MIT). Their original license files remain with the production packages.
 
 The following MIT notice applies to DeepSeek Harness and the modified engine components. It does not cover Blueprint's own source, which is licensed under the GNU Affero General Public License v3.0 only; see `LICENSE`.
 
