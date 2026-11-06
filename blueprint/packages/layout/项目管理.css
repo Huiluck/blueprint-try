@@ -66,3 +66,18 @@
 .bpm-delete-dialog{box-sizing:border-box;width:min(460px,calc(100vw - 32px));padding:24px;border:1px solid var(--bp-control,#B3BBC6);border-radius:0;background:var(--bp-surface,#fff);color:var(--bp-ink,#20252C);box-shadow:0 20px 70px #1C25352B;font:13px/1.7 var(--bp-font-ui,sans-serif)}
 .bpm-delete-dialog::backdrop{background:#1B24342E}.bpm-delete-dialog h2{margin:0 0 14px;font-size:17px;font-weight:600}.bpm-delete-dialog p{margin:10px 0}.bpm-delete-dialog .bpm-delete-path{padding:10px 12px;border:1px solid var(--bp-line,#D9DEE7);font:11px/1.7 monospace;overflow-wrap:anywhere}.bpm-delete-dialog .bpm-form-actions{margin-top:22px;justify-content:flex-end;gap:8px}
 @media(max-width:590px){.bpm-project-head{flex-wrap:wrap}.bpm-head-actions{margin-left:auto}}
+
+/* Agent 选择：沿用原来的弹窗外壳，样式随「连接模型」引导移除后收进项目模块。 */
+.bp-subagent-backdrop{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:16px;background:rgba(24,32,44,.24);color:var(--bp-ink);font:13px/20px var(--bp-font-ui);-webkit-font-smoothing:antialiased;animation:bp-subagent-fade .18s ease-out}
+.bp-subagent-backdrop *,.bp-subagent-backdrop *::before,.bp-subagent-backdrop *::after{box-sizing:border-box}
+.bp-subagent-backdrop [hidden]{display:none!important}
+body .bp-subagent-backdrop .bp-subagent-panel{position:relative;display:flex;flex-direction:column;width:600px;max-width:100%;max-height:100%;height:min(720px,100%);background:var(--bp-surface);border:1px solid var(--bp-line);border-radius:0!important;box-shadow:var(--bp-shadow-window);animation:bp-subagent-rise .2s cubic-bezier(.22,1,.36,1)}
+.bp-subagent-head{display:flex;align-items:center;gap:10px;padding:16px 12px 0 20px}
+.bp-subagent-head h2{flex:1;min-width:0;margin:0;font:600 14px/20px var(--bp-font-ui);color:var(--bp-ink);overflow-wrap:anywhere}
+body .bp-subagent-backdrop .bp-subagent-x{display:grid;place-items:center;flex:none;width:32px;height:32px;margin:-6px 0 -6px auto;padding:0;border:0;border-radius:4px!important;background:transparent;color:var(--bp-secondary);cursor:pointer}
+.bp-subagent-x:hover{background:var(--bp-hover);color:var(--bp-ink)}.bp-subagent-x .bp-glyph{width:18px;height:18px}
+.bp-subagent-body{flex:1 1 auto;min-height:0;margin-top:12px;border-top:1px solid var(--bp-line);overflow:auto}
+@keyframes bp-subagent-fade{from{opacity:0}to{opacity:1}}
+@keyframes bp-subagent-rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(max-width:560px){.bp-subagent-backdrop{align-items:flex-end;padding:12px}.bp-subagent-head{padding-left:16px}}
+@media(prefers-reduced-motion:reduce){.bp-subagent-backdrop,.bp-subagent-backdrop *{animation:none!important;transition:none!important}}

@@ -4,6 +4,9 @@ const PROJECT_ICON = icon('<rect x="3" y="4" width="18" height="16"/><path d="M3
 const NEW_PROJECT_ICON = icon('<rect x="3" y="4" width="18" height="16"/><path d="M3 9h18M12 12v5M9.5 14.5h5"/>');
 const PROJECT_FOLDER_ICON = icon('<path d="M20 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2z"/>');
 const PROJECT_ENTER_ICON = icon('<path d="M5 12h14M13 6l6 6-6 6"/>');
+const DIALOG_CLOSE_ICON = icon('<path d="M6 6l12 12M18 6 6 18"/>');
+// Agent 选择弹窗用自己的门户；require 由真实 bundle 的模块加载器提供，调用时才取。
+const 弹窗门 = (...args) => require('react-dom').createPortal(...args);
 // 首页那行模型提示也听原生模型设置的更新事件；同一份订阅源，不另建。
 let blueprint共享模型设置 = null;
 function createBlueprintProjects(ctx) {
@@ -373,7 +376,7 @@ function BlueprintProjectManager({ open, currentSession, projects, snapshot, ses
                     btn(译('进入图纸 →'), () => screen === 'work' ? openWork(work) : enterProject(project), true, { className: 'bpm-button bpm-primary bpm-enter-project' })) : null))));
 }
 
-/** 「Agent 选择」面板：外壳沿用「连接模型」，内容就是左窗「Agent 选择」页（media 包登记的 agents 页签）。模态：背后 inert、焦点困在框内、Esc 与 × 关。 */
+/** 「Agent 选择」面板：内容就是左窗「Agent 选择」页（media 包登记的 agents 页签）。模态：背后 inert、焦点困在框内、Esc 与 × 关。 */
 function BlueprintSubagentDialog({ renderSlot, onClose }) {
     const root = react.useRef(null), panel = react.useRef(null), close = react.useRef(onClose);
     close.current = onClose;
@@ -383,7 +386,7 @@ function BlueprintSubagentDialog({ renderSlot, onClose }) {
             if (element === root.current || element.inert || ['SCRIPT', 'STYLE', 'LINK'].includes(element.tagName)) continue;
             element.inert = true; changed.push(element);
         }
-        panel.current?.querySelector('.bp-connect-x')?.focus();
+        panel.current?.querySelector('.bp-subagent-x')?.focus();
         const onKey = event => {
             if (event.key === 'Escape' && !event.isComposing) { event.preventDefault(); event.stopPropagation(); close.current(); return; }
             if (event.key !== 'Tab' || !panel.current) return;
@@ -401,10 +404,10 @@ function BlueprintSubagentDialog({ renderSlot, onClose }) {
             if (previous?.isConnected && previous.getClientRects().length) previous.focus({ preventScroll: true });
         };
     }, []);
-    return 模型引导门(h('div', { ref: root, className: 'bp-connect' },
-        h('section', { ref: panel, className: 'bp-connect-panel bp-subagent-panel', role: 'dialog', 'aria-modal': true, 'aria-labelledby': 'bp-subagent-title' },
-            h('header', { className: 'bp-connect-head' }, h('h2', { id: 'bp-subagent-title' }, 译('Agent 选择')),
-                h('button', { type: 'button', className: 'bp-connect-x', 'aria-label': 译('关闭'), title: 译('关闭'), onClick: () => close.current(), dangerouslySetInnerHTML: { __html: 引导图标.close } })),
+    return 弹窗门(h('div', { ref: root, className: 'bp-subagent-backdrop' },
+        h('section', { ref: panel, className: 'bp-subagent-panel', role: 'dialog', 'aria-modal': true, 'aria-labelledby': 'bp-subagent-title' },
+            h('header', { className: 'bp-subagent-head' }, h('h2', { id: 'bp-subagent-title' }, 译('Agent 选择')),
+                h('button', { type: 'button', className: 'bp-subagent-x', 'aria-label': 译('关闭'), title: 译('关闭'), onClick: () => close.current(), dangerouslySetInnerHTML: { __html: DIALOG_CLOSE_ICON } })),
             h('div', { className: 'bp-subagent-body' }, renderSlot ? renderSlot('blueprint.left.tab', { tab: 'agents', 新项目: true }, { entryKey: 'agents' }) : null))), document.body);
 }
 
@@ -436,44 +439,24 @@ function BlueprintProjectFormBody({ open, navigate, close, onNameChange, modelSe
     // Agent 选择由后台保存为新建默认；创建时复制进项目，表单不再另存一份旧快照。
     const [subagents, setSubagents] = react.useState(false);
     current.current = { navigate, close, onNameChange, onAdvanced, openSubagents: () => setSubagents(true) };
-    // 「创建并开始」通过原有检查后，选中模型的服务商没有 Key 就打开「连接模型」；草稿原样留在表单里。
-    const [guide, setGuide] = react.useState(null), guideDone = react.useRef(null);
     // 外层改过的几处文字单独写一遍：挂载时写，切语言时再写；表单只挂一次，草稿留在里面。
     const 写字 = react.useRef(() => {});
     const 语言 = use界面语言(react);
     react.useEffect(() => { 写字.current(); }, [语言]);
     react.useLayoutEffect(() => {
         const say = (text, bad = false) => { const node = host.current?.querySelector('#np-msg'); if (node) { node.textContent = text; node.classList.toggle('bad', bad); } };
-        // 接好的不是表单选中的那家时，等目录带上新连接再选中它。
-        const pickConnected = async ({ provider, model }) => {
-            for (let attempt = 0; attempt < 8 && form.current; attempt++) {
-                if (await form.current.selectModel(provider, model)) return true;
-                await new Promise(resolve => setTimeout(resolve, 300));
-            }
-            return false;
-        };
         const beforeCreate = async model => {
             await blueprint共享项目存储?.ready();
             let check;
             say(译('正在检查模型连接…'));
-            // 连接清单读不到时不拦，原流程照常创建并如实报错。
-            try { check = 创建前模型检查(await 读取模型连接(), model); } catch { say(''); return true; }
+            // 连接目录读不到时不拦，原流程照常创建并如实报错。
+            try { check = 创建前模型检查(await 读取连接目录(), model); } catch { say(''); return true; }
             say('');
             if (check.ready) return true;
-            if (!form.current || host.current?.hidden) return false;   // 查连接时表单已收起：不在首页上弹引导
-            const outcome = await new Promise(resolve => {
-                guideDone.current = resolve;
-                setGuide({ provider: check.row ? check.provider : '', model: check.row && check.provider === model?.provider ? model.model : '' });
-            });
-            if (!form.current) return false;
-            const connected = outcome.connected;
-            if (connected) {
-                say(译('正在更新模型列表…'));
-                if (!(await pickConnected(connected))) { say(译('模型已连接，模型列表还在更新，请稍后再点「创建并开始」。'), true); return false; }
-                say('');
-            }
-            if (!outcome.proceed) { if (!connected) say(译('连接模型后才能开始项目'), true); return false; }
-            return true;
+            if (!form.current || host.current?.hidden) return false;   // 表单已收起：不在首页上弹提示
+            // 模型 provider 由系统 DSH 管理：只提示去哪里配置，不再弹 Blueprint 自己的连接对话框。
+            say(译('请先在系统 DSH 中配置模型 provider，再创建项目。'), true);
+            return false;
         };
         form.current = mountProjectForm(host.current, { modelSettings, beforeCreate, extraPayload: () => ({ ...blueprint共享项目存储?.payload() }),
             navigate: id => current.current.navigate(id), close: () => current.current.close(),
@@ -570,7 +553,7 @@ function BlueprintProjectFormBody({ open, navigate, close, onNameChange, modelSe
         const updateName = () => { current.current.onNameChange?.(name.value.trim()); clearMessage(); };
         name.addEventListener('input', updateName); description.addEventListener('input', clearMessage);
         idScope.current = scopeBlueprintProjectFormIds(host.current, mode);
-        return () => { stopStorage?.(); storageHost?.remove(); idScope.current?.dispose(); idScope.current = null; 写字.current = () => {}; name.removeEventListener('input', updateName); description.removeEventListener('input', clearMessage); skillPanel.removeEventListener('toggle', syncSkillDisclosure); form.current.dispose(); form.current = null; guideDone.current?.({ connected: null, proceed: false }); guideDone.current = null; };
+        return () => { stopStorage?.(); storageHost?.remove(); idScope.current?.dispose(); idScope.current = null; 写字.current = () => {}; name.removeEventListener('input', updateName); description.removeEventListener('input', clearMessage); skillPanel.removeEventListener('toggle', syncSkillDisclosure); form.current.dispose(); form.current = null; };
     }, []);
     react.useLayoutEffect(() => {
         if (!incomingDraft || mode !== 'full') return;
@@ -583,10 +566,7 @@ function BlueprintProjectFormBody({ open, navigate, close, onNameChange, modelSe
         if (open) { const message = host.current.querySelector('#np-msg'); message.textContent = ''; message.classList.remove('bad'); current.current.onNameChange?.(host.current.querySelector('#np-name')?.value.trim() || ''); void form.current.refresh().catch(error => { const message = host.current.querySelector('#np-msg'); if (message) { message.textContent = error.message; message.classList.add('bad'); } }); if (autoFocus) host.current.querySelector(mode === 'home' ? '#np-desc' : '#np-name')?.focus(); }
     }, [open]);
     return h('div', { className: 'bpm-original-form' }, h('div', { ref: host }),
-        subagents ? h(BlueprintSubagentDialog, { renderSlot, onClose: () => setSubagents(false) }) : null,
-        guide ? h(BlueprintModelGuide, { mode: 'create', provider: guide.provider, model: guide.model, onClose: result => {
-            const resolve = guideDone.current; guideDone.current = null; setGuide(null); resolve?.(result);
-        } }) : null);
+        subagents ? h(BlueprintSubagentDialog, { renderSlot, onClose: () => setSubagents(false) }) : null);
 }
 function BlueprintProjectMarkdown({ source }) {
     const host = react.useRef(null);
