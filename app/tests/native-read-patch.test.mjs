@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
-import { inspectNativeReadPatch, ensureNativeReadPatch } from '../scripts/native-read-patch.mjs'
+import { inspectNativeReadPatch, ensureNativeReadPatch, nativeReadPatchForVersion } from '../scripts/native-read-patch.mjs'
 
 const require = createRequire(process.env.BLUEPRINT_NATIVE_READ_TEST_ENGINE || new URL('../package.json', import.meta.url))
 const originalPackage = require.resolve('@deepseek-ai/dsh-session-persistence-jsonl/package.json')
@@ -15,11 +15,19 @@ const modules = join(root, 'fixture-modules'), packageDir = join(modules, '@deep
 await mkdir(join(packageDir, 'lib'), { recursive: true })
 for (const name of ['package.json', 'lib/index.js', 'lib/worker.cjs']) await cp(join(dirname(originalPackage), name), join(packageDir, name))
 await symlink(dirname(dirname(dirname(originalPackage))), join(root, 'node_modules'), 'dir')
+assert.match(nativeReadPatchForVersion('0.2.1-rc.5'), /native-read-0\.2\.1-rc\.5\.patch$/)
+assert.match(nativeReadPatchForVersion('0.2.1-alpha.2'), /native-read-0\.2\.1-alpha\.2\.patch$/)
+assert.equal(nativeReadPatchForVersion('0.2.1-alpha.3'), undefined)
 const beforeInstall = await inspectNativeReadPatch(modules)
+assert.equal(beforeInstall.engine, '0.2.1-rc.5')
 assert.equal(beforeInstall.compatible, true)
 await ensureNativeReadPatch(modules)
-const { default: Persistence } = await import(pathToFileURL(join(packageDir, 'lib/index.js')).href)
+const { apply: applyPersistence } = await import(pathToFileURL(join(packageDir, 'lib/index.js')).href)
 const { Context } = await import(pathToFileURL(require.resolve('@deepseek-ai/cordis')).href)
+const prototypeContext = new Context()
+await prototypeContext.plugin(applyPersistence, { root: join(root, 'prototype-session-root'), compression: 'none' })
+const Persistence = prototypeContext.sessionPersistence.constructor
+await prototypeContext.fiber.dispose()
 const { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } = await import(pathToFileURL(require.resolve('@deepseek-ai/dsh-session-persistence')).href)
 const deferred = () => { let resolve, reject; const promise = new Promise((a, b) => { resolve = a; reject = b }); return { promise, resolve, reject } }
 // 扫描单测只换掉会话头读取；记住会话头的那一层按原读取直通。
@@ -30,7 +38,7 @@ test('补丁可核对、可重复安装；未知版本和不合接缝拒绝修�
   assert.equal((await ensureNativeReadPatch(modules)).alreadyApplied, true)
   const metadataPath = join(packageDir, 'package.json'), metadata = await readFile(metadataPath, 'utf8')
   try {
-    await writeFile(metadataPath, metadata.replace('"version": "0.2.1-alpha.2"', '"version": "0.2.1-alpha.3"'))
+    await writeFile(metadataPath, metadata.replace('"version": "0.2.1-rc.5"', '"version": "0.2.1-rc.6"'))
     await assert.rejects(ensureNativeReadPatch(modules), /仅核对/)
   } finally { await writeFile(metadataPath, metadata) }
   const codePath = join(packageDir, 'lib/index.js'), code = await readFile(codePath, 'utf8')
@@ -113,7 +121,7 @@ test('真实旧账本只读迁移保留子会话；增加、删除和改写子�
   await write('parent'); await write('child', [descriptor('原子会话')], true)
   const original = await readFile(path('parent'))
   try {
-    await ctx.plugin(Persistence, { root: sessionRoot, compression: 'none' })
+    await ctx.plugin(applyPersistence, { root: sessionRoot, compression: 'none' })
     const read = async () => { const handle = await ctx.sessionPersistence.open('parent', 'read'); try { return (await handle.read()).events } finally { await handle.close() } }
     const first = await read(); assert.equal(first.find(row => row.type === 'subagent/catalog').data.label, '原子会话')
     await write('child', [descriptor('已更新')], true)
@@ -154,7 +162,7 @@ test('list 与逐个 stat 同一结果；语料版本与独立计算一致；重
   }
   await write('_no-cwd', 'old-a', 3); await write('_no-cwd', 'old-b', 3)
   try {
-    await ctx.plugin(Persistence, { root: sessionRoot, compression: 'none' })
+    await ctx.plugin(applyPersistence, { root: sessionRoot, compression: 'none' })
     const storage = ctx.sessionPersistence
     for (let round = 0; round < 2; round++) {
       const listed = new Map((await storage.list()).map(row => [String(row.header.id), row]))
