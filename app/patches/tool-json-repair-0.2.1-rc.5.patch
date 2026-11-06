@@ -1,0 +1,115 @@
+--- @deepseek-ai/dsh-llm-deepseek/lib/index.js
++++ @deepseek-ai/dsh-llm-deepseek/lib/index.js
+@@ -1825,6 +1825,74 @@
+ function malformed(detail) {
+ 	throw new LlmError(`DeepSeek Messages stream: ${detail}`, "MALFORMED_RESPONSE");
+ }
++/** Blueprint 补丁：模型写坏的工具参数先修补再判。字符串里的真换行等控制字符转义；字符串或括号到结尾没收，就补上引号和括号。
++* 模型常把收尾的 "}} 写成 }：没收的字符串以多出来的右括号结尾时，那个括号算结构。
++* 也常把整个对象收完后再多写右括号（10-16-1 直接调 divide 五次都是结尾多一个 }）：最外层已经收完、后面只剩右括号和空白，就去掉多的。
++* 还会中途多写右括号，最外层提前收了、后面接着逗号写下一个键（10-17 幸存者 1 号节点 }}}, "name": "call_tool"}）：去掉提前收尾的那个括号和多的右括号，后面的键接回最外层。
++* 还会在中途写一个对不上任何开括号的右括号（10-21 东方僵尸 0 号调 divide 两次：收了 plan 又多写一个 ]）：它不收任何东西，去掉。
++* 修好的必须是对象，否则原样留给后面的核对报清坏处。
++* 截断（max-tokens）的整批工具调用照旧由组装器丢弃，修补不会让半截调用被执行。
++*/
++function repairToolJson(text) {
++	try {
++		JSON.parse(text);
++		return text;
++	} catch {}
++	let body = "", inString = false, escaped = false, stringStart = 0, rootEnd;
++	const closers = [];
++	for (const ch of text) {
++		if (inString) {
++			if (escaped) escaped = false;
++			else if (ch === "\\") escaped = true;
++			else if (ch === "\"") inString = false;
++			else if (ch < " ") {
++				body += ch === "\n" ? "\\n" : ch === "\r" ? "\\r" : ch === "\t" ? "\\t" : `\\u${ch.charCodeAt(0).toString(16).padStart(4, "0")}`;
++				continue;
++			}
++		} else if (ch === "\"") {
++			inString = true;
++			stringStart = body.length + 1;
++		} else if (ch === "{" || ch === "[") closers.push(ch === "{" ? "}" : "]");
++		else if ((ch === "}" || ch === "]") && closers.at(-1) === ch) {
++			closers.pop();
++			if (closers.length === 0) rootEnd ??= body.length + 1;
++		} else if ((ch === "}" || ch === "]") && closers.length > 0 && !closers.includes(ch)) continue;
++		body += ch;
++	}
++	if (!inString && rootEnd !== void 0 && /^[\s}\]]*$/.test(body.slice(rootEnd))) body = body.slice(0, rootEnd);
++	else if (!inString && rootEnd !== void 0) {
++		const early = /^[\s}\]]*(?=,)/.exec(body.slice(rootEnd));
++		if (early) body = body.slice(0, rootEnd - 1) + body.slice(rootEnd + early[0].length);
++	}
++	if (inString) {
++		if (escaped) body = body.slice(0, -1);
++		const last = body.at(-1), content = body.slice(stringStart);
++		if ((last === "}" || last === "]") && content.split(last === "}" ? "{" : "[").length < content.split(last).length) body = body.slice(0, -1);
++		body += "\"";
++	}
++	const repaired = body + closers.reverse().join("");
++	try {
++		const value = JSON.parse(repaired);
++		return value !== null && typeof value === "object" && !Array.isArray(value) ? repaired : text;
++	} catch {
++		return text;
++	}
++}
++/** Blueprint 补丁：修不好的工具参数，说清是哪个工具、哪个文件、坏在哪。一个坏调用一行：工具; file 路径; 解析错误; near: …附近原文…（附近原文放最后，控制字符写成转义，不会断行）。 */
++function describeToolJson(content) {
++	const text = content.arguments;
++	let reason = "";
++	try {
++		JSON.parse(text);
++	} catch (error) {
++		reason = error instanceof Error ? error.message : String(error);
++	}
++	const inner = content.name === "call_tool" ? (/^\s*\{\s*"name"\s*:\s*"([^"\\]+)"/.exec(text) ?? /"name"\s*:\s*"([^"\\]+)"\s*\}\s*$/.exec(text))?.[1] : void 0;
++	const file = /"(?:file_path|path)"\s*:\s*"([^"\\\u0000-\u001f]+)"/.exec(text)?.[1];
++	const at = /position (\d+)/.exec(reason)?.[1];
++	const near = at === void 0 ? void 0 : text.slice(Math.max(0, Number(at) - 40), Number(at) + 20).replace(/[\u0000-\u001f]/g, (ch) => JSON.stringify(ch).slice(1, -1));
++	return [inner ? `${content.name}→${inner}` : content.name, file && `file ${file}`, reason, near && `near: …${near}…`].filter(Boolean).join("; ");
++}
+ function indexOf(event) {
+ 	if (!Number.isSafeInteger(event.index) || event.index < 0) return malformed("invalid block index");
+ 	return event.index;
+@@ -1990,7 +2058,7 @@
+ 				if (chunk !== void 0) yield chunk;
+ 			} else {
+ 				block.closed = true;
+-				if (block.content.type === "tool-call" && block.json.length > 0) block.content.arguments = block.json;
++				if (block.content.type === "tool-call" && block.json.length > 0) block.content.arguments = repairToolJson(block.json);
+ 				yield {
+ 					type: "block-end",
+ 					index: block.index,
+@@ -2004,15 +2072,20 @@
+ 		} else {
+ 			if (reason === void 0 || [...blocks.values()].some((block) => !block.closed)) return malformed("message_stop without settled blocks and stop reason");
+ 			if (blocks.size === 0 && reason.kind === "stop") throw new LlmError("DeepSeek Messages returned no content", "EMPTY_RESPONSE");
+-			if (reason.kind !== "max-tokens") for (const { content } of blocks.values()) {
+-				if (content.type !== "tool-call") continue;
+-				let parsed;
+-				try {
+-					parsed = JSON.parse(content.arguments);
+-				} catch (_invalidProviderToolJson) {
+-					return malformed("tool input is invalid JSON");
++			if (reason.kind !== "max-tokens") {
++				const broken = [];
++				for (const { content } of blocks.values()) {
++					if (content.type !== "tool-call") continue;
++					let parsed;
++					try {
++						parsed = JSON.parse(content.arguments);
++					} catch (_invalidProviderToolJson) {
++						broken.push(describeToolJson(content));
++						continue;
++					}
++					object(parsed);
+ 				}
+-				object(parsed);
++				if (broken.length > 0) return malformed(`tool input is invalid JSON:\n${broken.join("\n")}`);
+ 			}
+ 			usage.totalTokens = usage.inputTokens + usage.outputTokens + (usage.cacheReadTokens ?? 0) + (usage.cacheWriteTokens ?? 0);
+ 			yield {
