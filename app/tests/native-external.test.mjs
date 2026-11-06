@@ -8,8 +8,9 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { parse } from 'yaml'
-import { inspectNativeExternalPatch, ensureNativeExternalPatch } from '../scripts/native-external-patch.mjs'
+import { inspectNativeExternalPatch, ensureNativeExternalPatch, nativeExternalPatchForVersion } from '../scripts/native-external-patch.mjs'
 import { patchCommand } from '../scripts/patch-command.mjs'
+import { readDesktopComposition } from '../runtime/composition.mjs'
 import { 读取外部协助, 停止外部协助 } from '../../blueprint/packages/studio/src/外部协助.js'
 
 const app = fileURLToPath(new URL('../', import.meta.url)), repo = resolve(app, '..')
@@ -62,7 +63,7 @@ async function fixture(t) {
     ctx = new native.cordis.Context()
     for (const name of ['dsh-llm', 'dsh-session', 'dsh-session-projection', 'dsh-system-prompt', 'dsh-tools',
       'dsh-agent', 'dsh-fs-local', 'dsh-working-directory']) await ctx.plugin(native[name].default)
-    await ctx.plugin(native['dsh-session-persistence-jsonl'].default, { root: home, compression: 'none' })
+    await ctx.plugin(native['dsh-session-persistence-jsonl'], { root: home, compression: 'none' })
     await ctx.plugin(native['dsh-session-query-sqlite'].default, { path: ':memory:', openAt: 'never' })
     await ctx.plugin(native['dsh-agent-loop'].default, { agents: [] })
     await ctx.plugin(native['dsh-subagent'].default)
@@ -97,8 +98,11 @@ async function fixture(t) {
 
 // 叶 6（2026-10-18）：两家提供方仍随宿主接线；节点组装里不再有调它们的工具，选了它们的 run 由 node 的外部 run 直接用命令行启动。
 test('两家官方提供方随宿主接线、默认权限不变；节点组装里没有调它们的工具', async () => {
-  const host = JSON.parse(await readFile(join(app, 'runtime/host.json'), 'utf8'))
   const yamlOptions = { customTags: [{ tag: 'tag:yaml.org,2002:js', resolve: value => ({ __jsExpr: value }) }] }
+  // 「随宿主接线」以桌面实际组装的 patches 为准（bundle 接线 + host.json 覆盖），不是只看覆盖文件。
+  const composition = await readDesktopComposition({ resourceRoot: join(app, 'runtime'), sourceRoot: repo,
+    promptDir: join(repo, 'blueprint/packages/prompt'), resolvePlugin: name => pathToFileURL(require.resolve(name)).href })
+  const host = composition.patches.flatMap(row => row.insert || [row])
   const source = parse(await readFile(join(repo, 'blueprint/cordis.patch.yml'), 'utf8'), yamlOptions).flatMap(row => row.insert || [])
   const preset = parse(await readFile(join(repo, 'blueprint/agent.cordis.yml'), 'utf8'), yamlOptions)
   for (const [id, , toolName, mode] of [['subagent-codex', 'codex', 'subagent_codex', 'dangerously-bypass-approvals-and-sandbox'],
@@ -187,11 +191,21 @@ test('停止先取消后等待清理，不能误停并行兄弟；失败启动�
   assert.ok([...f.runs.values()].every(row => row.disposals === 1))
 })
 
+test('补丁按引擎版本映射：rc.5 已核对且可重复安装', async () => {
+  assert.match(nativeExternalPatchForVersion('0.2.1-rc.5'), /native-external-0\.2\.1-rc\.5\.patch$/)
+  assert.equal(nativeExternalPatchForVersion('9.9.9'), undefined)
+  const rc5 = await inspectNativeExternalPatch(join(app, 'node_modules'))
+  assert.equal(rc5.compatible, true)
+  assert.equal((await ensureNativeExternalPatch(join(app, 'node_modules'))).compatible, true)
+  assert.equal((await inspectNativeExternalPatch(join(app, 'node_modules'))).alreadyApplied, true)
+  assert.equal((await ensureNativeExternalPatch(join(app, 'node_modules'))).alreadyApplied, true)
+})
+
 test('精确扩展拒绝版本漂移及部分改写，安装可重复核对', async t => {
   const root = await mkdtemp(join(tmpdir(), 'Blueprint外部协议扩展核对-'))
   t.after(() => rm(root, { recursive: true, force: true }))
   for (const name of ['@deepseek-ai/dsh-subagent', '@deepseek-ai/dsh-tool-subagent']) await cp(join(app, 'node_modules', name), join(root, name), { recursive: true })
-  const patch = join(app, 'patches/native-external-0.2.1-alpha.2.patch')
+  const patch = nativeExternalPatchForVersion('0.2.1-rc.5')
   execFileSync(patchCommand(), ['-s', '-f', '-R', '-d', root, '-p0', '-i', patch])
   assert.equal((await inspectNativeExternalPatch(root)).alreadyApplied, false)
   await ensureNativeExternalPatch(root)

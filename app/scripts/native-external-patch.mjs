@@ -1,4 +1,4 @@
-// 精确 alpha 扩展：只读原生外部 activation 与官方启动结果的耐久展示元数据。
+// 精确引擎扩展：只读原生外部 activation 与官方启动结果的耐久展示元数据；补丁按引擎版本选择。
 import { readFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
@@ -6,11 +6,20 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { patchCommand } from './patch-command.mjs'
 
-const version = '0.2.1-alpha.2'
-const patchPath = resolve(dirname(fileURLToPath(import.meta.url)), '../patches/native-external-0.2.1-alpha.2.patch')
+const patchNames = new Map([
+  ['0.2.1-alpha.2', 'native-external-0.2.1-alpha.2.patch'],
+  ['0.2.1-rc.5', 'native-external-0.2.1-rc.5.patch'],
+])
+const patches = resolve(dirname(fileURLToPath(import.meta.url)), '../patches')
 const packages = ['@deepseek-ai/dsh-subagent', '@deepseek-ai/dsh-tool-subagent']
 
-function check(modules, reverse = false, apply = false) {
+/** 返回该引擎版本对应的补丁文件；未知版本返回 undefined（没有可核对补丁）。 */
+export function nativeExternalPatchForVersion(version) {
+  const name = patchNames.get(version)
+  return name === void 0 ? void 0 : resolve(patches, name)
+}
+
+function check(modules, patchPath, reverse = false, apply = false) {
   const result = spawnSync(patchCommand(), ['-s', '-f', ...(reverse ? ['-R'] : []), ...(apply ? [] : ['--dry-run']),
     '-d', modules, '-p0', '-i', patchPath], { encoding: 'utf8' })
   if (result.error) throw result.error
@@ -20,21 +29,26 @@ function check(modules, reverse = false, apply = false) {
 export async function inspectNativeExternalPatch(nodeModulesRoot) {
   const modules = resolve(nodeModulesRoot)
   const metadata = await Promise.all(packages.map(async name => JSON.parse(await readFile(join(modules, name, 'package.json'), 'utf8'))))
+  const engine = metadata[0].version
+  const patchPath = nativeExternalPatchForVersion(engine)
+  if (patchPath === void 0) return { engine, sha256: void 0, compatible: false, alreadyApplied: false,
+    diagnostic: `外部执行扩展仅核对 ${[...patchNames.keys()].join('、')}，实际 @deepseek-ai/dsh-subagent@${engine}` }
   const sha256 = createHash('sha256').update(await readFile(patchPath)).digest('hex')
-  const wrong = metadata.find(item => item.version !== version)
-  if (wrong) return { engine: metadata[0].version, sha256, compatible: false, alreadyApplied: false,
-    diagnostic: `外部执行扩展仅核对 ${version}，实际 ${wrong.name}@${wrong.version}` }
-  if (check(modules, true).ok) return { engine: version, sha256, compatible: true, alreadyApplied: true }
-  const forward = check(modules)
-  return { engine: version, sha256, compatible: forward.ok, alreadyApplied: false, diagnostic: forward.diagnostic }
+  const wrong = metadata.find(item => item.version !== engine)
+  if (wrong) return { engine, sha256, compatible: false, alreadyApplied: false,
+    diagnostic: `外部执行扩展要求 ${engine} 的两个包版本一致，实际 ${wrong.name}@${wrong.version}` }
+  if (check(modules, patchPath, true).ok) return { engine, sha256, compatible: true, alreadyApplied: true }
+  const forward = check(modules, patchPath)
+  return { engine, sha256, compatible: forward.ok, alreadyApplied: false, diagnostic: forward.diagnostic }
 }
 
 export async function ensureNativeExternalPatch(nodeModulesRoot) {
   const result = await inspectNativeExternalPatch(nodeModulesRoot)
   if (!result.compatible) throw new Error(`外部执行扩展未安装：${result.diagnostic}`)
   if (!result.alreadyApplied) {
-    const applied = check(resolve(nodeModulesRoot), false, true)
-    if (!applied.ok || !(await inspectNativeExternalPatch(nodeModulesRoot)).alreadyApplied) throw new Error(`外部执行扩展安装核对失败：${applied.diagnostic}`)
+    const modules = resolve(nodeModulesRoot)
+    const applied = check(modules, nativeExternalPatchForVersion(result.engine), false, true)
+    if (!applied.ok || !(await inspectNativeExternalPatch(modules)).alreadyApplied) throw new Error(`外部执行扩展安装核对失败：${applied.diagnostic}`)
   }
   return result
 }
