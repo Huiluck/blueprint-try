@@ -65,6 +65,10 @@ async function stop() {
   return stopping
 }
 for (const signal of ['SIGTERM', 'SIGINT']) process.on(signal, () => { void stop().then(() => process.exit(0), error => { console.error(error); process.exit(1) }) })
+// Windows 上 SIGTERM 会直接终止进程；桌面壳先发 shutdown 消息，让节点收尾后再退出。
+process.on('message', message => {
+  if (message?.type === 'shutdown') void stop().then(() => process.exit(0), error => { console.error(error); process.exit(1) })
+})
 process.on('disconnect', () => { void stop().then(() => process.exit(0)) })
 process.on('uncaughtException', error => { console.error(error); void stop().finally(() => process.exit(1)) })
 process.on('unhandledRejection', error => { console.error(error); void stop().finally(() => process.exit(1)) })

@@ -100,7 +100,7 @@ test('桌面同步 IPC 每次只发送一次回复，预览地址不被空值抢
 })
 
 test('桌面桥接认 dsh 网页根：主窗口同源顶层页面可用，子框架、别的窗口和外站不可用', async () => {
-  const source = await readFile(new URL('../desktop/main.cjs', import.meta.url), 'utf8')
+  const source = (await readFile(new URL('../desktop/main.cjs', import.meta.url), 'utf8')).replaceAll('\r\n', '\n')
   const start = source.indexOf('  const trusted = event =>')
   const end = source.indexOf('\n  }\n', start) + 4
   const main = {}, context = vm.createContext({ window: { webContents: main }, ready: { origin }, URL })

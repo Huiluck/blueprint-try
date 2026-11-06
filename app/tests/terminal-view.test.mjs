@@ -14,9 +14,9 @@ import { fixture } from './helpers/terminal-controller.mjs'
 import * as 界面语言 from '../../viewer/界面语言.js'
 
 const app = fileURLToPath(new URL('../', import.meta.url))
-const html = await readFile(new URL('../../viewer/studio.html', import.meta.url), 'utf8')
-const transportSource = await readFile(new URL('../../viewer/terminal-transport.js', import.meta.url), 'utf8')
-const viewSource = await readFile(new URL('../../viewer/terminal.js', import.meta.url), 'utf8')
+const html = (await readFile(new URL('../../viewer/studio.html', import.meta.url), 'utf8')).replaceAll('\r\n', '\n')
+const transportSource = (await readFile(new URL('../../viewer/terminal-transport.js', import.meta.url), 'utf8')).replaceAll('\r\n', '\n')
+const viewSource = (await readFile(new URL('../../viewer/terminal.js', import.meta.url), 'utf8')).replaceAll('\r\n', '\n')
 const waitFor = async predicate => {
   for (let index = 0; index < 500; index++) { if (predicate()) return; await new Promise(resolve => setTimeout(resolve, 5)) }
   assert.fail('终端视图未达到预期状态')

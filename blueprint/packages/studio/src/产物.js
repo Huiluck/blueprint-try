@@ -21,7 +21,8 @@ const timeOf = x => typeof x === 'number' ? x : Date.parse(x) || 0
 export function 产物路径(root, input, { cwd = root, any = false, includeTemporary = false, includeEvidence = false } = {}) {
   if (typeof input !== 'string' || !input.trim() || /[\0\r\n]/.test(input)) return null
   let value = input.trim().replace(/^<|>$/g, '')
-  if (/^[a-z][a-z\d+.-]*:/i.test(value)) return null
+  // `C:\` 以盘符开头，和 URL scheme 形状相同；先排除 Windows 绝对路径。
+  if (!/^[a-z]:[\\/]/i.test(value) && /^[a-z][a-z\d+.-]*:/i.test(value)) return null
   try { value = decodeURIComponent(value) } catch { return null }
   // Markdown 的行号与锚点不属于文件路径。
   value = value.replace(/#.*$/, '').replace(/:\d+(?::\d+)?$/, '')
@@ -252,14 +253,15 @@ export function 允许本机打开(headers) {
 /** 相当于用户双击入口；路径单独传参，不经 shell，不接受附加命令。 */
 export async function 打开本地产物(root, path, action, {
   platform = process.platform,
-  launch = args => new Promise((done, fail) => execFile('/usr/bin/open', args, {timeout:5000}, err => err ? fail(err) : done())),
+  launch = (args, _action) => new Promise((done, fail) => execFile(platform === 'win32' ? 'explorer.exe' : '/usr/bin/open', args, { timeout: 5000 }, err => err ? fail(err) : done())),
 } = {}) {
   if (!['system','reveal'].includes(action)) throw new Error('不支持的打开方式')
-  if (platform !== 'darwin') throw new Error('系统打开与定位目前仅支持本机 macOS')
+  if (!['darwin','win32'].includes(platform)) throw new Error('系统打开与定位目前仅支持 macOS 和 Windows')
   const artifact = await 检查产物(root, {entry:path, opening:action}, {includeTemporary:true, includeEvidence:true})
   if (网页入口(artifact.path)) throw new Error('请选择项目内文件或目录')
   const full = await 安全产物文件(root, artifact.path)
-  await launch(action === 'reveal' ? ['-R', full] : [full])
+  if (platform === 'win32') await launch(action === 'reveal' ? ['/select,', full] : [full], action)
+  else await launch(action === 'reveal' ? ['-R', full] : [full], action)
 }
 
 /** 列表只收节点做了、看了、拿给人看的：搜索结果里的候选网址、系统叫醒话里的路径不算；

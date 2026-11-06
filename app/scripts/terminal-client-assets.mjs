@@ -3,7 +3,7 @@ import { build, version as buildVersion } from 'esbuild'
 import { createHash, randomUUID } from 'node:crypto'
 import { createRequire } from 'node:module'
 import { readFile, writeFile, mkdir, realpath, rename } from 'node:fs/promises'
-import { dirname, join, resolve, relative, isAbsolute } from 'node:path'
+import { dirname, join, resolve, relative, isAbsolute, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
@@ -93,7 +93,7 @@ export async function ensureTerminalClientAssets(nodeModulesRoot, options = {}) 
   for (const path of Object.keys(result.metafile.inputs)) {
     const input = await realpath(resolve(assets.modules, path))
     if (input !== assets.entry && !inside(assets.modules, input)) throw new Error(`终端客户端构建借用了所选安装之外的文件：${input}`)
-    inputs[input === assets.entry ? '@entry' : relative(assets.prefix, input)] = hash(await readFile(input))
+    inputs[input === assets.entry ? '@entry' : relative(assets.prefix, input).split(sep).join('/')] = hash(await readFile(input))
   }
   const content = { 'native-terminal.js': result.outputFiles[0].contents }
   for (const [name, path] of Object.entries(assets.copies)) {

@@ -4,13 +4,14 @@ import { createHash } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { patchCommand } from './patch-command.mjs'
 
 const version = '0.2.1-alpha.2'
 const patchPath = resolve(dirname(fileURLToPath(import.meta.url)), '../patches/native-external-0.2.1-alpha.2.patch')
 const packages = ['@deepseek-ai/dsh-subagent', '@deepseek-ai/dsh-tool-subagent']
 
 function check(modules, reverse = false, apply = false) {
-  const result = spawnSync('/usr/bin/patch', ['-s', '-f', ...(reverse ? ['-R'] : []), ...(apply ? [] : ['--dry-run']),
+  const result = spawnSync(patchCommand(), ['-s', '-f', ...(reverse ? ['-R'] : []), ...(apply ? [] : ['--dry-run']),
     '-d', modules, '-p0', '-i', patchPath], { encoding: 'utf8' })
   if (result.error) throw result.error
   return { ok: result.status === 0, diagnostic: `${result.stdout || ''}${result.stderr || ''}`.trim() }

@@ -8,6 +8,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import { ensureMultimodalPatch, inspectMultimodalPatch, multimodalPatchForVersion } from '../scripts/multimodal-patch.mjs'
+import { patchCommand } from '../scripts/patch-command.mjs'
 
 const engineRoot = process.env.BLUEPRINT_MULTIMODAL_ENGINE_ROOT || fileURLToPath(new URL('../.build/deepseek-harness-alpha-protocol/', import.meta.url))
 const modules = join(engineRoot, 'node_modules')
@@ -38,7 +39,7 @@ test('新版补丁完整核对、重复准备幂等；版本混装或部分损�
   }
   const before = await inspectMultimodalPatch(root)
   assert.equal(before.alreadyApplied, true)
-  const pristine = spawnSync('/usr/bin/patch', ['-s', '-f', '-R', '-d', root, '-p0', '-i', before.path])
+  const pristine = spawnSync(patchCommand(), ['-s', '-f', '-R', '-d', root, '-p0', '-i', before.path])
   assert.equal(pristine.status, 0)
   assert.equal((await inspectMultimodalPatch(root)).alreadyApplied, false)
   const applied = await ensureMultimodalPatch(root)

@@ -1,4 +1,5 @@
 import { prepareIsolatedProjectStorage } from './isolated-project-storage.mjs'
+import { payloadNode } from './payload-node.mjs'
 /** 真实后台与通知通道，使用临时数据和本机模拟模型，不操作用户窗口。 */
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
@@ -43,9 +44,9 @@ const mock=createServer(async(req,res)=>{
 const wait=async check=>{const end=Date.now()+15000;while(Date.now()<end){if(await check())return;await new Promise(done=>setTimeout(done,40))}throw new Error('提醒已读核对超时')}
 async function start(){
   await prepareIsolatedProjectStorage(data)
-  const env={...process.env,BLUEPRINT_DATA_HOME:data,BLUEPRINT_DOCUMENTS_HOME:join(data,'模拟文稿'),PATH:'/usr/bin:/bin:/usr/sbin:/sbin'}
+  const env={...process.env,BLUEPRINT_DATA_HOME:data,BLUEPRINT_DOCUMENTS_HOME:join(data,'模拟文稿'),PATH:process.env.PATH}
   for(const key of Object.keys(env))if(key.endsWith('_API_KEY') || ['NODE_PATH','NODE_OPTIONS'].includes(key))delete env[key]
-  child=spawn(join(payload,'node/node'),[join(payload,'backend.mjs')],{cwd:payload,env,stdio:['ignore','pipe','pipe','ipc']})
+  child=spawn(payloadNode(payload),[join(payload,'backend.mjs')],{cwd:payload,env,stdio:['ignore','pipe','pipe','ipc']})
   for(const stream of [child.stdout,child.stderr])stream.on('data',value=>log+=value)
   ready=await new Promise((done,reject)=>{
     const timer=setTimeout(()=>reject(new Error('后台启动超时')),45000)

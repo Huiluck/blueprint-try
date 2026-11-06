@@ -87,10 +87,12 @@ async function 文档标题(根, path, signal) {
     return { titles, reason: titles.length ? '' : '未找到 PDF 书签标题，查看原件' }
   }
   if (ext === '.docx') {
-    const styles = await 命令(根, ['/usr/bin/unzip', '-p', path, 'word/styles.xml'], signal)
+    // Windows 10+ 自带 bsdtar，可以直接从 zip 里读单个成员。
+    const unzip = process.platform === 'win32' ? ['tar', '-xOf'] : ['/usr/bin/unzip', '-p']
+    const styles = await 命令(根, [...unzip, path, 'word/styles.xml'], signal)
     const headingIds = new Set([...styles.matchAll(/<w:style\b[^>]*w:styleId="([^"]+)"[^>]*>([\s\S]*?)<\/w:style>/g)]
       .filter(m => /<w:name\b[^>]*w:val="(?:heading\s*\d+|标题\s*\d+)"/i.test(m[2])).map(m => m[1]))
-    const body = await 命令(根, ['/usr/bin/unzip', '-p', path, 'word/document.xml'], signal)
+    const body = await 命令(根, [...unzip, path, 'word/document.xml'], signal)
     const titles = [...body.matchAll(/<w:p\b[^>]*>([\s\S]*?)<\/w:p>/g)].filter(m => headingIds.has(/<w:pStyle\b[^>]*w:val="([^"]+)"/.exec(m[1])?.[1]))
       .map(m => [...m[1].matchAll(/<w:t\b[^>]*>([\s\S]*?)<\/w:t>/g)].map(t => 解XML(t[1])).join('')).filter(Boolean)
     return { titles, reason: titles.length ? '' : '未识别到标题样式，查看原件' }

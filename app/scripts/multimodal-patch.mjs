@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { patchCommand } from './patch-command.mjs'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const patchNames = new Map([
@@ -19,7 +20,7 @@ export function multimodalPatchForVersion(version) {
 function checkPatch(nodeModulesRoot, path, reverse = false, apply = false) {
   const args = ['-s', '-f', ...(reverse ? ['-R'] : []), ...(apply ? [] : ['--dry-run']),
     '-d', nodeModulesRoot, '-p0', '-i', path]
-  const result = spawnSync('/usr/bin/patch', args, { encoding: 'utf8' })
+  const result = spawnSync(patchCommand(), args, { encoding: 'utf8' })
   if (result.error) throw result.error
   return { ok: result.status === 0, diagnostic: `${result.stdout || ''}${result.stderr || ''}`.trim() }
 }

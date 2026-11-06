@@ -9,6 +9,7 @@ import { join, resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { parse } from 'yaml'
 import { inspectNativeExternalPatch, ensureNativeExternalPatch } from '../scripts/native-external-patch.mjs'
+import { patchCommand } from '../scripts/patch-command.mjs'
 import { 读取外部协助, 停止外部协助 } from '../../blueprint/packages/studio/src/外部协助.js'
 
 const app = fileURLToPath(new URL('../', import.meta.url)), repo = resolve(app, '..')
@@ -191,7 +192,7 @@ test('精确扩展拒绝版本漂移及部分改写，安装可重复核对', as
   t.after(() => rm(root, { recursive: true, force: true }))
   for (const name of ['@deepseek-ai/dsh-subagent', '@deepseek-ai/dsh-tool-subagent']) await cp(join(app, 'node_modules', name), join(root, name), { recursive: true })
   const patch = join(app, 'patches/native-external-0.2.1-alpha.2.patch')
-  execFileSync('/usr/bin/patch', ['-s', '-f', '-R', '-d', root, '-p0', '-i', patch])
+  execFileSync(patchCommand(), ['-s', '-f', '-R', '-d', root, '-p0', '-i', patch])
   assert.equal((await inspectNativeExternalPatch(root)).alreadyApplied, false)
   await ensureNativeExternalPatch(root)
   assert.equal((await ensureNativeExternalPatch(root)).alreadyApplied, true)

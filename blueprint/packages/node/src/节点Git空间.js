@@ -11,7 +11,7 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { lstat, mkdir, realpath, writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { 是节点号, 行Of, 派出者Of } from '../../roster/src/index.js'
 import { 仓库根, 数据根, 技能路径, 项目位置们 } from '../../prompt/src/路径.js'
 import { 一段 } from '../../prompt/src/index.js'
@@ -72,9 +72,13 @@ async function 空间环境(根, 标号) {
     保护根:[await realpath(数据根), await realpath(仓库根), ...项目位置们()]}
   const repo = 文件许可(scope, join(根, '作品'), true)
   const mainGit = 文件许可(scope, join(repo, '.git'), true)
+  const 是Windows = process.platform === 'win32'
+  const git程序 = 是Windows ? 'git' : '/usr/bin/git'
+  // Git for Windows 自己会把 /dev/null 映射到 NUL；直接写 NUL 会被当成要访问的路径。
+  const 空设备 = '/dev/null'
   const git = async (args, allowed = [], 时限 = 20000) => {
-    const spec = 隔离命令({argv:['/usr/bin/git', '-c', 'core.hooksPath=/dev/null', '-c', 'commit.gpgsign=false', '-c', 'core.quotepath=false', ...args], cwd:根,
-      env:{PATH:process.env.PATH, LANG:process.env.LANG || 'en_US.UTF-8', LC_ALL:'C', GIT_CONFIG_GLOBAL:'/dev/null', GIT_CONFIG_NOSYSTEM:'1'}}, scope)
+    const spec = 隔离命令({argv:[git程序, '-c', `core.hooksPath=${空设备}`, '-c', 'commit.gpgsign=false', '-c', 'core.quotepath=false', ...args], cwd:根,
+      env:{PATH:process.env.PATH, LANG:process.env.LANG || 'en_US.UTF-8', LC_ALL:'C', GIT_CONFIG_GLOBAL:空设备, GIT_CONFIG_NOSYSTEM:'1'}}, scope)
     try {
       const {stdout} = await exec(spec.argv[0], spec.argv.slice(1), {cwd:spec.cwd, env:spec.env, encoding:'utf8', timeout:时限, maxBuffer:4*1024*1024})
       return stdout.trimEnd()
@@ -111,8 +115,16 @@ async function 提交空间(git, 空间, 说明) {
   return git(['-C', 空间, 'rev-parse', 'HEAD'])
 }
 
+/** git 在 Windows 输出正斜杠路径；比较前统一分隔符与盘符大小写。 */
+const 同路径 = (a, b) => {
+  const normalize = path => {
+    const value = resolve(String(path))
+    return process.platform === 'win32' ? value.toLowerCase() : value
+  }
+  return normalize(a) === normalize(b)
+}
 function 登记的空间(spaces, id, 空间) {
-  return spaces.some(row => row.branch === `refs/heads/${节点分支(id)}` && row.worktree === 空间)
+  return spaces.some(row => row.branch === `refs/heads/${节点分支(id)}` && 同路径(row.worktree, 空间))
 }
 
 /** 交回时提交节点自己的空间；没有作品仓库或空间未登记的旧项目不动。返回新版本号或 null。 */
@@ -170,7 +182,7 @@ async function 准备空间(根, 行, 名册, {新建项目 = false} = {}) {
   const reference = `refs/heads/${branch}`
   const registered = spaces.find(row => row.branch === reference)
   if (registered) {
-    if (registered.worktree !== target) throw new Error(`Git 空间：${branch} 已绑定其他 worktree，拒绝改绑`)
+    if (!同路径(registered.worktree, target)) throw new Error(`Git 空间：${branch} 已绑定其他 worktree，拒绝改绑`)
     if (!(await 存在(target))) throw new Error(`Git 空间：${path} worktree 文件缺失`)
     const actualBranch = await git(['-C', target, 'symbolic-ref', '-q', 'HEAD'], [1])
     const actualCommon = await git(['-C', target, 'rev-parse', '--path-format=absolute', '--git-common-dir'])
@@ -214,7 +226,7 @@ async function 准备空间(根, 行, 名册, {新建项目 = false} = {}) {
   } else await git(['-C', repo, 'worktree', 'add', ...(hasBranch ? [] : ['-b', branch]), target, hasBranch ? branch : sourceBranch])
   if (!hasBranch) await git(['-C', repo, 'update-ref', 起点引用(行.id), branch])
   spaces = 解析空间(await git(['-C', repo, 'worktree', 'list', '--porcelain', '-z']))
-  if (!spaces.some(row => row.branch === reference && row.worktree === target)) throw new Error(`Git 空间：${branch} 未正确登记`)
+  if (!spaces.some(row => row.branch === reference && 同路径(row.worktree, target))) throw new Error(`Git 空间：${branch} 未正确登记`)
   return {分支:branch, 路径:path}
 }
 

@@ -4,12 +4,12 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import { mkdtemp, rm } from 'node:fs/promises'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 import { 当前持续目标, 装持续工作, 复查持续工作, 操作持续目标, 等待阶段转换, 停用持续工作 } from '../../blueprint/packages/node/src/持续工作.js'
 import { 递自动输入, 叫醒 } from '../../blueprint/packages/node/src/会话.js'
 import { 装纸条等待 } from '../../blueprint/packages/node/src/纸条等待.js'
 import { 装会话事实 } from '../../blueprint/packages/node/src/会话事实.js'
-import { 落新名册, 改名册, 记会话, 读名册, 行Of, 写工作文档, 新工作文档, 改纸条, 新纸条, 加行 } from '../../blueprint/packages/roster/src/index.js'
+import { 落新名册, 改名册, 记会话, 读名册, 行Of, 写工作文档, 新工作文档, 改纸条, 新纸条, 加行, 关名册 } from '../../blueprint/packages/roster/src/index.js'
 import { 装思考开头, 思考开头来路 } from '../../blueprint/packages/node/src/思考开头.js'
 import { 重建原文 } from '../../blueprint/packages/node/src/上下文重建.js'
 import { 一段, 只回一段字 } from '../../blueprint/packages/prompt/src/index.js'
@@ -28,7 +28,7 @@ const wait = async predicate => {
 const ref = goal => ({ id: goal.id, revision: goal.revision })
 async function fixture(t) {
   const root = await mkdtemp(join(项目路径, '原生持续目标核对-')), ctx = new sdk.cordis.Context(), requests = []
-  t.after(async () => { await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }) })
+  t.after(async () => { await ctx.fiber.dispose(); 关名册(root); await rm(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }) })
   for (const name of ['dsh-llm', 'dsh-session', 'dsh-session-projection', 'dsh-system-prompt', 'dsh-tools', 'dsh-agent', 'dsh-typert-registry']) await ctx.plugin(sdk[name].default)
   await ctx.plugin(sdk['dsh-agent-loop'].default, { agents: [] })
   await ctx.plugin(sdk['dsh-goal'].default)
@@ -54,7 +54,7 @@ async function fixture(t) {
     }
   }
   ctx.llm.registerAdapter(['goal-fixture'], new Offline())
-  const handle = await ctx.agents.create({ sessionId: sdk['dsh-session'].SessionId('native-goal-' + root.split('/').at(-1)), meta: { cwd: root }, agentOptions: { provider: 'goal-fixture', model: 'offline' } })
+  const handle = await ctx.agents.create({ sessionId: sdk['dsh-session'].SessionId('native-goal-' + basename(root)), meta: { cwd: root }, agentOptions: { provider: 'goal-fixture', model: 'offline' } })
   const agent = handle.agent
   await 落新名册(root, '持续目标核对', '完成核对')
   await 改名册(root, m => 记会话(m, '0', String(agent.id)))

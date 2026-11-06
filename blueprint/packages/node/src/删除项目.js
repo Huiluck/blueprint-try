@@ -12,6 +12,13 @@ import { 删除中的项目 } from './项目删除状态.js'
 
 const run = promisify(execFile), requests = new Map()
 async function 系统回收站(root) {
+  if (process.platform === 'win32') {
+    // 没有 /usr/bin/trash；用 Shell 的回收站接口，失败时目录留在原位。
+    const quoted = root.replaceAll("'", "''")
+    await run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+      `Add-Type -AssemblyName Microsoft.VisualBasic; [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory('${quoted}','OnlyErrorDialogs','SendToRecycleBin')`], { timeout: 60000 })
+    return
+  }
   if (process.platform !== 'darwin') throw new Error('此部署暂不支持系统回收站，项目文件未移动')
   await run('/usr/bin/trash', ['-s', root])
 }

@@ -85,16 +85,19 @@ test('App 自己定了 Codex 版本：装的是它就过，还是提供方那版
 
 test('二进制权限损坏、包内入口越界和安装外软链接都不能通过核对', async t => {
   const f = await fixture(t)
-  await chmod(f.claudeBinary, 0o644)
-  await assert.rejects(inspectExternalProviderAssets(f.modules, selected), /不可执行/)
-  await chmod(f.claudeBinary, 0o755)
+  // Windows 的可执行性由扩展名决定，chmod 不能移除执行位。
+  if (process.platform !== 'win32') {
+    await chmod(f.claudeBinary, 0o644)
+    await assert.rejects(inspectExternalProviderAssets(f.modules, selected), /不可执行/)
+    await chmod(f.claudeBinary, 0o755)
+  }
   await f.update('@openai/codex', { bin: { codex: '../宿主入口.js' } })
   await assert.rejects(inspectExternalProviderAssets(f.modules, selected), /包内.*bin/)
   await f.update('@openai/codex', { bin: { codex: 'bin/codex.js' } })
   const outside = join(f.root, '安装外载荷'); await mkdir(outside)
   await json(join(outside, 'package.json'), { version: sdk }); await writeFile(join(outside, 'claude'), '')
   await rm(join(f.modules, '@anthropic-ai/claude-agent-sdk-darwin-arm64'), { recursive: true })
-  await symlink(outside, join(f.modules, '@anthropic-ai/claude-agent-sdk-darwin-arm64'))
+  await symlink(outside, join(f.modules, '@anthropic-ai/claude-agent-sdk-darwin-arm64'), process.platform === 'win32' ? 'junction' : undefined)
   await assert.rejects(inspectExternalProviderAssets(f.modules, selected), /所选安装外/)
 })
 

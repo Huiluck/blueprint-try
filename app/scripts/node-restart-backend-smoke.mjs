@@ -1,4 +1,5 @@
 import { prepareIsolatedProjectStorage } from './isolated-project-storage.mjs'
+import { payloadNode } from './payload-node.mjs'
 // 真实原生宿主、隔离项目与本地模拟模型；核对重启实际送出的 context。
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
@@ -46,7 +47,7 @@ try {
   await prepareIsolatedProjectStorage(data)
   const env = { ...process.env, BLUEPRINT_DATA_HOME: data, BLUEPRINT_DOCUMENTS_HOME: join(data, '模拟文稿') }
   for (const key of Object.keys(env)) if (key.endsWith('_API_KEY') || ['NODE_PATH', 'NODE_OPTIONS'].includes(key)) delete env[key]
-  child = spawn(join(payload, 'node/node'), [join(payload, 'backend.mjs')], { cwd: payload, env, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] })
+  child = spawn(payloadNode(payload), [join(payload, 'backend.mjs')], { cwd: payload, env, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] })
   for (const stream of [child.stdout, child.stderr]) stream.on('data', bytes => { log += bytes })
   ready = await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('隔离宿主启动超时')), 45000)

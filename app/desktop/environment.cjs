@@ -1,6 +1,9 @@
 const { delimiter, isAbsolute, join } = require('node:path')
+const { existsSync } = require('node:fs')
 
-/** Finder 和终端启动使用同一组目录；不执行用户的 shell 配置。 */
+const windows = process.platform === 'win32'
+
+/** 桌面启动与终端共用同一组目录；不执行用户的 shell 配置。 */
 function createBackendEnvironment({ environment, payload, dataHome, home, documents }) {
   const values = { ...environment }
   for (const name of Object.keys(values)) {
@@ -10,13 +13,50 @@ function createBackendEnvironment({ environment, payload, dataHome, home, docume
   values.BLUEPRINT_DOCUMENTS_HOME = documents || join(home, 'Documents')
   values.BLUEPRINT_DESKTOP_RENDERER = '1'
   values.PEEKABOO_NO_REMOTE = '1'
-  const directories = [
+  const directories = windows ? windowsDirectories(environment, home, payload) : posixDirectories(environment, home, payload)
+  const seen = new Set()
+  values.PATH = directories.filter(directory => {
+    if (!directory || !isAbsolute(directory)) return false
+    // Windows 路径不区分大小写；重复项会让后面的旧版本抢先被找到。
+    const key = windows ? directory.toLowerCase() : directory
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  }).join(delimiter)
+  return values
+}
+
+function existing(directories) {
+  return directories.filter(directory => existsSync(directory))
+}
+
+function windowsDirectories(environment, home, payload) {
+  const systemRoot = environment.SystemRoot || environment.windir || 'C:\\Windows'
+  const localAppData = environment.LOCALAPPDATA || join(home, 'AppData', 'Local')
+  const programFiles = environment.ProgramFiles || 'C:\\Program Files'
+  return [
+    join(payload, 'node'),
+    systemRoot,
+    join(systemRoot, 'System32'),
+    join(systemRoot, 'System32', 'Wbem'),
+    join(systemRoot, 'System32', 'WindowsPowerShell', 'v1.0'),
+    ...existing([
+      join(programFiles, 'Git', 'cmd'),
+      join(localAppData, 'Programs', 'Git', 'cmd'),
+      join(localAppData, 'Microsoft', 'WindowsApps'),
+    ]),
+    ...(environment.PATH || '').split(delimiter),
+    join(home, '.local', 'bin'),
+    join(home, '.npm-global', 'bin'),
+  ]
+}
+
+function posixDirectories(environment, home, payload) {
+  return [
     join(payload, 'node'), '/usr/bin', '/bin', '/usr/sbin', '/sbin',
     '/opt/homebrew/bin', '/usr/local/bin', join(home, '.local/bin'), join(home, '.npm-global/bin'),
     ...(environment.PATH || '').split(delimiter),
   ]
-  values.PATH = [...new Set(directories.filter(isAbsolute))].join(delimiter)
-  return values
 }
 
 module.exports = { createBackendEnvironment }

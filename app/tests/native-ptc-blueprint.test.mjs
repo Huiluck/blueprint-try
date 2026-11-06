@@ -4,9 +4,9 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import { mkdtemp, mkdir, readFile, rm } from 'node:fs/promises'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 import { fixtureProjectRoot as 项目路径 } from './project-fixture-root.mjs'
-import { 落新名册, 改名册, 记会话, 写工作文档, 新工作文档, 读名册, 读节点文档, 名册路径 } from '../../blueprint/packages/roster/src/index.js'
+import { 落新名册, 改名册, 记会话, 写工作文档, 新工作文档, 读名册, 读节点文档, 名册路径, 关名册 } from '../../blueprint/packages/roster/src/index.js'
 import { 装 } from '../../blueprint/packages/context/src/index.js'
 import { 装程序工具 } from '../../blueprint/packages/context/src/程序工具.js'
 import { 装节点文档 } from '../../blueprint/packages/node/src/节点文档.js'
@@ -25,7 +25,7 @@ const sdk = Object.fromEntries(await Promise.all(names.map(async name => [name, 
 async function fixture(t, code, { persona } = {}) {
   const root = await mkdtemp(join(项目路径, '原生PTC协同核对-')), work = join(root, '作品/工作树'), ctx = new sdk.cordis.Context()
   await mkdir(work, { recursive: true })
-  t.after(async () => { await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }) })
+  t.after(async () => { await ctx.fiber.dispose(); 关名册(root); await rm(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }) })
   for (const name of ['dsh-llm', 'dsh-session', 'dsh-session-projection', 'dsh-system-prompt', 'dsh-tools',
     'dsh-agent', 'dsh-subprocess-local', 'dsh-working-directory']) await ctx.plugin(sdk[name].default)
   await ctx.plugin(sdk['dsh-fs-local'].default, { cwd: root })
@@ -51,7 +51,7 @@ async function fixture(t, code, { persona } = {}) {
     }
   }
   ctx.llm.registerAdapter(['ptc-fixture'], new Offline())
-  const parent = (await ctx.agents.create({ sessionId: sdk['dsh-session'].SessionId('ptc-' + root.split('/').at(-1)),
+  const parent = (await ctx.agents.create({ sessionId: sdk['dsh-session'].SessionId('ptc-' + basename(root)),
     meta: { cwd: root, ...(persona ? { origin: 'subagent', parentSession: 'persona-parent' } : {}) },
     agentOptions: { provider: 'ptc-fixture', model: 'offline' } })).agent
   if (persona) parent.session.append('subagent/descriptor', { version: 3, mode: 'one-shot', provider: 'spawn', label: '独立帮助', persona })

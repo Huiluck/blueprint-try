@@ -28,11 +28,13 @@ test('干净电脑：内置能力保留，缺程序、缺配置、未接入分�
   assert.equal((await checker.check('draw')).state, 'needs_configuration')
   assert.equal((await checker.check('peekaboo')).state, 'unsupported')
   assert.equal((await checker.check('playwright-cli')).state, 'unsupported')
+  const suffix = process.platform === 'win32' ? '.exe' : ''
   for (const command of ['ffmpeg', 'ffprobe']) {
-    await writeFile(join(root, command), '#!/bin/sh\nexit 99\n'); await chmod(join(root, command), 0o755)
+    await writeFile(join(root, command + suffix), '#!/bin/sh\nexit 99\n'); await chmod(join(root, command + suffix), 0o755)
   }
   assert.equal((await checker.check('ffmpeg')).state, 'ready', '只查可执行文件存在，不启动外部程序')
-  await chmod(join(root, 'ffmpeg'), 0o644)
+  if (process.platform === 'win32') await rm(join(root, 'ffmpeg.exe'))
+  else await chmod(join(root, 'ffmpeg'), 0o644)
   assert.equal((await checker.check('ffmpeg')).state, 'missing_dependency')
   assert.equal((await checker.check('custom')).state, 'unchecked')
   assert.equal((await createCapabilityChecker({ requirements, renderer: false }).check('look')).available, false)

@@ -4602,7 +4602,7 @@ export function apply(ctx, config) {
     try {
       await 打开本地产物(L.根, L.位, action)
       return json(res, 200, {ok:true})
-    } catch (e) { return json(res, 400, {ok:false, message:process.platform !== 'darwin' ? e.message : '无法打开：文件不存在、位于项目外，或系统没有可用的应用。可尝试定位文件。'}) }
+    } catch (e) { return json(res, 400, {ok:false, message:['darwin','win32'].includes(process.platform) ? '无法打开：文件不存在、位于项目外，或系统没有可用的应用。可尝试定位文件。' : e.message}) }
   }
 
   async function servePreview(req, res, rest) {

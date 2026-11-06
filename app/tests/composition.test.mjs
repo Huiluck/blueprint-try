@@ -19,7 +19,7 @@ test('源码与桌面共用 canonical 工具清单，解析依赖和技能路径
   assert.equal(result.plugins.find(row => row.id === 'blueprint-runtime').isolate.blueprintToolCatalog, true)
   assert.equal(result.plugins.find(row => row.id === 'skill-filesystem').name,
     pathToFileURL(join(repo, 'blueprint/packages/context/src/技能加载.js')).href)
-  assert.deepEqual(result.plugins.find(row => row.id === 'skill-filesystem').config.customSkillDirs, ['/isolated-data/prompt/skill'])
+  assert.deepEqual(result.plugins.find(row => row.id === 'skill-filesystem').config.customSkillDirs, [join('/isolated-data/prompt', 'skill')])
   const entries = result.patches.flatMap(row => row.insert || [row]);
   assert.equal(entries.find(row => row.id === 'ui-layout').disabled,true);
   assert.equal(entries.find(row => row.id === 'ui-brand-official').disabled,true);
@@ -27,7 +27,7 @@ test('源码与桌面共用 canonical 工具清单，解析依赖和技能路径
   assert.equal(entries.findLast(row => row.id === 'blueprint-fetch-http').name,pathToFileURL(join(appRoot,'runtime/fetch.mjs')).href);
   assert.equal(entries.findLast(row => row.id === 'blueprint-search').name,pathToFileURL(join(appRoot,'runtime/search.mjs')).href);
   assert.ok(!entries.some(row => row.id === 'session'), '核心行由 base/web-app 提供');
-  assert.deepEqual(result.clientPackages.map(path=>path.split('/').at(-1)),['layout','canvas','brand','files','feed','workspace','skill','media']);
+  assert.deepEqual(result.clientPackages.map(path=>path.split(/[\\/]/).at(-1)),['layout','canvas','brand','files','feed','workspace','skill','media']);
   assert.equal(result.plugins.filter(row => row.id === 'tool-goal').length, 1)
   assert.equal(result.plugins.find(row => row.id === 'tool-goal').name,
     '@deepseek-ai/dsh-tool-goal')

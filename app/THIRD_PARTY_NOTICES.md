@@ -16,6 +16,10 @@ The audio/video thumbnail component is a separate FFmpeg 9.0.2 executable, built
 
 The exact corresponding source archive, LGPL license, upstream LICENSE.md, configure arguments and SHA-256 integrity record are distributed in `runtime/native-resources/media/`. The reproducible preparation command is `node app/scripts/preview-media-assets.mjs`; the source and checksum are pinned in that script. Users do not need Homebrew or Python for file-gallery media previews.
 
+Windows packages do not bundle this component: the reproducible macOS build recipe is not used there, and the App leaves media thumbnails to an `ffmpeg` the user installs (the feature degrades to the original file when it is absent). No FFmpeg binary is redistributed in the Windows installer.
+
+Node.js is bundled for both platforms. macOS takes the license file shipped by the `node-bin-darwin-arm64` package; Windows' `node-win-x64` package omits it, so the official Node v22.23.3 license text is vendored at `app/installer/Node-LICENSE.txt` and copied to `runtime/node/LICENSE`.
+
 ## DeepSeek Harness
 
 MIT License

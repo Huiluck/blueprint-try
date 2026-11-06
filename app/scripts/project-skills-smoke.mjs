@@ -1,4 +1,5 @@
 import { prepareIsolatedProjectStorage } from './isolated-project-storage.mjs'
+import { payloadNode } from './payload-node.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createServer } from 'node:http'
@@ -30,8 +31,8 @@ await new Promise(resolve => mock.listen(0, '127.0.0.1', resolve))
 async function launch() {
   log = ''
   await prepareIsolatedProjectStorage(data)
-  const environment = createBackendEnvironment({ environment: { ...process.env, PATH: '/usr/bin:/bin:/usr/sbin:/sbin' }, payload, dataHome: data, home: join(data, '模拟用户') })
-  child = spawn(join(payload, 'node/node'), [join(payload, 'backend.mjs')], { cwd: payload, env: environment, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] })
+  const environment = createBackendEnvironment({ environment: { ...process.env, PATH: process.env.PATH }, payload, dataHome: data, home: join(data, '模拟用户') })
+  child = spawn(payloadNode(payload), [join(payload, 'backend.mjs')], { cwd: payload, env: environment, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] })
   for (const stream of [child.stdout, child.stderr]) stream.on('data', bytes => { log += bytes })
   const ready = await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(`宿主启动超时\n${log}`)), 30000)

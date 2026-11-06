@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, dialog, shell, session, ipcMain, Notification } = require('electron')
+const { app, BrowserWindow, Menu, Tray, nativeImage, dialog, shell, session, ipcMain, Notification } = require('electron')
 const { spawn } = require('node:child_process')
 const { join } = require('node:path')
 const { appendFileSync, mkdirSync, readFileSync } = require('node:fs')
@@ -7,9 +7,13 @@ const { createPageRenderer, attachPageRenderer } = require('./renderer.cjs')
 const { createContextResolver, createAttentionNotifications, watchAttention } = require('./notifications.cjs')
 
 let window, backend, ready, exiting = false
-let stopRenderer
+let stopRenderer, tray, logFile
 let attentionTarget = null, attention, stopAttention, testNotice
+const windows = process.platform === 'win32'
+const nodeBinary = windows ? 'node.exe' : 'node'
 app.setName('Blueprint')
+// Windows 通知与任务栏分组按 AppUserModelID 归属；NSIS 快捷方式用同一个 appId。
+if (windows) app.setAppUserModelId('com.blueprint.desktop')
 // 新版从空白数据开始：旧版的 `Blueprint/` 文件夹原样留着，这里不读也不迁。
 app.setPath('userData', !app.isPackaged && process.env.BLUEPRINT_DEV_DATA_HOME
   ? process.env.BLUEPRINT_DEV_DATA_HOME : join(app.getPath('appData'), 'Blueprint 新版'))
@@ -27,26 +31,33 @@ else {
     if (exiting || !backend || backend.exitCode !== null || backend.signalCode) return
     event.preventDefault()
     exiting = true
+    tray?.destroy()
+    tray = null
     stopRenderer?.()
     stopAttention?.()
     attention?.dispose()
     backend.once('exit', () => app.quit())
-    backend.kill('SIGTERM')
+    // Windows 没有可投递的 SIGTERM：先让内部服务自己收尾，超时才强制结束。
+    if (windows && backend.connected) backend.send({ type: 'shutdown' })
+    else backend.kill('SIGTERM')
     setTimeout(() => { backend?.kill('SIGKILL'); app.quit() }, 12000).unref()
   })
 }
 
 async function start() {
   mkdirSync(dataHome, { recursive: true })
-  const logFile = join(dataHome, 'blueprint.log')
+  logFile = join(dataHome, 'blueprint.log')
   const environment = createBackendEnvironment({ environment: process.env, payload, dataHome, home: app.getPath('home'), documents: app.getPath('documents') })
-  const node = join(payload, 'node', 'node')
+  const node = join(payload, 'node', nodeBinary)
   backend = spawn(node, [join(payload, 'backend.mjs')], {
     cwd: payload, env: environment, stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
   })
   for (const stream of [backend.stdout, backend.stderr]) stream.on('data', data => appendFileSync(logFile, data))
+  appendFileSync(logFile, `内部服务启动中：${nodeBinary}\n`)
+  const started = Date.now()
   ready = await new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('启动超过 60 秒，请查看日志。')), 60000)
+    // 首次启动要展开 16 MB prompt/skill，并让 Defender 扫描新安装的 runtime；60 秒不够。
+    const timer = setTimeout(() => reject(new Error('启动超过 180 秒，请查看日志。')), 180000)
     backend.once('error', reject)
     backend.once('exit', (code, signal) => { clearTimeout(timer); if (!exiting) reject(new Error(`内部服务退出：${signal || code}`)) })
     backend.on('message', message => {
@@ -56,6 +67,7 @@ async function start() {
     })
   })
   backend.on('exit', () => { if (!exiting && ready) fail(new Error('内部服务已停止。重新打开 Blueprint 后可以继续已有项目。')) })
+  appendFileSync(logFile, `内部服务已就绪：${ready.origin}（${Date.now() - started} ms）\n`)
   const { createFetchProvider } = await import(require('node:url').pathToFileURL(join(payload, 'fetch.mjs')).href)
   const publicNetwork = createFetchProvider({})
   stopRenderer = attachPageRenderer(backend, createPageRenderer({BrowserWindow,session,previewURL,...ready,
@@ -114,7 +126,7 @@ async function start() {
         })
         testNotice.show()
       } },
-      { label: '打开通知设置', click: () => shell.openExternal('x-apple.systempreferences:com.apple.Notifications-Settings.extension') },
+      { label: '打开通知设置', click: () => shell.openExternal(windows ? 'ms-settings:notifications' : 'x-apple.systempreferences:com.apple.Notifications-Settings.extension') },
       { type: 'separator' }, { role: 'quit', label: '退出 Blueprint' },
     ] },
     { role: 'editMenu', label: '编辑' },
@@ -133,11 +145,30 @@ async function start() {
       showWindow()
       if (!window.webContents.isLoadingMainFrame()) window.webContents.send('blueprint:attention-open')
     },
-    badge: value => app.dock?.setBadge(value),
+    // macOS 用 Dock 角标；Windows 没有对应 API，用任务栏闪烁表示还有未查看事项。
+    badge: value => {
+      if (app.dock) app.dock.setBadge(value)
+      else if (windows && window && !window.isDestroyed()) window.flashFrame(Number(value) > 0)
+    },
     onError: notificationError,
   })
   stopAttention = watchAttention({ ...ready, receive: attention.receive, onError: notificationError })
+  createTray()
   showWindow()
+}
+
+/** Windows 关掉窗口后进程继续跑任务；没有 Dock 可点，用托盘图标回到窗口。 */
+function createTray() {
+  if (!windows || tray) return
+  const icon = nativeImage.createFromPath(join(__dirname, 'blueprint-icon.png')).resize({ width: 16, height: 16 })
+  tray = new Tray(icon)
+  tray.setToolTip('Blueprint')
+  tray.setContextMenu(Menu.buildFromTemplate([
+    { label: '显示 Blueprint', click: showWindow },
+    { type: 'separator' },
+    { label: '退出 Blueprint', click: () => app.quit() },
+  ]))
+  tray.on('click', showWindow)
 }
 
 function external(url) {
@@ -149,11 +180,17 @@ function showWindow() {
   if (window && !window.isDestroyed()) { if (window.isMinimized()) window.restore(); window.show(); window.focus(); return }
   window = new BrowserWindow({
     title: 'Blueprint', width: 1440, height: 960, minWidth: 860, minHeight: 600,
-    titleBarStyle: 'hidden', trafficLightPosition: { x: 14, y: 13 },
+    // macOS 用隐藏标题栏配红绿灯留位；Windows 保留系统标题栏，才能直接拖动、贴边和最大化。
+    ...(windows ? {} : { titleBarStyle: 'hidden', trafficLightPosition: { x: 14, y: 13 } }),
     backgroundColor: '#f7f7f5', show: false,
     webPreferences: { preload: join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true, plugins: true },
   })
   window.once('ready-to-show', () => window.show())
+  window.webContents.on('did-finish-load', () => appendFileSync(logFile, '界面已加载\n'))
+  window.webContents.on('did-fail-load', (_event, code, description, url, mainFrame) => {
+    if (mainFrame) appendFileSync(logFile, `界面加载失败：${code} ${description} ${url}\n`)
+  })
+  window.webContents.on('render-process-gone', (_event, details) => appendFileSync(logFile, `界面进程退出：${details.reason}\n`))
   window.webContents.on('will-navigate', (event, url) => {
     if (new URL(url).origin !== ready.origin) { event.preventDefault(); external(url) }
   })
@@ -172,6 +209,7 @@ function showWindow() {
 
 function fail(error) {
   if (exiting) return
+  try { appendFileSync(join(dataHome, 'blueprint.log'), `桌面启动失败：${error.stack || error.message}\n`) } catch {}
   dialog.showErrorBox('Blueprint 启动失败', `${error.message}\n\n日志与数据：${dataHome}`)
   app.quit()
 }

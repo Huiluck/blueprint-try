@@ -9,8 +9,11 @@ module.exports = {
     const { cp } = require('node:fs/promises')
     const { join } = require('node:path')
     const shellRoot = packager.config.directories?.app || '.build/shell'
-    await cp(join(packager.projectDir, shellRoot, '../runtime'),
-      join(appOutDir, 'Blueprint.app/Contents/Resources/runtime'), { recursive: true })
+    const resources = process.platform === 'darwin'
+      ? join(appOutDir, 'Blueprint.app/Contents/Resources')
+      : join(appOutDir, 'resources')
+    await cp(join(packager.projectDir, shellRoot, '../runtime'), join(resources, 'runtime'), { recursive: true })
+    if (process.platform !== 'darwin') return
     // UNNotification requires a valid signature, including in local previews.
     // Keep local signing independent of a developer certificate or keychain.
     const { execFileSync } = require('node:child_process')
@@ -29,6 +32,22 @@ module.exports = {
       NSCameraUsageDescription: '使用启用的视频工具时需要相机访问。',
       NSScreenCaptureUsageDescription: '使用启用的屏幕工具时需要屏幕录制权限。',
     },
+  },
+  win: {
+    icon: '.build/blueprint.ico',
+    target: [{ target: 'nsis', arch: ['x64'] }],
+    artifactName: 'Blueprint-${version}-x64.${ext}',
+    requestedExecutionLevel: 'asInvoker',
+  },
+  nsis: {
+    oneClick: false,
+    perMachine: false,
+    allowToChangeInstallationDirectory: true,
+    createDesktopShortcut: true,
+    createStartMenuShortcut: true,
+    shortcutName: 'Blueprint',
+    uninstallDisplayName: 'Blueprint',
+    deleteAppDataOnUninstall: false,
   },
   // 安装窗口：背景写着第一次被 macOS 拦住时怎么打开，右下角放能复制命令的说明（installer/，背景由 scripts/dmg-background.mjs 生成）。
   // 坐标是图标中心，和背景图的 680×500 同一套。

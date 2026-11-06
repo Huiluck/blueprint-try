@@ -1,15 +1,16 @@
 // 从明确选择的固定引擎复制隔离包；不修改现用 runtime、profile 或用户数据。
 import { cp, mkdir, mkdtemp, readFile, writeFile, stat, realpath } from 'node:fs/promises'
-import { dirname, join, resolve, relative, isAbsolute } from 'node:path'
+import { dirname, join, resolve, relative, isAbsolute, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { copySource, assertNoLinks } from './files.mjs'
+import { payloadNode } from './payload-node.mjs'
 import { expectedEngineVersion, expectedNodeVersion } from './source-cli.mjs'
 import { inspectNativeExternalPatch } from './native-external-patch.mjs'
 import { assertExternalProviderAssets } from './external-provider-assets.mjs'
 import { inspectTerminalClientAssets } from './terminal-client-assets.mjs'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const inside = (parent, child) => { const path = relative(parent, child); return path === '' || (path !== '..' && !path.startsWith('../') && !isAbsolute(path)) }
+const inside = (parent, child) => { const path = relative(parent, child); return path === '' || (path !== '..' && !path.startsWith('..' + sep) && !isAbsolute(path)) }
 
 export function scenarioOptions(argv, root = appRoot) {
   let prepared, output, record
@@ -47,7 +48,7 @@ export async function prepareScenario(options) {
     const modules = join(prepared, 'node_modules')
     const external = await inspectNativeExternalPatch(modules)
     if (!external.compatible || !external.alreadyApplied) throw new Error('隔离验证的已准备运行包缺少精确外部执行扩展，请先重新 prepare 到新目录。')
-    await assertExternalProviderAssets(modules, { engineVersion: engine, nodePath: join(prepared, 'node/node') })
+    await assertExternalProviderAssets(modules, { engineVersion: engine, nodePath: payloadNode(prepared) })
   }
   if (expected.dependencies['@deepseek-ai/dsh-api-terminal-controller']) {
     const assets = await inspectTerminalClientAssets(join(prepared, 'node_modules'), {

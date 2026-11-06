@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 const run = promisify(execFile)
 export function 项目存储HTTP(json, storage, { openFolder = async path => {
+  if (process.platform === 'win32') return run('explorer.exe', [path])
   if (process.platform !== 'darwin') throw new Error('当前部署不支持在访达中打开')
   await run('/usr/bin/open', [path])
 } } = {}) {

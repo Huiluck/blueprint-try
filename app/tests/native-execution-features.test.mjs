@@ -4,13 +4,13 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { pathToFileURL, fileURLToPath } from 'node:url'
 import { mkdtemp, mkdir, readFile, rm } from 'node:fs/promises'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 import { createServer } from 'node:http'
 import { execFileSync } from 'node:child_process'
 import { apply as features } from '../../blueprint/packages/node/src/执行能力.js'
 import { 写执行能力, 读执行能力 } from '../../blueprint/packages/node/src/执行能力设置.js'
 import { fixtureProjectRoot as 项目路径 } from './project-fixture-root.mjs'
-import { 落新名册, 改名册, 记会话, 写工作文档, 新工作文档, 读名册 } from '../../blueprint/packages/roster/src/index.js'
+import { 落新名册, 改名册, 记会话, 写工作文档, 新工作文档, 读名册, 关名册 } from '../../blueprint/packages/roster/src/index.js'
 import { 装 } from '../../blueprint/packages/context/src/index.js'
 import { 装程序工具 } from '../../blueprint/packages/context/src/程序工具.js'
 import { 装项目隔离, 原生提供方代码目录 } from '../../blueprint/packages/node/src/项目隔离.js'
@@ -31,7 +31,7 @@ const resources = fileURLToPath(new URL('../.build/native-resources', import.met
 
 async function fixture(t, options = {}) {
   const root = await mkdtemp(join(项目路径, '官方执行能力核对-')), ctx = new sdk.cordis.Context(), requests = [], children = [], counts = new Map()
-  t.after(async () => { await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }) })
+  t.after(async () => { await ctx.fiber.dispose(); 关名册(root); await rm(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }) })
   for (const name of ['dsh-llm', 'dsh-session', 'dsh-session-projection', 'dsh-system-prompt', 'dsh-tools', 'dsh-agent',
     'dsh-subprocess-local', 'dsh-working-directory', 'dsh-skill']) await ctx.plugin(sdk[name].default)
   await ctx.plugin(sdk['dsh-session-persistence-jsonl'].default, { root: join(root, '会话存储') })
@@ -68,7 +68,7 @@ async function fixture(t, options = {}) {
   })
   const roster = await 落新名册(root, '官方能力核对', '交回可核对的文件与结果')
   await 写执行能力(root, options, 0)
-  parent = (await ctx.agents.create({ sessionId: sdk['dsh-session'].SessionId('features-' + root.split('/').at(-1)), meta: { cwd: root },
+  parent = (await ctx.agents.create({ sessionId: sdk['dsh-session'].SessionId('features-' + basename(root)), meta: { cwd: root },
     agentOptions: { provider: 'features-fixture', model: 'offline' } })).agent
   await 改名册(root, value => 记会话(value, '0', parent.id))
   await 写工作文档(root, roster.rows[0], 新工作文档(roster.rows[0], '交回可核对的文件与结果', { responsibility: '核对批量计算和材料' }))

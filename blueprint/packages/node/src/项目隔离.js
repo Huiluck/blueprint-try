@@ -8,7 +8,7 @@ import { realpathSync, mkdirSync, readFileSync } from 'node:fs'
 import { dirname, resolve, relative, isAbsolute, join } from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
-import { homedir } from 'node:os'
+import { homedir, tmpdir } from 'node:os'
 import { 仓库根, 数据根, 项目父目录, 项目位置们, 技能路径, 工具临时目录名, 公共工具夹名 } from '../../prompt/src/路径.js'
 import { 文档夹名, 证据夹名, 名册文件名, 纸条文件名, 节点总表文件名 } from '../../roster/src/index.js'
 import { 后台工具环境, 后台工具命令 } from './后台工具.js'
@@ -18,6 +18,22 @@ const 执行域 = new AsyncLocalStorage()
 const 已包装 = Symbol('blueprint-project-isolation')
 const 仓库 = realpathSync(数据根)
 const 技能 = 技能路径
+const 是Windows = process.platform === 'win32'
+let 隔离运行器
+/** Windows 没有 Seatbelt；用引擎自带的 ACL restricted-token runner 限制写入范围。 */
+function 隔离运行器路径() {
+  if (!隔离运行器) {
+    const bases = [import.meta.url, join(process.cwd(), 'package.json'),
+      join(dirname(fileURLToPath(import.meta.url)), '../../../../app/package.json')]
+    let error
+    for (const base of bases) {
+      try { 隔离运行器 = createRequire(base).resolve('@deepseek-ai/dsh-sandbox-windows-acl/runner'); break }
+      catch (cause) { error = cause }
+    }
+    if (!隔离运行器) throw new Error('PROJECT_ISOLATION: 找不到 Windows ACL 沙箱运行器。', { cause: error })
+  }
+  return 隔离运行器
+}
 
 export function 在内(根, 路径) {
   const r = relative(根, 路径)
@@ -147,6 +163,10 @@ export function 会话附件文件(ctx, session) {
 let 原生临时目录
 export function 系统临时目录() {
   if (!原生临时目录) {
+    if (是Windows) {
+      原生临时目录 = realpathSync(tmpdir())
+      return 原生临时目录
+    }
     const path = execFileSync('/usr/bin/getconf', ['DARWIN_USER_TEMP_DIR'], { encoding: 'utf8', timeout: 5000 }).trim()
     const real = realpathSync(path)
     if (!/^\/private\/var\/folders\/[^/]+\/[^/]+\/T$/.test(real)) {
@@ -243,12 +263,36 @@ export function 隔离规则({ 根, 仓库, 技能, 保护根 = [仓库], 私人
   ].join('\n')
 }
 
+/** Windows 的 ACL runner 只限制写入范围；读取与网络边界沿用引擎的沙箱策略。 */
+function 窗口隔离(spec, cwd, argv, 范围, 后台环境) {
+  const 临时目录 = 文件许可(范围, join(范围.根, 工具临时目录名), true)
+  mkdirSync(临时目录, { recursive: true })
+  const 公共工具 = join(临时目录, 公共工具夹名)
+  mkdirSync(公共工具, { recursive: true })
+  // ACL 只放行项目和一次性的私有临时目录，共享缓存写不进去；Windows 上改用项目内缓存。
+  const 缓存 = join(临时目录, '缓存')
+  const env = {
+    ...后台环境, PWD: cwd, BLUEPRINT_PROJECT_ROOT: 范围.根,
+    TMPDIR: 临时目录, TMP: 临时目录, TEMP: 临时目录, BLUEPRINT_TOOLS: 公共工具,
+    UV_CACHE_DIR: join(缓存, 'uv'), UV_PYTHON_INSTALL_DIR: join(缓存, 'python'),
+    MPLCONFIGDIR: join(缓存, 'matplotlib'), PIP_CACHE_DIR: join(缓存, 'pip'),
+    HF_HOME: join(缓存, 'huggingface'), XDG_CACHE_HOME: 缓存, npm_config_cache: join(缓存, 'npm'),
+  }
+  for (const key of ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy']) env[key] = ''
+  // 已经由引擎的沙箱提供方包过一遍时不再嵌套；重复建 restricted token 会互相看不到授权。
+  const wrapped = argv[0] === process.execPath && /sandbox-windows-acl[\\/].*runner/.test(String(argv[1] || ''))
+  const confined = wrapped ? argv : [process.execPath, 隔离运行器路径(),
+    '--workspace', 范围.根, '--temp', 系统临时目录(), '--mode', 'workspace-write', '--', ...argv]
+  return { ...spec, cwd, argv: confined, env }
+}
+
 export function 隔离命令(spec, 范围) {
-  if (process.platform !== 'darwin') throw new Error('PROJECT_ISOLATION: 当前部署的硬隔离仅支持 macOS；拒绝无隔离执行。')
+  if (!是Windows && process.platform !== 'darwin') throw new Error('PROJECT_ISOLATION: 当前部署的硬隔离仅支持 macOS 和 Windows；拒绝无隔离执行。')
   const cwd = 文件许可(范围, spec.cwd || 范围.目录 || 范围.根, false, 范围.目录 || 范围.根)
   // 用户 PTY 保留自己的交互环境；项目内核边界不依赖模型的后台启动入口。
   const 后台环境 = 范围.用户终端 ? { ...spec.env } : 后台工具环境(范围.根, spec.env)
   const argv = 范围.用户终端 ? [...spec.argv] : 后台工具命令(spec.argv, 后台环境)
+  if (是Windows) return 窗口隔离(spec, cwd, argv, 范围, 后台环境)
   // 原生 glob 的排序先 stat 当前 rg 可执行文件；只给这一个实际入口与祖先元数据，正文仍受隔离。
   const program = argv[argv[0] === 'sandbox-exec' || argv[0] === '/usr/bin/sandbox-exec' ? 3 : 0]
   const position = argv[0] === 'sandbox-exec' || argv[0] === '/usr/bin/sandbox-exec' ? 3 : 0

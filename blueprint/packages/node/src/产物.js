@@ -40,7 +40,8 @@ export function 允许产物路径(path, options = {}) {
 }
 
 async function 本地入口(root, value, options) {
-  if (typeof value !== 'string' || !value.trim() || /[\0\r\n]/.test(value) || /^[a-z][a-z\d+.-]*:/i.test(value)) throw new Error('请提供项目内文件或目录')
+  if (typeof value !== 'string' || !value.trim() || /[\0\r\n]/.test(value)) throw new Error('请提供项目内文件或目录')
+  if (!/^[a-z]:[\\/]/i.test(value) && /^[a-z][a-z\d+.-]*:/i.test(value)) throw new Error('请提供项目内文件或目录')
   const base = await realpath(root), cwd = await realpath(resolve(base, options.cwd || '.'))
   if (cwd !== base && !cwd.startsWith(base + sep)) throw new Error('当前目录须位于本项目内')
   const file = await realpath(resolve(cwd, value.trim()))

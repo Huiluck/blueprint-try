@@ -1,4 +1,5 @@
 import { prepareIsolatedProjectStorage } from './isolated-project-storage.mjs'
+import { payloadNode } from './payload-node.mjs'
 // 真实原生引擎、临时项目与本地慢速模拟模型；不操作用户正在运行的服务。
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
@@ -44,7 +45,7 @@ async function startHost() {
   await prepareIsolatedProjectStorage(data)
   const env = { ...process.env, BLUEPRINT_DATA_HOME: data, BLUEPRINT_DOCUMENTS_HOME: join(data, '模拟文稿') }
   for (const key of Object.keys(env)) if (key.endsWith('_API_KEY') || ['NODE_PATH', 'NODE_OPTIONS'].includes(key)) delete env[key]
-  child = spawn(join(payload, 'node/node'), [join(payload, 'backend.mjs')], { cwd: payload, env, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] })
+  child = spawn(payloadNode(payload), [join(payload, 'backend.mjs')], { cwd: payload, env, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] })
   for (const stream of [child.stdout, child.stderr]) stream.on('data', bytes => { log += bytes })
   ready = await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('临时引擎启动超时')), 45000)

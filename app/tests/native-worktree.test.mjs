@@ -16,6 +16,7 @@ import { 准备节点Git空间, 提交节点空间, 节点成果版本 } from '.
 import { 检查产物 } from '../../blueprint/packages/node/src/产物.js'
 import { 安全产物文件, 汇集产物, 产物引用 } from '../../blueprint/packages/studio/src/产物.js'
 import { 发送预览文件 } from '../../blueprint/packages/studio/src/预览.js'
+import { fixtureProjectRoot } from './project-fixture-root.mjs'
 
 const appRoot = fileURLToPath(new URL('../', import.meta.url))
 const repo = resolve(appRoot, '..')
@@ -34,8 +35,8 @@ async function git(cwd, ...args) {
 }
 
 async function fixture(t) {
-  await mkdir(join(repo, '项目'), { recursive: true })
-  const root = await realpath(await mkdtemp(join(repo, '项目/.原生工作树核验-')))
+  await mkdir(fixtureProjectRoot, { recursive: true })
+  const root = await realpath(await mkdtemp(join(fixtureProjectRoot, '.原生工作树核验-')))
   const home = await realpath(await mkdtemp(join(tmpdir(), 'blueprint-native-worktree-profile-')))
   let ctx
   const previousHome = process.env.DSH_HOME
@@ -171,7 +172,7 @@ test('真实 profile、Git 与 Seatbelt：自主工作树跟随当前目录，�
   assert.deepEqual(actualRefs.map(row => row.path), Array(2).fill('作品空间/1/.agents/worktrees/independent-draft/自主产物.txt'), '真实目录事件、绝对写入回执与相对正文指向同一工作树文件')
   const shell = await f.ok(agent, 'bash', { command: 'pwd', description: '核对当前目录' })
   assert.equal(shell.value.cwd, created.path)
-  assert.match(textOf(shell), new RegExp(created.path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+  assert.match(textOf(shell).replaceAll('\\', '/'), new RegExp(created.path.replaceAll('\\', '/').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
   await f.ok(agent, 'write', { file_path: 'demo.html', content: '<title>原生工作树页面</title><link rel="stylesheet" href="demo.css"><img src="cover.png">' })
   await f.ok(agent, 'write', { file_path: 'demo.css', content: 'body { color: red }' })
   const image = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Z3AAAAABJRU5ErkJggg==', 'base64')

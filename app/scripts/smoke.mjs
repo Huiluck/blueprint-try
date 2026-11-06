@@ -1,4 +1,5 @@
 import { prepareIsolatedProjectStorage } from './isolated-project-storage.mjs'
+import { payloadNode } from './payload-node.mjs'
 import assert from 'node:assert/strict'
 import { spawn, execFile } from 'node:child_process'
 import { promisify } from 'node:util'
@@ -161,7 +162,7 @@ function 节点脚本(kind, id) {
     { call: ['read', { file_path: '$work' }] },
     { call: ['node_doc', { append_record: '根节点已写入的旧记录：本轮验证过工具链。' }] },
     { call: ['write', { file_path: 'result.md', content: '# 独立应用成果\n\nBlueprint 的根节点工具链已核对。\n' }] },
-    { call: ['write', { file_path: 'demo/sim.cjs', content: "const fs = require('node:fs'); const path = require('node:path'); fs.appendFileSync(path.join(process.env.TMPDIR, 'paths.jsonl'), JSON.stringify({ cwd: process.cwd(), tmp: process.env.TMPDIR, node: process.execPath, root: process.env.BLUEPRINT_PROJECT_ROOT, uv: process.env.UV_CACHE_DIR, python: process.env.UV_PYTHON_INSTALL_DIR, matplotlib: process.env.MPLCONFIGDIR }) + '\\n');\n" }] },
+    { call: ['write', { file_path: 'demo/sim.cjs', content: "const fs = require('node:fs'); const path = require('node:path'); const tmp = process.env.TMPDIR || process.env.TEMP || process.env.TMP; fs.appendFileSync(path.join(tmp, 'paths.jsonl'), JSON.stringify({ cwd: process.cwd(), tmp, node: process.execPath, root: process.env.BLUEPRINT_PROJECT_ROOT, uv: process.env.UV_CACHE_DIR, python: process.env.UV_PYTHON_INSTALL_DIR, matplotlib: process.env.MPLCONFIGDIR }) + '\\n');\n" }] },
     { call: ['bash', { command: 'node demo/sim.cjs', description: '验证默认项目目录和内置 Node' }] },
     { call: ['edit', { file_path: 'result.md', old_string: '根节点工具链已核对。', new_string: '根节点工具链与连续验证已核对。' }] },
     { call: ['bash', { command: 'node sim.cjs', workdir: 'demo', description: '验证命令子目录的相对路径' }] },
@@ -589,11 +590,11 @@ globalThis.fetch = (input, init) => {
 async function launch() {
   await prepareIsolatedProjectStorage(data)
   const environment = createBackendEnvironment({
-    environment: { ...process.env, PATH: '/usr/bin:/bin:/usr/sbin:/sbin' },
+    environment: { ...process.env, PATH: process.env.PATH },
     payload, dataHome: data, home: join(data, '模拟用户'),
   })
   environment.NODE_OPTIONS = `--import=${pathToFileURL(searchImport).href}`
-  processHandle = spawn(join(payload, 'node/node'), [join(payload, 'backend.mjs')], { cwd: payload, env: environment, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] })
+  processHandle = spawn(payloadNode(payload), [join(payload, 'backend.mjs')], { cwd: payload, env: environment, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] })
   for (const stream of [processHandle.stdout, processHandle.stderr]) stream.on('data', bytes => { backendLog += bytes })
   const ready = await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(`宿主启动超时\n${backendLog}`)), 45000)
@@ -825,11 +826,11 @@ try {
     assert.equal(run.tmp, join(projectRoot, '.blueprint-tmp'))
     assert.equal(run.root, projectRoot)
     // 缓存全机共用（10-27），不在项目里。
-    assert.match(run.uv, /\/\.cache\/uv$/)
-    assert.match(run.python, /\/\.cache\/blueprint\/python$/)
-    assert.match(run.matplotlib, /\/\.cache\/blueprint\/matplotlib$/)
+    assert.match(run.uv, /[\\/]\.cache[\\/]uv$/)
+    assert.match(run.python, /[\\/]\.cache[\\/]blueprint[\\/]python$/)
+    assert.match(run.matplotlib, /[\\/]\.cache[\\/]blueprint[\\/]matplotlib$/)
     assert.ok(![run.uv, run.python, run.matplotlib].some(path => path.startsWith(projectRoot)), '缓存不落在项目里')
-    assert.equal(run.node, join(payload, 'node/node'), '命令应使用搬迁后的内置 Node')
+    assert.equal(run.node, payloadNode(payload), '命令应使用搬迁后的内置 Node')
   }
   assert.ok(requests > 0, `模型没有收到请求\n${backendLog}`)
   const sessions = await runtime.api('/api/rpc', { method: 'session.list', payload: {} })

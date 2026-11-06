@@ -1,6 +1,6 @@
 // 只读解析固定 CLI；安装和 profile 对齐由调用方明确选择。
 import { mkdir, readFile, writeFile, readdir, readlink, symlink, unlink, stat, lstat, realpath } from 'node:fs/promises'
-import { dirname, join, resolve, relative, isAbsolute } from 'node:path'
+import { dirname, join, resolve, relative, isAbsolute, sep } from 'node:path'
 import { homedir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
@@ -8,7 +8,11 @@ import { spawnSync } from 'node:child_process'
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const exactVersion = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/
 const packagePath = prefix => join(prefix, 'node_modules/@deepseek-ai/dsh')
-const inside = (parent, child) => { const path = relative(parent, child); return path === '' || (!path.startsWith('../') && path !== '..' && !isAbsolute(path)) }
+const inside = (parent, child) => { const path = relative(parent, child); return path === '' || (!path.startsWith('..' + sep) && path !== '..' && !isAbsolute(path)) }
+// Windows 建目录链接要用 junction，且目标必须是绝对路径；macOS 保持相对链接，搬动副本后仍指向同一处。
+const linkDirectory = async (target, path) => process.platform === 'win32'
+  ? symlink(target, path, 'junction')
+  : symlink(relative(dirname(path), target), path)
 
 export function expectedEngineVersion(manifest) {
   const version = manifest.dependencies?.['@deepseek-ai/dsh-llm']
@@ -106,8 +110,8 @@ export async function alignProfileDependencies(engineRoot, options) {
       if (!entry.isSymbolicLink()) continue
       const linked = resolve(directory, await readlink(path))
       const target = await realpath(linked).catch(error => { if (error.code === 'ENOENT') return linked; throw error })
-      const owner = managedCliRoots.find(root => target.startsWith(root + '/node_modules/'))
-      const modules = managedModules.find(root => target.startsWith(root + '/'))
+      const owner = managedCliRoots.find(root => target.startsWith(root + sep + 'node_modules' + sep))
+      const modules = managedModules.find(root => target.startsWith(root + sep))
       if (!owner && !modules) continue
       const dependency = owner ? relative(join(owner, 'node_modules'), target) : relative(modules, target)
       let desired
@@ -119,7 +123,7 @@ export async function alignProfileDependencies(engineRoot, options) {
       }
       if (!desired || desired === target) continue
       await unlink(path)
-      await symlink(relative(directory, desired), path)
+      await linkDirectory(desired, path)
       updated++
     }
   }
@@ -148,7 +152,7 @@ export async function alignProfileDependencies(engineRoot, options) {
     const path = join(scope, name)
     const existing = await lstat(path).catch(error => { if (error.code === 'ENOENT') return undefined; throw error })
     if (existing) continue
-    await symlink(relative(scope, source), path)
+    await linkDirectory(source, path)
     added++
   }
   // 原生 linked-root 路由只认 active profile/node_modules；共享目录仍保留旧链接。
@@ -165,7 +169,7 @@ export async function alignProfileDependencies(engineRoot, options) {
     const path = join(profileModules, name)
     if (await lstat(path).catch(error => { if (error.code === 'ENOENT') return undefined; throw error })) continue
     await mkdir(dirname(path), { recursive: true })
-    await symlink(relative(dirname(path), source), path)
+    await linkDirectory(source, path)
     added++
   }
   if (resolve(options.profileModules) === resolve(options.appRoot, '../.dsh/profiles/node_modules')) {

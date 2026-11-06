@@ -4,9 +4,9 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import { mkdtemp, mkdir, readFile, rm } from 'node:fs/promises'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 import { fixtureProjectRoot as 项目路径 } from './project-fixture-root.mjs'
-import { 落新名册, 改名册, 记会话, 写工作文档, 新工作文档, 读名册, 名册路径 } from '../../blueprint/packages/roster/src/index.js'
+import { 落新名册, 改名册, 记会话, 写工作文档, 新工作文档, 读名册, 名册路径, 关名册 } from '../../blueprint/packages/roster/src/index.js'
 import { 装 } from '../../blueprint/packages/context/src/index.js'
 import { 迭代提供方, 迭代禁用工具 } from '../../blueprint/packages/context/src/迭代工作.js'
 import { 检查行动预测 } from '../../blueprint/packages/node/src/预测.js'
@@ -29,7 +29,7 @@ async function fixture(t, config = {}) {
   const root = await mkdtemp(join(项目路径, '原生Ralph核对-')), ctx = new sdk.cordis.Context()
   const work = join(root, '作品'), requests = [], children = [], counts = new Map(), processes = []
   await mkdir(work)
-  t.after(async () => { await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }) })
+  t.after(async () => { await ctx.fiber.dispose(); 关名册(root); await rm(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }) })
   for (const name of ['dsh-llm', 'dsh-session', 'dsh-session-projection', 'dsh-system-prompt', 'dsh-tools', 'dsh-agent',
     'dsh-subprocess-local', 'dsh-working-directory']) await ctx.plugin(sdk[name].default)
   await ctx.plugin(sdk['dsh-fs-local'].default, { cwd: root })
@@ -77,7 +77,7 @@ async function fixture(t, config = {}) {
       get: agent.ctx.get.bind(agent.ctx) })
     if (agent.session.header.origin === 'subagent') children.push(agent)
   })
-  parent = (await ctx.agents.create({ sessionId: sdk['dsh-session'].SessionId('ralph-parent-' + root.split('/').at(-1)),
+  parent = (await ctx.agents.create({ sessionId: sdk['dsh-session'].SessionId('ralph-parent-' + basename(root)),
     meta: { cwd: root }, agentOptions: { provider: 'ralph-fixture', model: 'offline' } })).agent
   const roster = await 落新名册(root, 'Ralph 核对', '验证官方新轮执行')
   await 改名册(root, value => 记会话(value, '0', parent.id))

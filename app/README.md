@@ -2,9 +2,9 @@
 
 从用户意图到可用产物的多节点 AI 工作室。节点按测量与分工两条原则工作，走完粗略估计、经验粗评、取材评估、校准定稿四环，再执行取得实际结果。复杂工作分成各有合适 context 的节点，项目、过程、文件和成果集中在同一个窗口。
 
-第一版支持 macOS Apple Silicon。桌面应用内置 Node 和必要的 DeepSeek Harness 引擎，使用者无需安装 DSH、Node 或包管理器。
+第一版支持 macOS Apple Silicon 和 Windows 11（x64）。桌面应用内置 Node 和必要的 DeepSeek Harness 引擎，使用者无需安装 DSH、Node 或包管理器。
 
-文件廊的视频缩略图和音频频谱使用随应用附带的独立 FFmpeg，启动时检查是否可运行，不依赖用户 Homebrew 的 FFmpeg／x265。对应源码、构建参数与许可证一并随包提供；其他视频制作与转码工具仍可使用用户自行安装的 FFmpeg。
+文件廊的视频缩略图和音频频谱在 macOS 安装包中使用随应用附带的独立 FFmpeg，启动时检查是否可运行，不依赖用户 Homebrew 的 FFmpeg／x265；Windows 版暂不内置该组件，预览沿用本机 `ffmpeg`（未安装时只影响缩略图，不影响文件本身）。对应源码、构建参数与许可证随 macOS 包提供；其他视频制作与转码工具仍可使用用户自行安装的 FFmpeg。
 
 桌面图标源为 `desktop/blueprint-icon.svg`，对应的 1024px PNG 保留透明安全边和黑色圆角轮廓，无白色底板、描边或阴影。打包从这份独立 PNG 生成各尺寸 ICNS，网页 favicon 沿用原资源。 macOS 26 可能再给传统 ICNS 加材质外框；本机无亮边外观可通过系统自定义图标设置应用。该设置保留普通代码签名验证，但会增加 Finder 图标元数据，因此发布包仍保持未附加本机覆盖的严格签名状态。
 
@@ -32,13 +32,13 @@
 
 关闭窗口后任务继续运行；应用菜单里的“退出 Blueprint”停止执行并保存过程。重开后停在项目首页，从最近项目或「全部项目」打开原项目，使用 Start All 继续。更新或替换应用不会删除用户数据。
 
-节点需要回答问题或确认操作时，通过 macOS 通知中心发出提示音和系统提醒，显示项目与节点；点击通知打开对应节点的 Chat。App 在前台或正在查看提问节点时，新问题仍会提醒；桌面版使用系统提示音，浏览器版使用页面提示音。窗口关闭后仍能接收，应用退出后停止接收。打开节点即清除该节点已有的角标和通知，无须先回答；问题和操作确认仍保留，查看不等于答复或批准。已读状态随原问题保存，重启与重连不重复提醒。启动时未查看事项合为一条提醒，Dock 角标显示未查看数量。第一次收到系统授权提示时选择允许；也可从 Blueprint 菜单选择“发送测试通知”或“打开通知设置”。
+节点需要回答问题或确认操作时，通过系统通知中心（Windows 为通知中心，macOS 为通知中心）发出提示音和系统提醒，显示项目与节点；点击通知打开对应节点的 Chat。App 在前台或正在查看提问节点时，新问题仍会提醒；桌面版使用系统提示音，浏览器版使用页面提示音。窗口关闭后仍能接收，应用退出后停止接收。打开节点即清除该节点已有的提示，无须先回答；问题和操作确认仍保留，查看不等于答复或批准。已读状态随原问题保存，重启与重连不重复提醒。启动时未查看事项合为一条提醒。macOS 用 Dock 角标显示未查看数量；Windows 用任务栏闪烁，关闭窗口后可从托盘图标回到 Blueprint。第一次收到系统授权提示时选择允许；也可从 Blueprint 菜单选择“发送测试通知”或打开系统通知设置。
 
 App 每次打开都停在项目首页，不自动进入上次的项目；首页内容在窗口中居中。
 
-macOS 的关闭、最小化和全屏按钮在顶栏左上，Logo 与其余顶栏内容向右让出这块位置；拖动顶栏空白处移动窗口，Logo 和按钮照常点击。桌面外壳在页面根元素设 `data-blueprint-desktop`，不设 dsh 的 `data-platform`（后者表示 dsh 官方桌面壳，会要求它的键盘桥接）。
+macOS 的关闭、最小化和全屏按钮在顶栏左上，Logo 与其余顶栏内容向右让出这块位置；拖动顶栏空白处移动窗口，Logo 和按钮照常点击。Windows 保留系统标题栏，拖动、贴边和最大化沿用系统行为，顶栏不再留红绿灯空位。桌面外壳在页面根元素设 `data-blueprint-desktop`，不设 dsh 的 `data-platform`（后者表示 dsh 官方桌面壳，会要求它的键盘桥接）。
 
-数据目录为 `~/Library/Application Support/Blueprint 新版/`。1.0 从空白数据开始，不读取、不迁移旧版的 `Blueprint/` 文件夹，旧版数据原样留在那里。项目位于其 `项目/` 下，prompt 和 skill 的可编辑副本位于 `prompt/`，引擎记录位于 `engine/`。菜单可以打开数据目录和日志。默认内容升级保留个人修改，新默认值另存于 `默认更新/`；新版里撤下的默认文件，没改过的直接删掉，改过的挪到 `默认更新/退役/`，都不留在 `prompt/` 里被模型读到。
+数据目录为 macOS 的 `~/Library/Application Support/Blueprint 新版/` 或 Windows 的 `%APPDATA%\Blueprint 新版\`。1.0 从空白数据开始，不读取、不迁移旧版的 `Blueprint/` 文件夹，旧版数据原样留在那里。项目位于其 `项目/` 下，prompt 和 skill 的可编辑副本位于 `prompt/`，引擎记录位于 `engine/`。菜单可以打开数据目录和日志。默认内容升级保留个人修改，新默认值另存于 `默认更新/`；新版里撤下的默认文件，没改过的直接删掉，改过的挪到 `默认更新/退役/`，都不留在 `prompt/` 里被模型读到。
 
 模型的运行环境提供项目根、原生当前工作目录与可写临时目录，路径由实际安装和用户数据位置取得。文件、搜索和命令的相对路径以当前工作目录为基准；`working_directory` 切换该 Session 的目录，`workdir` 仅指定该次命令的目录。项目身份、节点文档和归档仍属于原项目，切目录或重启不会改变归属。目录包含中文或空格时也沿用同一机制。
 
@@ -78,7 +78,7 @@ ImageMagick、FFmpeg、uv、Poppler 等仍需对应外部程序。交互式浏�
 
 ## 从源码运行与打包
 
-在 Apple Silicon Mac 上使用 Node 22.19 或以上版本。以下命令在仓库根目录执行：
+在 Apple Silicon Mac 或 Windows 11 x64 上使用 Node 22.19 或以上版本。Windows 构建还需要 Git for Windows（补丁脚本用其中的 GNU patch），并把 Git 的 `usr\bin` 加入 PATH 或在 `BLUEPRINT_PATCH` 指定 `patch.exe`。以下命令在仓库根目录执行：
 
 ```sh
 npm --prefix app ci
@@ -92,11 +92,11 @@ npm --prefix app run pack
 npm --prefix app run dist
 ```
 
-产物在 `app/dist/`。开发预览使用本地临时签名以接入 macOS 通知，构建会检查签名完整性；正式向普办公户分发时须配置自己的开发者签名与公证。本地签名不替代开发者身份或公证，通知显示仍取决于系统授权与专注模式。构建资源独立于电脑上的全局 DSH，不修改全局引擎。
+产物在 `app/dist/`：macOS 生成 DMG 和 ZIP，Windows 生成 `Blueprint-<版本>-x64.exe`（NSIS 安装程序，默认按当前用户安装）。macOS 开发预览使用本地临时签名以接入通知，构建会检查签名完整性；正式分发时须配置自己的开发者签名与公证。构建资源独立于电脑上的全局 DSH，不修改全局引擎。
 
-没有公证时，下载的人第一次打开会被 macOS 拦下。DMG 安装窗口的背景写着打开方法，右下角另放 `打不开请看.txt`（中英文，命令可复制）；两者在 `app/installer/`，改了背景文字后运行 `node app/scripts/dmg-background.mjs` 重出图。ZIP 没有安装窗口，看不到这些提醒。
+没有公证或代码签名时，第一次打开会被系统拦下。macOS 的 DMG 安装窗口写着打开方法，右下角另放 `打不开请看.txt`；Windows 会显示 SmartScreen，点「更多信息」→「仍要运行」。DMG 背景和说明文件在 `app/installer/`，改了背景文字后运行 `node app/scripts/dmg-background.mjs` 重出图。
 
-发新版用 `npm --prefix app run release`：版本号末位加一，打包，再把同一份源码导出到 `发布/Blueprint`（公开仓库自己的 git 副本），提交并打 `v版本号` 标签；确认后加 `--publish` 推送源码，并在同名标签上建 GitHub Release、上传 DMG 与发布说明。第一次发布先在 GitHub 建一个空的公开仓库，用 `--remote <地址>` 接上。其余参数见 `app/scripts/release.mjs` 开头。
+发新版用 `npm --prefix app run release`：版本号末位加一，打包，再把同一份源码导出到 `发布/Blueprint`（公开仓库自己的 git 副本），提交并打 `v版本号` 标签；确认后加 `--publish` 推送源码，并在同名标签上建 GitHub Release、上传当前平台的安装包与发布说明。第一次发布先在 GitHub 建一个空的公开仓库，用 `--remote <地址>` 接上。其余参数见 `app/scripts/release.mjs` 开头。
 
 ```sh
 npm --prefix app test
@@ -107,7 +107,7 @@ npm --prefix app run smoke:notifications
 npm --prefix app run smoke:render
 ```
 
-测试覆盖本地接口边界、默认内容升级，以及真实宿主的启动和离线模型协作。GitHub Actions 构建 DMG 和 ZIP，并保存为 workflow artifacts。下载上传到 Releases 由仓库所有者管理。
+测试覆盖本地接口边界、默认内容升级，以及真实宿主的启动和离线模型协作。GitHub Actions 在 macOS 上构建 DMG 和 ZIP，在 Windows 上构建 NSIS 安装程序，并保存为 workflow artifacts。下载上传到 Releases 由仓库所有者管理。
 
 `smoke:desktop` 使用隐藏窗口、模拟模型和临时项目，验证真实桌面 IPC、文件链接、画廊缩略图、HTML、PDF、音视频播放与进度拖动；不使用已有项目或 API Key。
 

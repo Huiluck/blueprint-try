@@ -1,5 +1,5 @@
 // Chromium 由官方 Playwright 安装器按随固定 MCP 包的 revision 取得。
-import { mkdir, readFile, writeFile, stat } from 'node:fs/promises'
+import { mkdir, readFile, readdir, writeFile, stat } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -43,9 +43,22 @@ export async function prepareHeadlessShell({ directory = join(root, '.build/nati
   await mkdir(directory, { recursive: true })
   await install({ directory, playwrightRoot })
   const name = `chromium_headless_shell-${entry.revision}`
-  const executable = join(directory, name, `chrome-headless-shell-${process.platform === 'darwin' ? 'mac' : process.platform}-${process.arch}`, 'chrome-headless-shell')
-  if (!(await stat(executable).catch(() => null))?.isFile()) throw new Error('无头专用版安装后缺少可执行文件：' + executable)
+  // Playwright 的目录名按宿主平台定制（mac-arm64 / win64 / linux），直接找可执行文件比拼名字稳。
+  const executable = await findHeadlessShell(join(directory, name), process.platform === 'win32' ? 'chrome-headless-shell.exe' : 'chrome-headless-shell')
   return { name, directory: join(directory, name), executable, revision: entry.revision, version: entry.browserVersion }
+}
+
+async function findHeadlessShell(root, file) {
+  const entries = await readdir(root, { withFileTypes: true }).catch(error => {
+    if (error.code === 'ENOENT') return []
+    throw error
+  })
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue
+    const candidate = join(root, entry.name, file)
+    if ((await stat(candidate).catch(() => null))?.isFile()) return candidate
+  }
+  throw new Error('无头专用版安装后缺少可执行文件：' + join(root, file))
 }
 
 function installHeadlessShell({ directory, playwrightRoot }) {

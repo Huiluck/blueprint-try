@@ -1,6 +1,6 @@
 /** 在当前项目中取得真实网页截图；渲染由随 App 分发的浏览器执行。 */
 import { realpath, mkdir, open, unlink } from 'node:fs/promises'
-import { dirname, join, basename, relative } from 'node:path'
+import { dirname, join, basename, relative, sep } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { 说明书, 只回一段字 } from '../../prompt/src/index.js'
 import { 项目父目录 } from '../../prompt/src/路径.js'
@@ -35,7 +35,7 @@ export async function 网页截图(renderer, args, exec, projects) {
   const file = await open(destination,'wx')
   try { await file.writeFile(image,{signal:exec.signal});await file.close() }
   catch(error) { await file.close().catch(()=>{});await unlink(destination).catch(()=>{});throw error }
-  return {path:relative(root,destination),width,height}
+  return {path:relative(root,destination).split(sep).join('/'),width,height}
 }
 
 export function 装网页截图(ctx) {

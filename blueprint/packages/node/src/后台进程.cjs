@@ -5,7 +5,8 @@ const { syncBuiltinESMExports } = require('node:module')
 const { promisify } = require('node:util')
 
 function 后台启动(file, args = [], options = {}, environment = process.env) {
-  const name = basename(String(file)).toLowerCase()
+  const name = basename(String(file)).toLowerCase().replace(/\.(exe|cmd|bat)$/, '')
+  const isWindows = process.platform === 'win32'
   let argv = [...args], env = { ...(options.env ?? environment) }
   if (/^godot(?:[._-].*)?$/.test(name)) {
     if (!argv.includes('--headless') && !argv.some((arg, i) => arg === '--display-driver' && argv[i + 1] === 'headless')) {
@@ -14,18 +15,25 @@ function 后台启动(file, args = [], options = {}, environment = process.env) 
       env.BLUEPRINT_BACKGROUND_TOOLS = '1'
       argv.unshift('--audio-driver', 'Dummy')
     }
-  } else if (['google chrome', 'google chrome for testing', 'chromium', 'chrome', 'chromium-browser', 'chrome-headless-shell'].includes(name)
+  } else if (['google chrome', 'google chrome for testing', 'chromium', 'chrome', 'chromium-browser', 'chrome-headless-shell', 'msedge'].includes(name)
     && !argv.some(arg => String(arg).startsWith('--type='))) {
     // 正式版 Chrome 每次启动都会叫醒 Google 的更新程序；有 App 带的无头专用版就换过去。
-    if (/\/Google Chrome\.app\/Contents\/MacOS\/Google Chrome$/.test(String(file)) && environment.BLUEPRINT_BACKGROUND_CHROME) file = environment.BLUEPRINT_BACKGROUND_CHROME
+    const official = isWindows ? /\\Google\\Chrome\\Application\\chrome\.exe$/i.test(String(file)) : /\/Google Chrome\.app\/Contents\/MacOS\/Google Chrome$/.test(String(file))
+    if (official && environment.BLUEPRINT_BACKGROUND_CHROME) file = environment.BLUEPRINT_BACKGROUND_CHROME
     argv = argv.filter(arg => !/^--headless(?:=|$)/.test(String(arg)))
     argv.unshift('--headless=new', '--mute-audio')
     // 无头专用版默认用 CPU 画，游戏截图慢六七倍；让它用显卡。放在前面，调用者自己指定的仍然算数。
-    if (basename(String(file)) === 'chrome-headless-shell') argv.splice(2, 0, '--use-angle=metal')
+    if (!isWindows && basename(String(file)) === 'chrome-headless-shell') argv.splice(2, 0, '--use-angle=metal')
   } else if (name === 'firefox') {
     if (!argv.includes('-headless') && !argv.includes('--headless')) argv.unshift('-headless')
   } else if (name === 'open' && environment.BLUEPRINT_BACKGROUND_OPEN) {
     file = environment.BLUEPRINT_BACKGROUND_OPEN
+  }
+  // .cmd 不能直接 CreateProcess；经 ComSpec 启动，参数保持各自独立。
+  if (isWindows && /\.cmd$/i.test(String(file))) {
+    const command = file
+    file = process.env.ComSpec || 'cmd.exe'
+    argv = ['/d', '/s', '/c', `"${command}"`, ...argv]
   }
   return [file, argv, { ...options, env }]
 }

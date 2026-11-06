@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/wbohui123-sys/blueprint/releases/latest"><img src="https://img.shields.io/badge/下载-macOS%20(Apple%20芯片)-111418?style=flat-square" alt="下载"></a>
+  <a href="https://github.com/wbohui123-sys/blueprint/releases/latest"><img src="https://img.shields.io/badge/下载-Windows%2011%20%7C%20macOS%20(Apple%20芯片)-111418?style=flat-square" alt="下载"></a>
   <img src="https://img.shields.io/badge/许可证-AGPL--3.0-111418?style=flat-square" alt="许可证">
   <a href="mailto:wbohui123@gmail.com"><img src="https://img.shields.io/badge/联系-邮箱-4E9A72?style=flat-square" alt="邮箱"></a>
 </p>
@@ -80,8 +80,8 @@ https://github.com/user-attachments/assets/a61b1c01-2455-4620-81ce-e13bd3cfa7ee
 
 ## 开始用
 
-1. 从 [Releases](https://github.com/wbohui123-sys/blueprint/releases/latest) 下载最新的 `.dmg`。暂时只支持 Apple 芯片的 Mac。
-2. 拖进「应用程序」后打开。App 还没有公证，第一次打开会被 macOS 拦下：到**系统设置 → 隐私与安全性**，点**仍要打开**。如果提示「已损坏」，在终端运行：
+1. 从 [Releases](https://github.com/wbohui123-sys/blueprint/releases/latest) 下载最新安装包：Windows 11（x64）用 `.exe`，Apple 芯片的 Mac 用 `.dmg`。
+2. 直接运行。两个平台都还没有代码签名，第一次打开会被系统拦下：Windows 点**更多信息 → 仍要运行**；macOS 到**系统设置 → 隐私与安全性**，点**仍要打开**。如果提示「已损坏」，在终端运行：
    ```bash
    xattr -cr /Applications/Blueprint.app
    ```
@@ -110,15 +110,15 @@ https://github.com/user-attachments/assets/a61b1c01-2455-4620-81ce-e13bd3cfa7ee
 
 ## 现在做不到的
 
-- 只支持 Apple 芯片的 Mac。
-- 没有公证，第一次打开要多走上面那一步。
+- 支持 Windows 11（x64）和 Apple 芯片的 Mac。
+- 没有代码签名，第一次打开要多走上面那一步。
 - 还不能在网页上点按钮、填表，也不能操控别的桌面软件；能截图、能看画面。
 - 交给 Codex、Claude Code 的活是一次性的，做到一半收不到你的话。
 - 项目还很年轻，有不少粗糙的地方和 bug。
 
 ## 从源码运行
 
-需要 Apple 芯片的 Mac 和 Node 22.19 以上。
+需要 Windows 11 x64 或 Apple 芯片的 Mac，以及 Node 22.19 以上。Windows 构建还需要 Git for Windows 提供的 `patch.exe`。
 
 ```bash
 npm --prefix app ci

@@ -11,9 +11,15 @@ export function createCapabilityChecker({ requirements, environment = process.en
         (rule.text !== undefined && (rule.text !== true || Object.keys(rule).length !== 1))) throw new Error(`无效的能力依赖声明：${name}`)
   }
   function hasCommand(command) {
+    // Windows 的可执行性由扩展名和 PATHEXT 决定，不是文件模式位。
+    const extensions = process.platform === 'win32'
+      ? [''].concat((environment.PATHEXT || '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean))
+      : ['']
     for (const directory of (environment.PATH || '').split(delimiter).filter(isAbsolute)) {
-      const path = join(directory, command)
-      try { if (statSync(path).isFile()) { accessSync(path, constants.X_OK); return true } } catch {}
+      for (const extension of extensions) {
+        const path = join(directory, command + extension)
+        try { if (statSync(path).isFile()) { accessSync(path, constants.X_OK); return true } } catch {}
+      }
     }
     return false
   }

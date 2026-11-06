@@ -11,6 +11,7 @@ const 原生源码 = fileURLToPath(new URL('./native/后台窗口.m', import.met
 const 入口源码 = fileURLToPath(new URL('./native/后台入口.c', import.meta.url))
 const 进程源码 = fileURLToPath(new URL('./后台进程.cjs', import.meta.url))
 const 版本 = createHash('sha256').update(readFileSync(原生源码)).update(readFileSync(入口源码)).update(readFileSync(进程源码)).update(readFileSync(fileURLToPath(import.meta.url))).digest('hex').slice(0, 16)
+const 是Windows = process.platform === 'win32'
 const 已准备 = new Map()
 let 原生库
 // 正式版 Google Chrome 每次启动都会叫醒 Google 的更新程序（加什么参数都拦不住），节点一天开几十次就堆成上百个。
@@ -38,10 +39,11 @@ fi
 /** 浏览器资源目录里的无头专用版；没有就是空字符串。 */
 export function 找无头专用版(目录) {
   const 读 = path => { try { return readdirSync(path) } catch { return [] } }
+  const file = process.platform === 'win32' ? 'chrome-headless-shell.exe' : 'chrome-headless-shell'
   for (const name of 读(目录).filter(name => /^chromium_headless_shell-\d+$/.test(name)).sort().reverse()) {
     for (const sub of 读(join(目录, name))) {
-      const file = join(目录, name, sub, 'chrome-headless-shell')
-      try { if (statSync(file).isFile()) return file } catch {}
+      const path = join(目录, name, sub, file)
+      try { if (statSync(path).isFile()) return path } catch {}
     }
   }
   return ''
@@ -54,6 +56,7 @@ export function 用自带浏览器(path) {
 }
 
 function zsh目录() {
+  if (是Windows) return ''
   const 英文 = path => /^[\x20-\x7e]+$/.test(path)
   const base = [tmpdir(), '/private/tmp'].map(path => { try { return realpathSync(path) } catch { return '' } }).find(path => path && 英文(path))
   const dir = join(base || '/private/tmp', `blueprint-zsh-${process.getuid?.() ?? 0}-${版本}`)
@@ -65,6 +68,8 @@ function zsh目录() {
 }
 
 function 构建原生库() {
+  // DYLD/Objective-C 只存在于 macOS；Windows 的沙箱由 ACL runner 负责。
+  if (是Windows) return null
   if (原生库 !== undefined) return 原生库
   const cache = join(数据根, '.dsh', '工具缓存', '后台窗口-' + 版本)
   const target = join(cache, '后台窗口.dylib')
@@ -88,9 +93,14 @@ function 构建原生库() {
 }
 
 function 可执行路径(name) {
+  const extensions = 是Windows
+    ? [''].concat((process.env.PATHEXT || '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean))
+    : ['']
   for (const directory of (process.env.PATH || '').split(delimiter)) {
-    const path = join(directory, name)
-    try { return realpathSync(path) } catch {}
+    for (const extension of extensions) {
+      const path = join(directory, name + extension)
+      try { return realpathSync(path) } catch {}
+    }
   }
   return ''
 }
@@ -103,6 +113,43 @@ function 准备(根) {
   mkdirSync(bin, { recursive: true })
   const hook = join(dir, '后台进程.cjs')
   copyFileSync(进程源码, hook)
+  if (是Windows) {
+    const writeCmd = (name, lines) => writeFileSync(join(bin, name), ['@echo off', 'chcp 65001 >nul', ...lines, ''].join('\r\n'))
+    writeCmd('open.cmd', [
+      'echo 项目工具在后台运行，不打开桌面应用；网页请用无窗口浏览器，查看产物请交回 WebUI 预览。 1>&2',
+      'exit /b 1',
+    ])
+    const godot = 可执行路径('godot')
+    const programFiles = process.env.ProgramFiles || 'C:\\Program Files'
+    const chrome = [自带浏览器, 可执行路径('chrome'), 可执行路径('msedge'),
+      join(programFiles, 'Google', 'Chrome', 'Application', 'chrome.exe'),
+      join(programFiles, 'Microsoft', 'Edge', 'Application', 'msedge.exe')]
+      .find(path => path && existsSync(path)) || ''
+    const playwright = 可执行路径('playwright-cli') || 可执行路径('playwright')
+    writeCmd('chromium.cmd', [
+      'if "%BLUEPRINT_BACKGROUND_CHROME%"=="" (echo 未找到 Chromium 浏览器。 1>&2 & exit /b 127)',
+      '"%BLUEPRINT_BACKGROUND_CHROME%" --headless=new --mute-audio %*',
+    ])
+    for (const name of ['chrome', 'Google Chrome']) copyFileSync(join(bin, 'chromium.cmd'), join(bin, `${name}.cmd`))
+    writeCmd('godot.cmd', [
+      'set "target=%BLUEPRINT_BACKGROUND_GODOT_TARGET%"',
+      'if "%target%"=="" (echo 未找到 Godot 可执行文件。 1>&2 & exit /b 127)',
+      'echo %* | findstr /C:"--headless" >nul',
+      'if errorlevel 1 (echo Godot 后台渲染保护不可用；检查和导出请使用 --headless。 1>&2 & exit /b 1)',
+      '"%target%" %*',
+    ])
+    writeCmd('playwright-cli.cmd', [
+      'if "%BLUEPRINT_BACKGROUND_PLAYWRIGHT%"=="" (echo 未找到 Playwright CLI。 1>&2 & exit /b 127)',
+      'set PLAYWRIGHT_MCP_HEADLESS=true',
+      '"%BLUEPRINT_BACKGROUND_PLAYWRIGHT%" %*',
+    ])
+    value = { dir, bin, hook, library: '', entry: '', bashEnv: '', zsh: '',
+      godot: godot ? join(bin, 'godot.cmd') : '', chrome, playwright,
+      browser: join(bin, 'chromium.cmd'), open: join(bin, 'open.cmd') }
+    已准备.set(根, value)
+    if (已准备.size > 128) 已准备.delete(已准备.keys().next().value)
+    return value
+  }
   const native = 构建原生库()
   const library = native ? join(dir, '后台窗口.dylib') : ''
   const entry = native ? join(dir, '后台入口.dylib') : ''
@@ -202,15 +249,19 @@ export function 后台工具环境(根, input = {}) {
 /** 直接 argv 入口也走同一包装；保留调用者选定的可执行文件。 */
 export function 后台工具命令(argv, env) {
   const result = [...argv], position = ['sandbox-exec','/usr/bin/sandbox-exec'].includes(result[0]) ? 3 : 0
-  const file = result[position], name = basename(file || '').toLowerCase(), bin = env.PATH.split(delimiter)[0]
+  const file = result[position], name = basename(file || '').toLowerCase().replace(/\.(exe|cmd|bat)$/, ''), bin = env.PATH.split(delimiter)[0]
+  const extension = 是Windows ? '.cmd' : ''
   const replace = (wrapper, key) => {
     // 调用的本来就是包装自己时不记成目标，否则包装会一直调自己。
     if (key && isAbsolute(file) && dirname(file) !== bin) env[key] = file
-    result[position] = join(bin, wrapper)
+    result[position] = join(bin, wrapper + extension)
   }
   if (/^godot(?:[._-].*)?$/.test(name)) replace('godot', 'BLUEPRINT_BACKGROUND_GODOT_TARGET')
-  else if (['google chrome','google chrome for testing','chromium','chrome','chromium-browser','chrome-headless-shell'].includes(name)
-    && !result.slice(position + 1).some(arg => String(arg).startsWith('--type='))) replace('chromium', 正式版Chrome.test(file) ? '' : 'BLUEPRINT_BACKGROUND_CHROME')
+  else if (['google chrome','google chrome for testing','chromium','chrome','chromium-browser','chrome-headless-shell','msedge'].includes(name)
+    && !result.slice(position + 1).some(arg => String(arg).startsWith('--type='))) {
+    const official = 是Windows ? /\\Google\\Chrome\\Application\\chrome\.exe$/i.test(file) : 正式版Chrome.test(file)
+    replace('chromium', official ? '' : 'BLUEPRINT_BACKGROUND_CHROME')
+  }
   else if (name === 'playwright-cli') replace('playwright-cli', 'BLUEPRINT_BACKGROUND_PLAYWRIGHT')
   else if (name === 'open') replace('open')
   return result

@@ -1,4 +1,5 @@
 import { prepareIsolatedProjectStorage } from './isolated-project-storage.mjs'
+import { payloadNode } from './payload-node.mjs'
 /** 真实桌面后台和节点工具链，连接本机模拟对话／媒体 API，不使用付费服务。 */
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
@@ -59,9 +60,9 @@ async function stop() {
 try {
  await new Promise(done=>mock.listen(0,'127.0.0.1',done))
  await prepareIsolatedProjectStorage(data)
- const environment={...process.env,BLUEPRINT_DATA_HOME:data,BLUEPRINT_DOCUMENTS_HOME:join(data,'模拟文稿'),PATH:'/usr/bin:/bin:/usr/sbin:/sbin'}
+ const environment={...process.env,BLUEPRINT_DATA_HOME:data,BLUEPRINT_DOCUMENTS_HOME:join(data,'模拟文稿'),PATH:process.env.PATH}
  for(const name of Object.keys(environment)) if(name.endsWith('_API_KEY') || ['NODE_OPTIONS','NODE_PATH'].includes(name)) delete environment[name]
- child=spawn(join(payload,'node/node'),[join(payload,'backend.mjs')],{cwd:payload,env:environment,stdio:['ignore','pipe','pipe','ipc']})
+ child=spawn(payloadNode(payload),[join(payload,'backend.mjs')],{cwd:payload,env:environment,stdio:['ignore','pipe','pipe','ipc']})
  for(const stream of [child.stdout,child.stderr]) stream.on('data',value=>log+=value)
  const ready=await new Promise((done,reject)=>{
   const timer=setTimeout(()=>reject(new Error('测试后台启动超时')),45000)

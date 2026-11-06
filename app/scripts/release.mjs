@@ -91,16 +91,26 @@ async function sha256(path) {
   return hash.digest('hex')
 }
 
-function releaseNotes(version, dmg, digest, notes) {
+function releaseNotes(version, artifact, digest, notes) {
+  if (process.platform === 'win32') return [
+    '## 下载 · Download', '',
+    `\`${artifact}\`：Windows 11（x64）安装程序。`,
+    `Windows 11 (x64) installer.`, '',
+    '## 第一次打开 · First launch', '',
+    'Blueprint 还没有代码签名证书，第一次运行 Windows 可能显示 SmartScreen 提示。点「更多信息」→「仍要运行」。',
+    'Blueprint is not code-signed yet, so Windows may show a SmartScreen prompt. Choose "More info" → "Run anyway".', '',
+    ...(notes ? ['## 本版变化 · Changes', '', notes, ''] : []),
+    `SHA-256 (${artifact}): \`${digest}\``, '',
+  ].join('\n')
   return [
     '## 下载 · Download', '',
-    `\`${dmg}\`：Apple Silicon（M 系列芯片）的 Mac，macOS 13 及以上。Intel Mac 和 Windows 暂不支持。`,
-    `For Apple Silicon Macs on macOS 13 or later. Intel Macs and Windows are not supported yet.`, '',
+    `\`${artifact}\`：Apple Silicon（M 系列芯片）的 Mac，macOS 13 及以上。Intel Mac 暂不支持。`,
+    `For Apple Silicon Macs on macOS 13 or later. Intel Macs are not supported yet.`, '',
     '## 第一次打开 · First launch', '',
     'Blueprint 还没有苹果开发者签名，第一次打开会被 macOS 拦下。打开 DMG 后，安装窗口里写着打开方法；窗口里的「打不开请看.txt」有能复制的命令。',
     'Blueprint is not signed with an Apple Developer ID yet. The DMG window shows how to open it, and 打不开请看.txt has the steps in English.', '',
     ...(notes ? ['## 本版变化 · Changes', '', notes, ''] : []),
-    `SHA-256 (${dmg}): \`${digest}\``, '',
+    `SHA-256 (${artifact}): \`${digest}\``, '',
   ].join('\n')
 }
 
@@ -108,7 +118,10 @@ export async function release(options) {
   const manifest = JSON.parse(await readFile(join(appRoot, 'package.json'), 'utf8'))
   const [major, minor, patch] = manifest.version.split('.').map(Number)
   const version = options.version || (options.bump ? `${major}.${minor}.${patch + 1}` : manifest.version)
-  const tag = `v${version}`, dmg = `Blueprint-${version}-arm64.dmg`, dmgPath = join(appRoot, 'dist', dmg)
+  const tag = `v${version}`
+  const windows = process.platform === 'win32'
+  const artifact = windows ? `Blueprint-${version}-x64.exe` : `Blueprint-${version}-arm64.dmg`
+  const artifactPath = join(appRoot, 'dist', artifact)
 
   // 先查会让后面白跑的事，再动版本号和打包。
   await preparePublicRepo(options.remote)
@@ -120,11 +133,18 @@ export async function release(options) {
 
   if (version !== manifest.version) { await setVersion(version); console.log(`版本号改为 ${version}（开发仓库没有提交，你自己提交）。`) }
   if (options.build) run('npm', ['run', 'dist'])
-  if (!await stat(dmgPath).then(() => true, () => false)) throw new Error(`没有找到安装包 ${dmgPath}，请去掉 --skip-build 重新打包。`)
-  const app = join(appRoot, 'dist/mac-arm64/Blueprint.app')
-  const built = read('/usr/libexec/PlistBuddy', ['-c', 'Print :CFBundleShortVersionString', join(app, 'Contents/Info.plist')])
-  if (built !== version) throw new Error(`安装包里的版本是 ${built}，不是 ${version}，请重新打包。`)
-  read('/usr/bin/codesign', ['--verify', '--deep', '--strict', app])
+  if (!await stat(artifactPath).then(() => true, () => false)) throw new Error(`没有找到安装包 ${artifactPath}，请去掉 --skip-build 重新打包。`)
+  if (windows) {
+    const exe = join(appRoot, 'dist/win-unpacked/Blueprint.exe')
+    const quoted = exe.replaceAll("'", "''")
+    const built = read('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `(Get-Item -LiteralPath '${quoted}').VersionInfo.ProductVersion`])
+    if (built !== version && built !== `${version}.0`) throw new Error(`安装包里的版本是 ${built}，不是 ${version}，请重新打包。`)
+  } else {
+    const app = join(appRoot, 'dist/mac-arm64/Blueprint.app')
+    const built = read('/usr/libexec/PlistBuddy', ['-c', 'Print :CFBundleShortVersionString', join(app, 'Contents/Info.plist')])
+    if (built !== version) throw new Error(`安装包里的版本是 ${built}，不是 ${version}，请重新打包。`)
+    read('/usr/bin/codesign', ['--verify', '--deep', '--strict', app])
+  }
 
   // 导出到临时目录，再整个换进公开仓库副本（保留它的 .git），删掉的文件也会跟着删。
   const staging = await mkdtemp(join(tmpdir(), 'Blueprint 发布导出-'))
@@ -146,18 +166,18 @@ export async function release(options) {
     console.log(`公开仓库已提交并打上标签 ${tag}：${publicRepo}`)
   }
 
-  const digest = await sha256(dmgPath), notesPath = join(appRoot, 'dist', `Blueprint-${version}-发布说明.md`)
-  await writeFile(notesPath, releaseNotes(version, dmg, digest, options.notes))
+  const digest = await sha256(artifactPath), notesPath = join(appRoot, 'dist', `Blueprint-${version}-发布说明.md`)
+  await writeFile(notesPath, releaseNotes(version, artifact, digest, options.notes))
   if (!options.publish) {
-    console.log(`\n安装包：${dmgPath}\n发布说明：${notesPath}\n确认没问题后，加 --publish 再运行一次就会推送源码、上传安装包（不会重新提交）：`)
+    console.log(`\n安装包：${artifactPath}\n发布说明：${notesPath}\n确认没问题后，加 --publish 再运行一次就会推送源码、上传安装包（不会重新提交）：`)
     console.log(`  npm --prefix app run release -- --no-bump --skip-build --publish`)
-    return { version, tag, dmgPath, notesPath, published: false }
+    return { version, tag, artifactPath, notesPath, published: false }
   }
   run('git', ['push', '-u', 'origin', 'main'], publicRepo)
   run('git', ['push', 'origin', tag], publicRepo)
-  run('gh', ['release', 'create', tag, dmgPath, '--title', `Blueprint ${version}`, '--notes-file', notesPath], publicRepo)
+  run('gh', ['release', 'create', tag, artifactPath, '--title', `Blueprint ${version}`, '--notes-file', notesPath], publicRepo)
   console.log(`\n已发布 ${tag}。`)
-  return { version, tag, dmgPath, notesPath, published: true }
+  return { version, tag, artifactPath, notesPath, published: true }
 }
 
 if (process.argv[1] && await realpath(process.argv[1]).catch(() => undefined) === fileURLToPath(import.meta.url)) {

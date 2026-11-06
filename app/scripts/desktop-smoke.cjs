@@ -160,5 +160,5 @@ app.on('browser-window-created',(event,window)=>{
  })
 })
 app.on('will-quit',()=>{mock.close();rmSync(directory,{recursive:true,force:true});if(!tested)app.exit(1)})
-setTimeout(()=>{if(!tested){console.error('Desktop smoke timeout');process.exitCode=1;app.quit()}},60000).unref()
+setTimeout(()=>{if(!tested){console.error('Desktop smoke timeout');process.exitCode=1;app.quit()}},240000).unref()
 mock.listen(0,'127.0.0.1',()=>require(packagedApp?join(packagedApp,'Contents/Resources/app.asar/desktop/main.cjs'):'../desktop/main.cjs'))

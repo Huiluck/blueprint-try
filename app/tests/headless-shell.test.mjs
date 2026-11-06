@@ -22,15 +22,19 @@ async function fixture(t) {
 
 test('无头专用版跟固定的 Playwright 版本走，只装 shell，装好后给出可执行文件', async t => {
   const f = await fixture(t), calls = []
+  const binary = process.platform === 'win32' ? 'chrome-headless-shell.exe' : 'chrome-headless-shell'
+  const host = process.platform === 'darwin' ? `mac-${process.arch}`
+    : process.platform === 'win32' ? (process.arch === 'arm64' ? 'win-arm64' : 'win64') : `${process.platform}-${process.arch}`
   const install = async ({ directory, playwrightRoot }) => {
     calls.push({ directory, playwrightRoot })
-    const bin = join(directory, 'chromium_headless_shell-1243', `chrome-headless-shell-mac-${process.arch}`)
-    await mkdir(bin, { recursive: true }); await writeFile(join(bin, 'chrome-headless-shell'), '')
+    const bin = join(directory, 'chromium_headless_shell-1243', `chrome-headless-shell-${host}`)
+    await mkdir(bin, { recursive: true }); await writeFile(join(bin, binary), '')
   }
   const shell = await prepareHeadlessShell({ directory: f.directory, modules: f.modules, install })
   assert.deepEqual(calls, [{ directory: f.directory, playwrightRoot: join(f.modules, 'playwright') }])
   assert.equal(shell.name, 'chromium_headless_shell-1243')
   assert.equal(shell.directory, join(f.directory, 'chromium_headless_shell-1243'))
+  assert.equal(shell.executable, join(f.directory, 'chromium_headless_shell-1243', `chrome-headless-shell-${host}`, binary))
   assert.equal(shell.version, '153.0.8010.12')
 })
 

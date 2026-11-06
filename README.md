@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/wbohui123-sys/blueprint/releases/latest"><img src="https://img.shields.io/badge/download-macOS%20(Apple%20Silicon)-111418?style=flat-square" alt="Download"></a>
+  <a href="https://github.com/wbohui123-sys/blueprint/releases/latest"><img src="https://img.shields.io/badge/download-Windows%2011%20%7C%20macOS%20(Apple%20Silicon)-111418?style=flat-square" alt="Download"></a>
   <img src="https://img.shields.io/badge/license-AGPL--3.0-111418?style=flat-square" alt="License">
   <a href="mailto:wbohui123@gmail.com"><img src="https://img.shields.io/badge/contact-email-4E9A72?style=flat-square" alt="Email"></a>
 </p>
@@ -79,8 +79,8 @@ https://github.com/user-attachments/assets/a61b1c01-2455-4620-81ce-e13bd3cfa7ee
 
 ## Quick start
 
-1. Download the latest `.dmg` from [Releases](https://github.com/wbohui123-sys/blueprint/releases/latest). Apple Silicon Macs only for now.
-2. Drag Blueprint into Applications and open it. The app isn't notarized yet, so macOS will block the first launch: go to **System Settings → Privacy & Security** and click **Open Anyway**. If macOS says the app is damaged, run:
+1. Download the latest installer from [Releases](https://github.com/wbohui123-sys/blueprint/releases/latest): `.exe` for Windows 11 (x64), `.dmg` for Apple Silicon Macs.
+2. Run it. Neither build is code-signed yet, so the first launch is blocked: on Windows choose **More info → Run anyway**; on macOS go to **System Settings → Privacy & Security** and click **Open Anyway**. If macOS says the app is damaged, run:
    ```bash
    xattr -cr /Applications/Blueprint.app
    ```
@@ -109,15 +109,15 @@ Every agent hands back the same report: what it did, how it checked it, what it 
 
 ## Limitations
 
-- macOS on Apple Silicon only.
-- Not notarized. The first launch needs the extra step above.
+- Windows 11 (x64) and macOS on Apple Silicon.
+- Not code-signed yet. The first launch needs the extra step above.
 - Can't click around websites or control other desktop apps yet. It can screenshot and look at pages.
 - Codex and Claude Code workers are one-shot: they can't take messages halfway through.
 - Young project. Expect rough edges and bugs.
 
 ## Build from source
 
-Requires an Apple Silicon Mac and Node 22.19+.
+Requires Windows 11 x64 or an Apple Silicon Mac, plus Node 22.19+. Windows builds also need Git for Windows for its `patch.exe`.
 
 ```bash
 npm --prefix app ci

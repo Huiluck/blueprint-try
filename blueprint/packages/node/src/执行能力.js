@@ -2,6 +2,7 @@
 import { Service } from '@deepseek-ai/cordis'
 import { readFile, mkdir, mkdtemp, rm, stat, realpath, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
+import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { 数据根, 仓库根, 技能路径, 项目位置们, 工具临时目录名 } from '../../prompt/src/路径.js'
 import { 一段 } from '../../prompt/src/index.js'
@@ -95,7 +96,7 @@ class 执行能力服务 extends Service {
     const root = agent.session.header.cwd, temporary = join(root, 工具临时目录名, 'browser', String(agent.id))
     await mkdir(temporary, { recursive: true })
     // macOS Unix socket 长度有限；浏览器状态留在项目，短 socket 目录随原生进程释放。
-    const sockets = await mkdtemp('/private/tmp/Blueprint-browser-')
+    const sockets = await mkdtemp(join(tmpdir(), 'Blueprint-browser-'))
     const cleanup = () => rm(sockets, { recursive: true, force: true })
     context.effect(() => cleanup)
     handles.push({ dispose: cleanup })
