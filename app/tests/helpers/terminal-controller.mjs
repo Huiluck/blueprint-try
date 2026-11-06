@@ -1,4 +1,4 @@
-// 实际 alpha controller 与合成 subprocess；不调用 shell 或模型。
+// 实际 rc.5 controller 与合成 subprocess；不调用 shell 或模型。
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import { PassThrough } from 'node:stream'
@@ -35,10 +35,14 @@ export async function fixture(t) {
     maxCols: 200, maxRows: 100, scrollback: 100, maxBufferedBytes: 100000, maxInputBytes: 1000, disposeGraceMs: 100,
     unattendedTimeoutMs: 0, activityPollIntervalMs: 1000, cleanupRetryMs: 1000 })
   const items = [...agents.values()].map(agent => ({ sessionId: agent.id, cwd: agent.session.header.cwd }))
-  const api = { effect: ctx.effect.bind(ctx), get: key => ({ terminalController: controller,
+  // 带 extend 的 api 才像真实 Cordis 上下文：studio 用 ctx.extend({invocation}) 走 rc.5 的 attach。
+  const services = {
     sessionController: { list: async () => ({ items }) },
     typert: { lookups: { get: () => ({ resolve: async id => { lookups.push(id); return agents.get(id) } }) } },
-  })[key] ?? ctx.get(key) }
+  }
+  const view = context => ({ effect: ctx.effect.bind(ctx), get: key => services[key] ?? context.get(key),
+    extend: meta => view(context.extend(meta)) })
+  const api = view(ctx)
   const scope = async (_ctx, agent, run, abort) => { abort.throwIfAborted(); scopes.push(agent.id); return run() }
   const invoke = (method, args = {}, sessionId = 'node-a', projectSessionId = 'project-a') =>
     终端操作(api, { method, args, sessionId, projectSessionId }, signal(), scope)

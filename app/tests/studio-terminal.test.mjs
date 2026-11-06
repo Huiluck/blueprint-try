@@ -58,6 +58,8 @@ test('生产 stream 接法恢复 native 屏幕与顺序；断线不结束进程�
   await f.invoke('write', { id: 'user-build', attachmentId: 'new-view', data: 'pwd\r' })
   await f.invoke('resize', { id: 'user-build', attachmentId: 'new-view', cols: 100, rows: 30 })
   first.abort.abort(); await first.iterator.return()
+  // rc.5 的输入属于 attach 流本身：连接一断就没有可回的流，POST 输入必须明说结束而不是落进旧进程。
+  await assert.rejects(f.invoke('write', { id: 'user-build', attachmentId: 'old-view', data: 'after detach' }), { code: 'terminal/unavailable' })
   assert.deepEqual(f.spawns[0].written, ['pwd\r']); assert.deepEqual(f.spawns[0].resized, [[100, 30]])
   assert.equal(f.spawns[0].terminateCount, 0); assert.equal(f.spawns.length, 1)
 })
