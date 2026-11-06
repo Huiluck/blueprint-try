@@ -75,10 +75,8 @@ const homeNetwork = await readFile(new URL('./首页神经网络.js', import.met
 const homeFont = (await readFile(new URL('./fonts/inter-latin-regular.woff2', import.meta.url))).toString('base64')
 const projectEntry = await readFile(new URL('./项目入口.js', import.meta.url), 'utf8')
 const projectEntryCss = (await readFile(new URL('./项目入口.css', import.meta.url), 'utf8')).replace('BLUEPRINT_INTER_FONT', 'data:font/woff2;base64,' + homeFont)
-// 首次使用的「连接模型」引导：就绪判断是纯函数，对话框与首页提示共用。
+// 模型就绪判断是纯函数：首页、帮助与「创建并开始」共用；模型 provider 只来自系统 DSH 目录。
 const modelReadiness = (await readFile(new URL('./模型就绪.js', import.meta.url), 'utf8')).replace(/^import .*\n/gm, '').replace(/^export /gm, '')
-const modelGuide = await readFile(new URL('./模型引导.js', import.meta.url), 'utf8')
-const modelGuideCss = await readFile(new URL('./模型引导.css', import.meta.url), 'utf8')
 const seatData = (await readFile(new URL('./座位数据.js', import.meta.url), 'utf8')).replace(/^import .*\n/gm, '').replace(/^export /gm, '')
 const seatDrafts = (await readFile(new URL('./分身草稿.js', import.meta.url), 'utf8')).replace(/^import .*\n/gm, '').replace(/^export /gm, '')
 const seatPane = await readFile(new URL('./座位界面.js', import.meta.url), 'utf8')
@@ -330,7 +328,7 @@ const ending = source.slice(source.lastIndexOf('\t\texports.LayoutController'))
 if (!ending.includes('return module.exports;')) throw new Error('dsh ui-layout 导出形状不合')
 const result = form.prefix + '\n' + head + form.code + `
 { const style = document.createElement("style"); style.id = "blueprint-layout/project.css"; style.textContent = ${JSON.stringify(form.style)}; document.getElementById(style.id)?.remove(); document.head.appendChild(style); }
-{ const style = document.createElement("style"); style.id = "blueprint-layout/light.css"; style.textContent = ${JSON.stringify(lightCss + '\n' + legacyParts + '\n' + runningCss + '\n' + questionCss + '\n' + projectManagerCss + '\n' + projectStorageCss + '\n' + artifactCss + '\n' + chatMaterialsCss + '\n' + homeSceneCss + '\n' + projectEntryCss + '\n' + modelGuideCss + '\n' + seatCss + '\n' + assistantCss + '\n' + externalRunCss + '\n' + nodeInformationCss)}; document.getElementById(style.id)?.remove(); document.head.appendChild(style); }
-` + await 界面语言段(true) + nodeOperations + stopShortcut + frame + treeReads + projectMetrics + projectData + nodeInformation + seatData + seatDrafts + seatPane + assistant + externalRunData + externalRunPane + artifactCard + projectStorage + projectManager + homeScene + homeNetwork + projectEntry + modelReadiness + modelGuide + brand + nativeTabSlot + toolWindows + workspaceTools + persistentSettings + persistentQuestions + questionMaterials + chatMaterials + chatCopy + store + ['service', 'shortcut-locales', 'theme-presenter'].map(region).join('') + apply + ending
+{ const style = document.createElement("style"); style.id = "blueprint-layout/light.css"; style.textContent = ${JSON.stringify(lightCss + '\n' + legacyParts + '\n' + runningCss + '\n' + questionCss + '\n' + projectManagerCss + '\n' + projectStorageCss + '\n' + artifactCss + '\n' + chatMaterialsCss + '\n' + homeSceneCss + '\n' + projectEntryCss + '\n' + seatCss + '\n' + assistantCss + '\n' + externalRunCss + '\n' + nodeInformationCss)}; document.getElementById(style.id)?.remove(); document.head.appendChild(style); }
+` + await 界面语言段(true) + nodeOperations + stopShortcut + frame + treeReads + projectMetrics + projectData + nodeInformation + seatData + seatDrafts + seatPane + assistant + externalRunData + externalRunPane + artifactCard + projectStorage + projectManager + homeScene + homeNetwork + projectEntry + modelReadiness + brand + nativeTabSlot + toolWindows + workspaceTools + persistentSettings + persistentQuestions + questionMaterials + chatMaterials + chatCopy + store + ['service', 'shortcut-locales', 'theme-presenter'].map(region).join('') + apply + ending
 await writeFile(new URL('./client.js', import.meta.url), result)
 console.log(`生成 ${fileURLToPath(new URL('./client.js', import.meta.url))}`)

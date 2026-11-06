@@ -6,7 +6,7 @@ function useBlueprintModelReady() {
         let timer = 0, live = true, sequence = 0;
         check.current = () => {
             const mine = ++sequence;
-            读取模型连接().then(list => { if (live && mine === sequence) setReady(模型就绪(list)); }, () => { if (live && mine === sequence) setReady(null); });
+            读取连接目录().then(list => { if (live && mine === sequence) setReady(模型就绪(list)); }, () => { if (live && mine === sequence) setReady(null); });
         };
         check.current();
         const off = blueprint共享模型设置?.subscribe(() => { clearTimeout(timer); timer = setTimeout(() => check.current?.(), 300); });
@@ -52,8 +52,7 @@ function BlueprintProjectEntry({ open, state, projects, error, busy, onOpen, onB
     const introReady = react.useRef(false), visible = react.useRef(open), rememberIntro = react.useRef(() => {});
     const networkCanvas = react.useRef(null), network = react.useRef(null), introDone = react.useRef(false);
     visible.current = open;
-    const [modelReady, recheckModel] = useBlueprintModelReady();
-    const [connecting, setConnecting] = react.useState(false);
+    const [modelReady] = useBlueprintModelReady();
     use界面语言(react);
     react.useLayoutEffect(() => {
         const shell = page.current, body = content.current;
@@ -151,16 +150,12 @@ function BlueprintProjectEntry({ open, state, projects, error, busy, onOpen, onB
                 h('p', { className: 'bp-home-chinese', lang: 'zh-CN' }, h('span', {}, '给它一个目标，'), h('span', {}, '看着一个组织生长出来'))),
             h('div', { className: 'bp-home-start' },
                 modelReady === false ? h('section', { className: 'bp-entry-connect', 'aria-labelledby': 'bp-entry-connect-title' },
-                    h('p', { className: 'bp-entry-connect-kicker' }, h('span', { 'aria-hidden': true }), 译('首次使用 · 第一步')),
+                    h('p', { className: 'bp-entry-connect-kicker' }, h('span', { 'aria-hidden': true }), 译('还没有可用的模型')),
                     h('div', { className: 'bp-entry-connect-main' },
-                        h('div', {}, h('h2', { id: 'bp-entry-connect-title' }, 译('添加 API，让 Blueprint 开始工作')),
-                            h('p', { className: 'bp-entry-connect-copy' }, 译('用你的 API Key 连接 DeepSeek、OpenAI 等模型服务。'))),
-                        h('button', { type: 'button', className: 'bp-entry-connect-button', 'aria-haspopup': 'dialog', onClick: () => setConnecting(true) }, 译('添加 API'), h('span', { 'aria-hidden': true }, '→'))),
-                    h('ol', { className: 'bp-entry-connect-path', 'aria-label': 译('连接步骤') },
-                        [译('选择服务'), 译('填写 Key'), 译('开始任务')].map((label, index) => h('li', { key: index }, h('span', { className: 'bp-entry-connect-number', 'aria-hidden': true }, `0${index + 1}`), label)))) : null,
+                        h('div', {}, h('h2', { id: 'bp-entry-connect-title' }, 译('请先在系统 DSH 中配置模型 provider')),
+                            h('p', { className: 'bp-entry-connect-copy' }, 译('Blueprint 直接使用系统 DSH 里的模型 provider 和模型目录；配好后重新打开这一页就能开始。'))))) : null,
                 h('div', { className: 'bp-home-form bp-project' }, h(BlueprintProjectFormBody, { open, navigate, close() {}, modelSettings, renderSlot, mode: 'home', onAdvanced, titleId: 'bp-home-title', autoFocus: false }))),
-            h(BlueprintRecentProjects, { state, projects, error, busy, onOpen, onBrowse, onRetry })),
-        connecting ? h(BlueprintModelGuide, { mode: 'home', onClose: () => { setConnecting(false); recheckModel(); } }) : null);
+            h(BlueprintRecentProjects, { state, projects, error, busy, onOpen, onBrowse, onRetry })));
 }
 function BlueprintProjectDraft({ open, navigate, close, modelSettings, renderSlot, incomingDraft }) {
     const page = react.useRef(null), previousFocus = react.useRef(null);

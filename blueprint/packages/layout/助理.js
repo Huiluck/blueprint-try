@@ -34,15 +34,17 @@ function BlueprintAssistantHello() {
 function BlueprintAssistantWindow({ open, onClose, tile, grips, renderSlot, SessionProvider, useSessions, openAssistant }) {
     use界面语言(react);
     const [state, setState] = react.useState({ phase: 'idle', error: '' });
-    const [session, setSession] = react.useState(null), [connecting, setConnecting] = react.useState(false);
+    const [session, setSession] = react.useState(null);
     const held = react.useRef(null), sequence = react.useRef(0);
     const row = useSessions(store => session ? store.byId[session.sessionId] : undefined);
     const start = async (新对话 = false) => {
         const mine = ++sequence.current;
         setState({ phase: 'opening', error: '' });
         try {
-            // 帮助自己也要模型来答：没连上就先走连接模型，连好再开。
-            if (!模型就绪(await 读取模型连接())) { if (mine === sequence.current) setState({ phase: 'connect', error: '' }); return; }
+            // 帮助自己也要模型来答：系统目录里没有可用模型就显示空态，不再走 Blueprint 的连接引导。
+            let list = null;
+            try { list = await 读取连接目录(); } catch {}
+            if (!模型就绪(list)) { if (mine === sequence.current) setState({ phase: 'empty', error: '' }); return; }
             const next = await openAssistant(新对话);
             if (mine !== sequence.current) { next.reference.release(); return; }
             held.current?.reference.release();
@@ -58,11 +60,9 @@ function BlueprintAssistantWindow({ open, onClose, tile, grips, renderSlot, Sess
     if (state.phase === 'ready' && session) {
         body = h(ConversationPane, { key: session.sessionId, view: 'chat', intro: !row?.title && !row?.lastActive ? h(BlueprintAssistantHello) : null },
             h(SessionProvider, { session: session.reference }, renderSlot('main', {}, { entryKey: 'conversation' })));
-    } else if (state.phase === 'connect') {
-        body = h('div', { className: 'bp-win-body bp-help-status' },
-            h('p', {}, 译('帮助也是用模型来回答的。先连上一个模型（比如 DeepSeek），连好就能直接问。')),
-            h('button', { type: 'button', className: 'bps-button bps-primary', onClick: () => setConnecting(true) }, 译('连接模型')),
-            connecting ? h(BlueprintModelGuide, { mode: 'home', onClose: () => { setConnecting(false); void start(); } }) : null);
+    } else if (state.phase === 'empty') {
+        body = h('div', { className: 'bp-win-body bp-help-status', role: 'status' },
+            h('p', {}, 译('帮助也是用模型来回答的。请先在系统 DSH 中配置模型 provider，配好就能直接问。')));
     } else if (state.phase === 'error') {
         body = h('div', { className: 'bp-win-body bp-help-status', role: 'alert' },
             h('p', {}, state.error),
@@ -74,7 +74,7 @@ function BlueprintAssistantWindow({ open, onClose, tile, grips, renderSlot, Sess
         grips,
         h('div', { className: 'bp-win-head', 'data-bp-handle': '' },
             h('span', { className: 'bp-win-tab', 'data-on': '' }, 译('帮助')),
-            h('button', { type: 'button', className: 'bp-help-new', disabled: busy || state.phase === 'connect', title: 译('另开一段对话，之前的记录还在'),
+            h('button', { type: 'button', className: 'bp-help-new', disabled: busy, title: 译('另开一段对话，之前的记录还在'),
                 onClick: () => void start(true) }, 译('新对话')),
             h('button', { type: 'button', className: 'bp-win-x', title: 译('关闭'), 'aria-label': 译('关闭帮助'), onClick: onClose }, '×')),
         body);
