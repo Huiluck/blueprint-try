@@ -10,6 +10,7 @@ const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const patchNames = new Map([
   ['0.1.5-rc.2', 'multimodal.patch'],
   ['0.2.1-alpha.2', 'multimodal-0.2.1-alpha.2.patch'],
+  ['0.2.1-rc.5', 'multimodal-0.2.1-rc.5.patch'],
 ])
 
 export function multimodalPatchForVersion(version) {
