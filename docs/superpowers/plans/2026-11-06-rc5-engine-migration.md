@@ -251,7 +251,7 @@ npm run prepare:runtime
 ```
 Expected: 测试 PASS（`source-profile-runtime` 在未准备源码 CLI 时自动 skip）；`prepare:runtime` 若因 5 个补丁尚未移植失败，记录失败项留待 Task 4–8；本任务只需确认 **patch 缺失提示** 与版本身份检查正确。
 
-注意：`app/.build/runtime` 与 `app/dist/win-unpacked` 是 gitignored 的 alpha.2 旧产物，本任务重新生成前先删除/重建，避免用旧引擎误测；npm lock 重算后 `@earendil-works/pi-ai` 等非引擎版本有浮动，若 Task 14 真实 provider 冒烟异常，用 override 钉回或记录原因。
+注意：`app/.build/runtime` 与 `app/dist/win-unpacked` 是 gitignored 的 alpha.2 旧产物，本任务重新生成前先删除/重建，避免用旧引擎误测；npm lock 重算后 `@earendil-works/pi-ai` 等非引擎版本有浮动，若 Task 14 真实 provider 冒烟异常，用 override 钉回或记录原因。另外：`prepare:runtime` 预期会在 5 个补丁（Task 4–8 尚未移植）处失败，失败信息必须是"尚未核对 DSH 0.2.1-rc.5"这类版本判定的明确报错；若在此之前失败于 `terminal-client-assets` 版本表、外部 provider 资产或生成器新鲜度，先在本任务修掉。`blueprint/packages/canvas/生成座位展示壳.mjs` 是手工开发工具（无脚本/打包/测试调用），本任务只需确认 prepare 链路不调用它，不修改。
 
 - [ ] **Step 5: 提交**
 
@@ -723,6 +723,7 @@ Expected: `.build/runtime` 生成；Windows 产出 `app/dist/Blueprint-<版本>-
 4. 打开一个 alpha.2 时代创建的旧项目，确认会话可加载（或出现明确报错而非静默损坏）；
 5. 五项能力抽查：音视频附件输入；Codex/Claude 外部 worker 列表可见；文档预览超时恢复；坏工具 JSON 修补日志；会话列表读恢复；
 6. 媒体服务新增/测试一次。
+7. 用内置 Node 22.23.3 复跑一次生成器幂等与关键测试（本机默认 Node 24 与锁定版本不同），并对 rc.5 聊天区做桌面 smoke（interrupted 轮折叠、过程组展开、renderFactorySlot、被移除的 openSkill/renderMessageImages 路径）。
 Expected: 以上全部通过，或逐条记录失败项并回到对应任务修复。
 
 - [ ] **Step 5: 更新文档、提交并推送**
