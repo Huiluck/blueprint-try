@@ -716,6 +716,11 @@ npm run dist
 ```
 Expected: `.build/runtime` 生成；Windows 产出 `app/dist/Blueprint-<版本>-x64.exe`；`runtime-manifest.json` 的引擎版本为 rc.5，5 个补丁均 `alreadyApplied`。
 
+构建前置（已在本机落实）：
+- 官方 Playwright CDN 在国内极慢（114.6MB Headless Shell 25 分钟仅 40%）；使用镜像 `PLAYWRIGHT_DOWNLOAD_HOST=https://cdn.npmmirror.com/binaries/playwright`（该镜像同时覆盖 `builds/cft/...` 与 `builds/ffmpeg/...`），本机已预热 `app/.build/native-resources/browser`（`chromium_headless_shell-1243` + `ffmpeg-1011` + `winldd-1007`，含 `INSTALLATION_COMPLETE`），后续 prepare 会直接跳过下载。
+- GNU patch 需就绪（本机 `%LOCALAPPDATA%\Programs\Git\usr\bin\patch.exe` 已可自动解析）。
+- 若 prepare 仍尝试下载 Playwright 资产，先确认该目录未被清理；需要重新预热时按上面的镜像环境变量执行 `node app/node_modules/playwright/cli.js install --only-shell chromium`。
+
 - [ ] **Step 4: 端到端验收（人工清单，记录结果）**
 
 1. 用系统 DSH（`~/.dsh`，profile `desktop`）配置至少一个可用 provider；
