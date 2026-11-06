@@ -55,12 +55,12 @@
 ## Task 1: 引擎与依赖锁定到 rc.5
 
 **Files:**
-- Modify: `app/package.json`、`app/package-lock.json`、`app/overrides`（即 package.json 内 `overrides`）、`blueprint/packages/context/package.json`、`blueprint/packages/node/package.json`、`blueprint/packages/studio/package.json`
+- Modify: `app/package.json`、`app/package-lock.json`、`app/overrides`（即 package.json 内 `overrides`）、`blueprint/package.json`（@blueprint/bundle 的 peerDependencies）、`blueprint/packages/context/package.json`、`blueprint/packages/node/package.json`、`blueprint/packages/studio/package.json`
 - Test: `app/tests/engine-version-pin.test.mjs`（Create）、`app/tests/blueprint-peer-versions.test.mjs`（Create）、`app/tests/packaging-engine.test.mjs`（Modify：版本常量改为读 manifest）
 
 **Interfaces:**
 - Consumes: `expectedEngineVersion(manifest)`（`app/scripts/source-cli.mjs`）继续从 `dependencies['@deepseek-ai/dsh-llm']` 取版本。
-- Produces: `app/package.json` 中引擎依赖与 overrides 全部为 `0.2.1-rc.5`；`blueprint/packages/{context,node,studio}` 的 peerDependencies 为 `0.2.1-rc.5`（`schemastery` 为 `3.18.5`）。
+- Produces: `app/package.json` 中引擎依赖与 overrides 全部为 `0.2.1-rc.5`；`blueprint/package.json`（bundle）与 `blueprint/packages/{context,node,studio}` 的 peerDependencies 为 `0.2.1-rc.5`（`schemastery` 为 `3.18.5`）。
 
 - [ ] **Step 1: 写失败测试**
 
@@ -120,7 +120,7 @@ Expected: FAIL（出现 `0.2.1-alpha.2` 或 alpha 版本）
 
 - [ ] **Step 3: 修改清单并安装**
 
-把 `app/package.json` 的 `dependencies`、`overrides` 中所有 `0.2.1-alpha.2` 改成 `0.2.1-rc.5`；cordis 家族改成 Global Constraints 的精确版本；删除 `overrides['cordis-plugin-hmr']`；保留 `overrides['@openai/codex'] = '0.163.0'`。把 `blueprint/packages/{context,node,studio}/package.json` 的 peerDependencies 同样改到 rc.5 / schemastery 3.18.5。同时把 `app/tests/packaging-engine.test.mjs` 顶部的 `const version = '0.2.1-alpha.2'` 改为从 `app/package.json` 读取（`manifest.dependencies['@deepseek-ai/dsh-llm']`），fixture 的 `overrides` 同步使用该版本。
+把 `app/package.json` 的 `dependencies`、`overrides` 中所有 `0.2.1-alpha.2` 改成 `0.2.1-rc.5`；cordis 家族改成 Global Constraints 的精确版本；删除 `overrides['cordis-plugin-hmr']`；保留 `overrides['@openai/codex'] = '0.163.0'`。把 `blueprint/package.json`（@blueprint/bundle）与 `blueprint/packages/{context,node,studio}/package.json` 的 peerDependencies 同样改到 rc.5 / schemastery 3.18.5。同时把 `app/tests/packaging-engine.test.mjs` 顶部的 `const version = '0.2.1-alpha.2'` 改为从 `app/package.json` 读取（`manifest.dependencies['@deepseek-ai/dsh-llm']`），fixture 的 `overrides` 同步使用该版本。测试必须断言真实键：`overrides['@deepseek-ai/cordis-plugin-hmr'] === undefined`、`@openai/codex` 保留、group/include/loader/timer/schemastery 精确版本，以及 bundle manifest 的 dsh peers（用变异自测证明断言非空转）。
 
 Run: `cd app && npm install`（需要网络；生成新的 `package-lock.json`）
 Expected: 安装成功；`app/node_modules/@deepseek-ai/dsh-llm/package.json` 的 version 为 `0.2.1-rc.5`。
@@ -209,7 +209,7 @@ git commit -m "rc5: regenerate client bundles from pinned engine packages"
 ## Task 3: 打包/启动管线在 rc.5 上跑通
 
 **Files:**
-- Modify: `app/scripts/patch-command.mjs`（新增 `assertPatchCommand`）、`app/scripts/prepare.mjs`（启动补丁前调用它）、`app/tests/packaging-engine.test.mjs`（fixture 版本从 manifest 读取）、`app/tests/source-profile-runtime.test.mjs`（插件数量断言按 rc.5 修正）
+- Modify: `app/scripts/patch-command.mjs`（新增 `assertPatchCommand`）、`app/scripts/prepare.mjs`（启动补丁前调用它）、`app/scripts/terminal-client-assets.mjs`（版本表 5 处 `0.2.1-alpha.2`/`4.0.5-alpha.1` → `0.2.1-rc.5`/`4.0.5`）、`app/tests/packaging-engine.test.mjs`（fixture 版本从 manifest 读取）、`app/tests/source-profile-runtime.test.mjs`（插件数量断言按 rc.5 修正）
 - Test: `app/tests/patch-command.test.mjs`（Create）
 
 **Interfaces:**
@@ -250,6 +250,8 @@ node --test tests/packaging-engine.test.mjs tests/patch-command.test.mjs tests/s
 npm run prepare:runtime
 ```
 Expected: 测试 PASS（`source-profile-runtime` 在未准备源码 CLI 时自动 skip）；`prepare:runtime` 若因 5 个补丁尚未移植失败，记录失败项留待 Task 4–8；本任务只需确认 **patch 缺失提示** 与版本身份检查正确。
+
+注意：`app/.build/runtime` 与 `app/dist/win-unpacked` 是 gitignored 的 alpha.2 旧产物，本任务重新生成前先删除/重建，避免用旧引擎误测；npm lock 重算后 `@earendil-works/pi-ai` 等非引擎版本有浮动，若 Task 14 真实 provider 冒烟异常，用 override 钉回或记录原因。
 
 - [ ] **Step 5: 提交**
 
