@@ -5,9 +5,13 @@ import { cp, mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { createRequire } from 'node:module'
-import { ensurePreviewReadRecoveryPatch, inspectPreviewReadRecoveryPatch } from '../scripts/preview-read-recovery-patch.mjs'
+import { fileURLToPath } from 'node:url'
+import {
+  ensurePreviewReadRecoveryPatch, inspectPreviewReadRecoveryPatch, previewReadRecoveryPatchForVersion
+} from '../scripts/preview-read-recovery-patch.mjs'
 
 const require = createRequire(import.meta.url)
+const app = join(dirname(fileURLToPath(import.meta.url)), '..')
 const originalPackage = require.resolve('@deepseek-ai/dsh-client-ui-sidebar-documentpreview/package.json')
 const directory = await mkdtemp(join(tmpdir(), 'blueprint-preview-read-recovery-'))
 test.after(() => rm(directory, { recursive: true, force: true }))
@@ -62,11 +66,21 @@ function fixture(reader) {
 }
 const image = version => ({ ok: true, value: { version, data: new Uint8Array([137, 80, 78, 71]), absolutePath: '/项目/素材/破口预览.png' } })
 
+test('rc.5 选新补丁、已安装预览包可核对，alpha.2 旧补丁只作历史映射', async () => {
+  assert.match(previewReadRecoveryPatchForVersion('0.2.1-rc.5'), /preview-read-recovery-0\.2\.1-rc\.5\.patch$/)
+  assert.match(previewReadRecoveryPatchForVersion('0.2.1-alpha.2'), /preview-read-recovery-0\.2\.1-alpha\.2\.patch$/)
+  assert.equal(previewReadRecoveryPatchForVersion('0.2.1-rc.4'), undefined)
+  const installed = await inspectPreviewReadRecoveryPatch(join(app, 'node_modules'))
+  assert.equal(installed.engine, '0.2.1-rc.5')
+  assert.equal(installed.compatible, true)
+})
+
 test('补丁重复安装可核对，未知版本和不匹配代码不修改', async () => {
   assert.equal((await ensurePreviewReadRecoveryPatch(modules)).alreadyApplied, true)
   const metadataPath = join(packageDirectory, 'package.json'), metadata = await readFile(metadataPath, 'utf8')
+  const installedVersion = JSON.parse(metadata).version
   try {
-    await writeFile(metadataPath, metadata.replace('"version": "0.2.1-alpha.2"', '"version": "0.2.1-alpha.3"'))
+    await writeFile(metadataPath, metadata.replace(`"version": "${installedVersion}"`, '"version": "0.2.1-unknown"'))
     await assert.rejects(ensurePreviewReadRecoveryPatch(modules), /仅核对/)
     assert.equal(await readFile(codePath, 'utf8'), code)
   } finally { await writeFile(metadataPath, metadata) }
