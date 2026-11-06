@@ -5,7 +5,7 @@ import { 生成表单 } from './表单生成.mjs'
 import { fileURLToPath } from 'node:url'
 import { 界面语言段 } from '../../../viewer/界面语言生成.mjs'
 
-const require = createRequire(new URL('../../../.dsh/profiles/web/package.json', import.meta.url))
+const require = createRequire(new URL('../../../app/package.json', import.meta.url))
 const source = await readFile(require.resolve('@deepseek-ai/dsh-client-ui-layout/client'), 'utf8')
 const marker = name => `\t\t//#region lib/types/client/${name}.js`
 function region(name) {
@@ -152,8 +152,9 @@ group = replaceOnce(group, '\t\t\t\t\t\ttoggle\n', '\t\t\t\t\t\ttoggle, useChat:
 // 展开的过程紧接组头，文件与材料留在过程之后，收起时仍可直接打开结果。
 group = replaceOnce(group, '\t\t\t\t})]\n\t\t\t});\n\t\t});\n\t\t//#endregion', '\t\t\t\t}), h(过程出口, { members, useChat: props.useChat, openFile: props.openFile })]\n\t\t\t});\n\t\t});\n\t\t//#endregion')
 const values = chatRegion('../../util/values/lib/index.js')
-const helpers = values.slice(values.indexOf('\t\tfunction assertNever('))
-if (!helpers.includes('function turnProcessAlwaysOpen(')) throw new Error('dsh 节点可见性原语形状不合')
+// rc.5 把 Turn 过程可见性与群组位置的纯函数拆到单独区域；照旧拼进 helpers。
+const helpers = values.slice(values.indexOf('\t\tfunction assertNever(')) + '\n' + ['lib/types/client/contract/turn-process.js', 'lib/types/client/contract/group-tree.js'].map(chatRegion).join('\n')
+if (!helpers.includes('function turnProcessAlwaysOpen(') || !helpers.includes('function isAtOrOutside(')) throw new Error('dsh 节点可见性原语形状不合')
 const hidden = chatSource.match(/\t\tfunction hiddenOrCollapsing\(element\) \{[^}]+\}/)?.[0]
 if (!hidden) throw new Error('dsh 折叠原语形状不合')
 const nativeChat = [helpers, hidden, ...['lib/types/client/stores.js', 'chat/ChatView.module.css.mjs',
