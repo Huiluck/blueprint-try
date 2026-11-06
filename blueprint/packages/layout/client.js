@@ -679,11 +679,25 @@ function 造条(宿主, 条, 随){
   /* ---- 模型选择 ----
      名单走 llm.models(主机级,不占会话 —— 表开着的时候会话还不存在,session.models 问不了)。
      每次开表现取一次:模型名单是部署的实况,不缓存一份旧的。
-     选空(默认)＝一个字不送,Blueprint 会话用部署默认;选了＝建项目那一步服务端当场
-     selectModel 到 Blueprint 会话上 —— 下游 assign 从父抄 provider/model,整棵树跟着它。 */
+     下拉按 provider 分组；选中哪一家就送 {provider, model}，建项目那一步服务端当场写进项目的
+     模型表 —— 下游 assign 从父抄 provider/model,整棵树跟着它。 */
   const modelSel = document.getElementById('np-model');
   const modelHint = document.getElementById('np-model-hint');
   let 模型单 = [], modelLoad = 0;
+  /* 新项目默认用哪个模型（返回下标，-1 ＝ 空态）：
+     上次本项目挑的（还在名单里）→ 系统 DSH 的默认模型（provider 得真能跑）→ 第一个能跑的 provider 的第一个模型。
+     `routableProviders` 才是「此刻有 adapter 在服务」的名单：目录里有它不代表跑得动；名单失败的 provider 同样不算。
+     一个能跑的都没有就返回 -1，表单显示去系统 DSH 配 provider 的空态。 */
+  function 挑新项目模型(目录, 记){
+    const 跑不了 = new Set(((目录 && 目录.failures) || []).map(f => f.id));
+    const 能跑 = new Set(((目录 && 目录.routableProviders) || 模型单.map(x => x.provider)).filter(id => !跑不了.has(id)));
+    const 上次 = 记 ? 模型单.findIndex(x => x.provider + '/' + x.model === 记) : -1;
+    if(上次 >= 0 && 能跑.has(模型单[上次].provider)) return 上次;
+    const 默认 = 目录 && 目录.default;
+    const 系统 = 默认 && 默认.provider ? 模型单.findIndex(x => x.provider === 默认.provider && x.model === 默认.model) : -1;
+    if(系统 >= 0 && 能跑.has(模型单[系统].provider)) return 系统;
+    return 模型单.findIndex(x => 能跑.has(x.provider));
+  }
   async function 装模型单(){
     modelHint.textContent = '';
     const generation = ++modelLoad;
@@ -703,18 +717,20 @@ function 造条(宿主, 条, 随){
       }
       if(og.children.length) modelSel.append(og);
     }
+    /* 没有「默认」这一项(2026-08-30 用户撤的):表上站着的就是要用的那一个。 */
+    const 记 = previousModel ? previousModel.provider + '/' + previousModel.model : mem.get('studio-新项目-模型');
+    const 选 = 挑新项目模型(r.value, 记);
+    if(选 < 0){
+      /* 一个能跑的都没有 ＝ 系统 DSH 里还没配 provider：说清楚去哪儿配，不拦创建。 */
+      projectReasoning.setModel(null);
+      modelHint.textContent = 译('请先在系统 DSH 中配置模型 provider');
+      return;
+    }
+    modelSel.value = String(选);
+    projectReasoning.setModel(模型单[选]);
     /* 名单不齐要说出来 —— 少一家供应商不报,用户会以为它不存在 */
     const bad = (r.value.failures || []).map(f => f.name || f.id);
     if(bad.length) modelHint.textContent = 译('这几家的名单读不出来:{list}', {list: bad.join(译('、'))});
-    /* 没有「默认」这一项(2026-08-30 用户撤的):表上站着的就是要用的那一个。
-       预选顺序:上次挑的(还在名单里) → API 管理保存的部署默认 → DeepSeek Flash → 名单头一个。 */
-    const 记 = previousModel ? previousModel.provider + '/' + previousModel.model : mem.get('studio-新项目-模型');
-    let 选 = 记 ? 模型单.findIndex(x => x.provider + '/' + x.model === 记) : -1;
-    if(选 < 0 && r.value.default) 选 = 模型单.findIndex(x => x.provider === r.value.default.provider && x.model === r.value.default.model);
-    if(选 < 0) 选 = 模型单.findIndex(x => /flash/i.test(x.model) && /vision/i.test(x.model));
-    if(选 < 0) 选 = 0;
-    if(模型单.length) modelSel.value = String(选);
-    projectReasoning.setModel(模型单[+modelSel.value]);
   }
   /* 左边那个预览节点读这张表的名字（模型和档位不读 —— 那一行只摆默认文字） */
   window.npPreview = () => ({ 名字: name.value.trim(), 描述: (desc.value.trim().split('\n')[0] || '').slice(0, 40) });

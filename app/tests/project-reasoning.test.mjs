@@ -105,7 +105,13 @@ test('首次打开新项目默认为 max 和协作，已有用户的强度与协
     const context = vm.createContext({ 译: text => text, mem: { get: key => saved.get(key), set: (key, value) => saved.set(key, value) } })
     vm.runInContext(coordinate + ';globalThis.rows=坐标表;globalThis.mount=造条;', context)
     const mode = context.rows.find(row => row.名 === 'Mode')
+    /* 运行时 wireNewProject 会按后端目录补挡位、并把旧键按含义迁到新键；这里照同一份接起来，
+       否则测的是一张永远空着的 Mode 条。 */
+    const 旧模式 = Object.fromEntries(modes.flatMap(row => (row.aliases || []).map(alias => [alias, row.id])))
+    旧模式.solo = 'solo'
+    for (const [i, name] of ['execute', 'co-create', 'solo'].entries()) 旧模式[i] = 旧模式[name]
     mode.挡 = modes.map(row => ({ 名: row.id, 显示名: row.label, 说: row.description }))
+    mode.迁移 = [{ key: 'studio-mode-4', 挡: 旧模式 }, { key: 'studio-mode-3', 挡: 旧模式 }]
     const chosen = []
     for (const row of context.rows) {
       let inputs = []
@@ -117,6 +123,7 @@ test('首次打开新项目默认为 max 和协作，已有用户的强度与协
       }
       chosen.push(context.mount(host, row)().名)
     }
-    assert.deepEqual(chosen, remembered ? ['ultra', 'solo'] : ['max', 'co-create'])
+    /* 协作方式的默认值＝后端目录的第一项（studio.html 的 Mode 行 默认:0；名单.json 第一项是 spark）。 */
+    assert.deepEqual(chosen, remembered ? ['ultra', 'solo'] : ['max', 'spark'])
   }
 })
