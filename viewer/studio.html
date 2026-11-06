@@ -186,7 +186,7 @@ body.side-off #side,body.side-off #vsplit{display:none}
 #topbar button:hover{color:var(--header-ink);border-color:var(--header-muted);background:var(--header-hover)}
 #topbar button:active{border-color:var(--header-ink);background:var(--header-hover)}
 #topbar :is(button,select):focus-visible{outline-color:var(--header-ink)}
-/* 项目与 API 入口采用白底黑字，品牌与其他辅助工具融入黑底。 */
+/* 项目与媒体 API 入口采用白底黑字，品牌与其他辅助工具融入黑底。 */
 #topbar :is(#new-proj,#api-manage){background:var(--surface);border-color:var(--surface);color:var(--ink)}
 #topbar :is(#new-proj,#api-manage):hover{background:var(--header-ink);border-color:var(--header-ink)}
 #topbar :is(#new-proj,#api-manage):active{background:var(--hairline);border-color:var(--hairline)}
@@ -1100,7 +1100,7 @@ body.side-off #side,body.side-off #vsplit{display:none}
          按钮在右上,抽屉就贴右出 —— 按钮在哪边,东西就从哪边来 -->
     <!-- 信息流不在这儿:它是右列页签的一员(和轨迹并列,2026-08-31 用户裁定),
          由界面那条线在「右住户」表里加一行。别再往顶栏塞按钮。 -->
-    <button id="api-manage" data-api-open aria-haspopup="dialog" title="添加和管理 API 连接、密钥与模型">API</button>
+    <button id="api-manage" data-api-open aria-haspopup="dialog" title="添加和管理图片、视频、音频服务；对话模型在系统 DSH 中配置">媒体 API</button>
     <!-- 在跑：后台此刻有什么东西占着（跑着的节点 ＋ dsh 登记在册的后台工作），
          每行一个「停」。它跟旁边三个是同一块地的不同住户 —— 见 `根们` 那张表。 -->
     <button id="dw-run" data-root="在跑" title="后台此刻在跑什么 —— 跑着的节点、还没收工的后台工作。每行都能停 (Esc 收起)"><i class="rn-live" aria-hidden="true"></i><span class="rn-w">live</span></button>
