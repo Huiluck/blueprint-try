@@ -1,0 +1,85 @@
+--- @deepseek-ai/dsh-client-ui-sidebar-documentpreview/lib/client.js
++++ @deepseek-ai/dsh-client-ui-sidebar-documentpreview/lib/client.js
+@@ -157,6 +157,7 @@
+ 		function failureLine(t, failure) {
+ 			switch (failure.code) {
+ 				case "workspace-file/not-found": return t("error.notFound");
++				case "workspace-file/read-timeout": return t("error.readTimeout");
+ 				case "workspace-file/too-large": return t("error.tooLarge", { limit: humanBytes(failure.details.limit) });
+ 				case "workspace-file/not-text": return t("error.notText");
+ 				case "workspace-file/not-regular-file": return t("error.notRegularFile");
+@@ -1137,6 +1138,40 @@
+ 		};
+ 		//#endregion
+ 		//#region lib/types/client/face.js
++		/** Bound complete-file reads, including carriers that never settle after cancellation. */
++		function readPreviewBytes(read, file, signal) {
++			const attempt = () => new Promise((resolve, reject) => {
++				if (signal.aborted) { reject(signal.reason); return; }
++				const controller = new AbortController();
++				const lifetime = AbortSignal.any([signal, controller.signal]);
++				let settled = false;
++				const finish = (settle, value) => {
++					if (settled) return;
++					settled = true;
++					clearTimeout(timer);
++					signal.removeEventListener("abort", cancel);
++					settle(value);
++				};
++				const cancel = () => finish(reject, signal.reason);
++				const timer = setTimeout(() => {
++					const error = Object.assign(new Error("File preview read timed out"), {
++						name: "RemoteError", isDSHRemoteError: true,
++						code: "workspace-file/read-timeout", details: {}
++					});
++					finish(reject, error);
++					controller.abort(error);
++				}, 15000);
++				signal.addEventListener("abort", cancel, { once: true });
++				Promise.resolve().then(() => {
++					lifetime.throwIfAborted();
++					return read(file, lifetime);
++				}).then(result => finish(resolve, result), error => finish(reject, error));
++			});
++			return attempt().catch(error => {
++				if (signal.aborted || error?.code !== "workspace-file/read-timeout") throw error;
++				return attempt();
++			});
++		}
+ 		/**
+ 		* Bind the preview's face to one paged read and one complete-byte read.
+ 		* @param read - the bound `workspaceFiles.read` call.
+@@ -1207,7 +1242,7 @@
+ 					reads.controller = controller;
+ 					const lifetime = AbortSignal.any([signal, controller.signal]);
+ 					actions.loading(tabId, "bytes-complete", observedVersion);
+-					readAll(file, lifetime).then((result) => {
++					readPreviewBytes(readAll, file, lifetime).then((result) => {
+ 						if (lifetime.aborted) return;
+ 						if (!result.ok) {
+ 							actions.failed(tabId, result.error);
+@@ -1218,7 +1253,7 @@
+ 						actions.complete(tabId, file);
+ 					}, (error) => {
+ 						if (lifetime.aborted) return;
+-						actions.failed(tabId, Object.assign(new Error(error instanceof Error ? error.message : String(error), { cause: error }), {
++						actions.failed(tabId, error?.isDSHRemoteError ? error : Object.assign(new Error(error instanceof Error ? error.message : String(error), { cause: error }), {
+ 							name: "RemoteError",
+ 							isDSHRemoteError: true,
+ 							code: "gateway/internal",
+@@ -1465,6 +1500,7 @@
+ 			rendererUnavailable: "预览器 {name} 不可用",
+ 			unsupportedFile: "该格式文件暂时无法预览",
+ 			"error.notFound": "文件不存在，可能已被移动或删除",
++			"error.readTimeout": "文件预览读取超时，请重试",
+ 			"error.tooLarge": "单页内容超过 {limit} 上限，无法读取",
+ 			"error.notText": "该格式文件暂时无法预览",
+ 			"error.notRegularFile": "该路径不是普通文件，没有可显示的内容",
+@@ -1490,6 +1526,7 @@
+ 			rendererUnavailable: "The {name} preview is unavailable.",
+ 			unsupportedFile: "Preview is not available for this file type yet.",
+ 			"error.notFound": "File not found. It may have been moved or deleted.",
++			"error.readTimeout": "File preview read timed out. Please retry.",
+ 			"error.tooLarge": "This page exceeds the {limit} limit and cannot be read.",
+ 			"error.notText": "Preview is not available for this file type yet.",
+ 			"error.notRegularFile": "Not a regular file, nothing to display.",
