@@ -239,7 +239,7 @@
     }
     if (action === 'cancel-delete') { $('api-delete-host').replaceChildren(); dialog.querySelector(`[data-delete-provider="${CSS.escape(state.draft.id)}"]`)?.focus(); return }
     if (action === 'confirm-delete') return run(译('正在删除连接…'), async () => {
-      const d = collect(), result = await request('delete', { id: d.id, revision: d.revision })
+      const d = collect(), result = await request('delete', { id: d.id, revision: d.revision, kind: 'media' })
       state.dirty = false; await load(null, { welcome: true }); notify(); status(result.warning || 译('连接已删除'))
     })
     if (action === 'discover') return run(译('正在获取模型列表…'), async () => { const result = await request('discover', collect()); showPicker(result.models); status(result.message) })

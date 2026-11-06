@@ -3,8 +3,10 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { 界面语言段 } from '../../../viewer/界面语言生成.mjs'
 const root = new URL('../../../', import.meta.url)
-const read = path => readFile(new URL(path, root), 'utf8')
-const own = name => readFile(new URL(name, import.meta.url), 'utf8')
+// 产物要跨平台逐字节可复现：一律按 LF 读入，Windows 检出拿到的 CRLF 不能漏进产物。
+const 读 = async url => (await readFile(url, 'utf8')).replace(/\r\n/g, '\n')
+const read = path => 读(new URL(path, root))
+const own = name => 读(new URL(name, import.meta.url))
 const [connections, css, studio, page, agents, agentsCss, software, softwareCss] = await Promise.all([
   read('viewer/connections.js'), read('viewer/connections.css'), read('viewer/studio.html'),
   own('./媒体页.js'), own('./子代理页.js'), own('./子代理页.css'), own('./软件页.js'), own('./软件页.css'),
@@ -17,7 +19,9 @@ for (const seam of [
   "new URL('api/connections', location.href).pathname", 'dialog.showModal()', "document.addEventListener('click'",
   'window.BlueprintConnections = { open }',
   // 2026-11 起连接管理只剩媒体服务；这些接缝证明媒体表单与动作还在。
-  "kind === 'media'", 'function renderMediaForm()', 'function paintMediaModels()', 'data-action="discover"', '系统 DSH',
+  "kind === 'media'", 'function renderMediaForm()', 'function paintMediaModels()', 'data-action="discover"',
+  // 用界面文案而不是「系统 DSH」：后者会被文件头注释命中，文案删掉也照样生成。
+  '对话模型在系统 DSH 中配置',
 ]) if (!connections.includes(seam)) throw new Error(`connections.js 接缝不合：${seam}`)
 // 对话模型的写入口已经删掉；若它们又出现在原件里，媒体页会跟着长回聊天表单，拒绝生成。
 for (const gone of ["connections/default", '添加 API 连接', '测试连接', '设为新项目默认', '接口协议']) {
@@ -51,7 +55,7 @@ const style = `@scope (.bpm) { :scope {${tokens}} ${css} }
 ${agentsCss}
 ${softwareCss}`
 const install = `\n{ const tag = document.getElementById("blueprint-media/media.css") ?? document.createElement("style"); tag.id = "blueprint-media/media.css"; tag.textContent = ${JSON.stringify(style)}; if (!tag.isConnected) document.head.appendChild(tag); }\n`
-const language = await 界面语言段()
+const language = (await 界面语言段()).replace(/\r\n/g, '\n')
 const languageMarker = '    /*@界面语言*/'
 if (page.indexOf(languageMarker) < 0 || page.indexOf(languageMarker) !== page.lastIndexOf(languageMarker)) throw new Error('媒体页接缝不合：界面语言')
 await writeFile(new URL('./client.js', import.meta.url), page.replace(languageMarker, () => language).replace(marker, () => media).replace(agentsMarker, () => agents.trimEnd()).replace(softwareMarker, () => software.trimEnd()) + install)
