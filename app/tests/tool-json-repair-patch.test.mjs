@@ -3,9 +3,11 @@ import assert from 'node:assert/strict'
 import { cp, mkdtemp, mkdir, readFile, writeFile, rm, symlink } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
-import { inspectToolJsonRepairPatch, ensureToolJsonRepairPatch } from '../scripts/tool-json-repair-patch.mjs'
+import { inspectToolJsonRepairPatch, ensureToolJsonRepairPatch, toolJsonRepairPatchForVersion } from '../scripts/tool-json-repair-patch.mjs'
+
+const app = fileURLToPath(new URL('../', import.meta.url))
 
 const require = createRequire(process.env.BLUEPRINT_TOOL_JSON_TEST_ENGINE || new URL('../package.json', import.meta.url))
 const originalPackage = require.resolve('@deepseek-ai/dsh-llm-deepseek/package.json')
@@ -40,12 +42,19 @@ async function run(calls, stop) {
 const ends = chunks => chunks.filter(c => c.type === 'block-end').map(c => c.block.arguments)
 const write = (file, rest) => `{"name": "write", "arguments": {"file_path": "/p/${file}", "content": "${rest}`
 
+test('rc.5 补丁映射存在，实际引擎可核对', async () => {
+  assert.match(toolJsonRepairPatchForVersion('0.2.1-rc.5'), /tool-json-repair-0\.2\.1-rc\.5\.patch$/)
+  assert.match(toolJsonRepairPatchForVersion('0.2.1-alpha.2'), /tool-json-repair-0\.2\.1-alpha\.2\.patch$/)
+  assert.equal(toolJsonRepairPatchForVersion('0.0.0'), undefined)
+  assert.equal((await inspectToolJsonRepairPatch(join(app, 'node_modules'))).compatible, true)
+})
+
 test('补丁可核对、可重复安装；未知版本和不合接缝拒绝修改', async () => {
   assert.equal((await ensureToolJsonRepairPatch(modules)).alreadyApplied, true)
   const metadataPath = join(packageDir, 'package.json'), metadata = await readFile(metadataPath, 'utf8')
   try {
-    await writeFile(metadataPath, metadata.replace('"version": "0.2.1-alpha.2"', '"version": "0.2.1-alpha.3"'))
-    await assert.rejects(ensureToolJsonRepairPatch(modules), /仅核对/)
+    await writeFile(metadataPath, metadata.replace('"version": "0.2.1-rc.5"', '"version": "0.2.1-rc.6"'))
+    await assert.rejects(ensureToolJsonRepairPatch(modules), /尚未核对/)
   } finally { await writeFile(metadataPath, metadata) }
   const codePath = join(packageDir, 'lib/index.js'), code = await readFile(codePath, 'utf8')
   try {
