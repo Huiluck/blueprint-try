@@ -146,8 +146,11 @@ export function createConnectionManager(ctx, { projectRoot, fetch: fetcher = glo
     })
   }
   async function remove(body) {
-    if (body.kind !== 'media') throw new Error(CHAT_READ_ONLY)
-    return exclusive(() => media.remove(body))
+    return exclusive(async () => {
+      // 旧版 viewer 删除媒体连接只发 { id, revision }：按媒体目录补认，聊天 provider 仍一律拒绝。
+      if (body.kind !== 'media' && !(await media.list()).some(p => p.id === body.id)) throw new Error(CHAT_READ_ONLY)
+      return media.remove(body.kind === 'media' ? body : { ...body, kind: 'media' })
+    })
   }
   async function discover(body) {
     if (body.kind !== 'media') throw new Error(CHAT_READ_ONLY)

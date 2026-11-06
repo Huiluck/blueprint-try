@@ -103,6 +103,33 @@ test('聊天连接的保存、删除、获取模型与测试均拒绝，配置�
   assert.equal(f.writes.length, 0)
 })
 
+test('聊天连接只带 id 与 revision 的删除仍被拒绝', async () => {
+  const profile = { baseURL: 'https://example.test/v1', api: 'openai-completions', apiKeyEnv: 'EXTERNAL_API_KEY', models: [{ id: 'model-one' }] }
+  const f = fixture({ providers: { example: profile }, keys: { EXTERNAL_API_KEY: 'unit-test-key' } })
+  const row = (await f.manager.list()).providers.find(p => p.id === 'example')
+  const before = [...f.namespaces.values()].map(clone)
+  await assert.rejects(f.manager.remove({ id: 'example', revision: row.revision }), 只读错误)
+  assert.deepEqual([...f.namespaces.values()], before)
+  assert.equal(f.writes.length, 0)
+  assert.equal((await f.manager.list()).providers.some(p => p.id === 'example'), true)
+})
+
+test('旧版删除请求不带 kind 时按 id 识别媒体连接，revision 语义不变', async () => {
+  const profile = { baseURL: 'https://example.test/v1', api: 'openai-completions', apiKeyEnv: 'EXTERNAL_API_KEY', models: [{ id: 'model-one' }] }
+  const f = fixture({ providers: { example: profile }, keys: { EXTERNAL_API_KEY: 'unit-test-key' } })
+  await f.manager.save(mediaForm())
+  const row = (await f.manager.list()).providers.find(p => p.id === 'media-test')
+  assert.equal(row.kind, 'media')
+  await assert.rejects(f.manager.remove({ id: row.id, revision: row.revision - 1 }), /配置已被其他页面修改/)
+  assert.equal((await f.manager.list()).providers.some(p => p.id === 'media-test'), true)
+  const result = await f.manager.remove({ id: row.id, revision: row.revision })
+  assert.equal(result.id, 'media-test')
+  const list = await f.manager.list()
+  assert.equal(list.providers.some(p => p.id === 'media-test'), false)
+  assert.equal(list.providers.some(p => p.id === 'example'), true)
+  assert.equal(f.vault.get('EXTERNAL_API_KEY'), 'unit-test-key')
+})
+
 test('媒体连接仍可保存、列出、发现模型、验证与删除，Key 不回传', async () => {
   const calls = []
   const f = fixture({ fetch: async (url, options) => { calls.push({ url, options }); return Response.json({ data: [{ id: 'image-one' }, { id: 'image-two' }] }) } })
@@ -198,6 +225,27 @@ test('管理接口把媒体请求交给媒体管理器，聊天请求返回只�
   assert.equal(rejected.status, 400)
   assert.match(rejected.body.message, 只读错误)
   assert.equal((await f.manager.list()).providers.some(p => p.id === 'example'), false)
+})
+
+test('管理接口接受旧版不带 kind 的媒体删除，聊天删除仍返回只读错误', async () => {
+  const profile = { baseURL: 'https://example.test/v1', api: 'openai-completions', apiKeyEnv: 'EXTERNAL_API_KEY', models: [{ id: 'model-one' }] }
+  const f = fixture({ providers: { example: profile } })
+  await f.manager.save(mediaForm())
+  const row = (await f.manager.list()).providers.find(p => p.id === 'media-test')
+  let result
+  const handler = connectionHandler(f.manager, (_, status, body) => { result = { status, body } })
+  async function send(body) {
+    const req = Readable.from([JSON.stringify(body)]); req.method = 'POST'; req.headers = { host: 'localhost:3090', 'content-type': 'application/json' }
+    await handler(req, {}, '/api/connections/delete'); return result
+  }
+  const deleted = await send({ id: row.id, revision: row.revision })
+  assert.equal(deleted.status, 200)
+  assert.equal(deleted.body.value.id, 'media-test')
+  assert.equal((await f.manager.list()).providers.some(p => p.id === 'media-test'), false)
+  const chat = await send({ id: 'example', revision: 0 })
+  assert.equal(chat.status, 400)
+  assert.match(chat.body.message, 只读错误)
+  assert.equal((await f.manager.list()).providers.some(p => p.id === 'example'), true)
 })
 
 test('地址与模型校验工具保留，非法输入仍在写配置前被拒绝', () => {
