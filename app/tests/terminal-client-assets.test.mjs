@@ -14,7 +14,7 @@ test('发布 ESM 真正构建出可执行的原生终端客户端，缓存完整
   t.after(() => rm(directory, { recursive: true, force: true }))
   const built = await ensureTerminalClientAssets(modules, { directory })
   assert.equal(built.ready, true)
-  assert.equal(built.manifest.versions['@deepseek-ai/dsh-api-terminal-controller'], '0.2.1-alpha.2')
+  assert.equal(built.manifest.versions['@deepseek-ai/dsh-api-terminal-controller'], '0.2.1-rc.5')
   assert.ok(Object.keys(built.manifest.inputs).some(path => path.endsWith('/client/model.js')))
   const filename = join(directory, 'native-terminal.js'), original = await readFile(filename, 'utf8')
   assert.ok(!original.includes('window.__ModuleLoader__'), '普通 HTML 不需伪造 DSH Web 模块加载器')
@@ -27,6 +27,8 @@ test('发布 ESM 真正构建出可执行的原生终端客户端，缓存完整
   }
   const ctx = new native.Context()
   ctx.provide('remote', {})
+  // rc.5 的官方客户端模型在构造时读取 connection.generation，判断当前是否已连接。
+  ctx.provide('connection', { generation: { getSnapshot: () => undefined } })
   const client = new native.ClientTerminals(ctx, {})
   assert.equal(ctx.get('webTerminals').closeFailures.getSnapshot().length, 0, '官方客户端模型实际注册到 Cordis')
   assert.equal(client.closeFailures.getSnapshot().length, 0)

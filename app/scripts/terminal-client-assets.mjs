@@ -12,12 +12,12 @@ const manifestName = 'terminal-assets-manifest.json'
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const inside = (root, path) => { const rel = relative(root, path); return rel === '' || (!isAbsolute(rel) && rel !== '..' && !rel.startsWith('../')) }
 const versions = {
-  '@deepseek-ai/dsh-api-terminal-controller': '0.2.1-alpha.2',
-  '@deepseek-ai/dsh-api-gateway': '0.2.1-alpha.2',
-  '@deepseek-ai/dsh-client-store': '0.2.1-alpha.2',
-  '@deepseek-ai/dsh-typert-protocol': '0.2.1-alpha.2',
-  '@deepseek-ai/dsh-util-crypto': '0.2.1-alpha.2',
-  '@deepseek-ai/cordis': '4.0.5-alpha.1',
+  '@deepseek-ai/dsh-api-terminal-controller': '0.2.1-rc.5',
+  '@deepseek-ai/dsh-api-gateway': '0.2.1-rc.5',
+  '@deepseek-ai/dsh-client-store': '0.2.1-rc.5',
+  '@deepseek-ai/dsh-typert-protocol': '0.2.1-rc.5',
+  '@deepseek-ai/dsh-util-crypto': '0.2.1-rc.5',
+  '@deepseek-ai/cordis': '4.0.5',
   '@xterm/xterm': '6.0.0', '@xterm/addon-fit': '0.11.0',
   zustand: '4.5.7', immer: '10.1.1',
 }

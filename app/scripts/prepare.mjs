@@ -9,6 +9,7 @@ import { ensureNativeExternalPatch, inspectNativeExternalPatch } from './native-
 import { ensureNativeReadPatch } from './native-read-patch.mjs'
 import { ensurePreviewReadRecoveryPatch } from './preview-read-recovery-patch.mjs'
 import { ensureToolJsonRepairPatch } from './tool-json-repair-patch.mjs'
+import { assertPatchCommand } from './patch-command.mjs'
 import { assertExternalProviderAssets } from './external-provider-assets.mjs'
 import { ensureTerminalClientAssets } from './terminal-client-assets.mjs'
 import { prepareHeadlessShell } from './browser-assets.mjs'
@@ -63,6 +64,8 @@ export async function prepareRuntime(options) {
     throw new Error(`内置 Node 的二进制或 LICENSE 不完整（${nodePackage}），请运行 npm --prefix app rebuild node 后再准备。`)
   }
   if (execFileSync(executable, ['--version'], { encoding: 'utf8' }).trim() !== expectedNode) throw new Error(`内置 Node 未固定为 ${expectedNode}，请重新准备 app 开发依赖。`)
+  // 补丁工具必须在任何补丁核对/应用（以及运行包清理）之前确认可用，不能静默跳过补丁。
+  assertPatchCommand()
   const hasExternalProviders = !!manifest.dependencies['@deepseek-ai/dsh-subagent-codex']
   if (hasExternalProviders) {
     await assertExternalProviderAssets(modules, { engineVersion, nodePath: executable })
