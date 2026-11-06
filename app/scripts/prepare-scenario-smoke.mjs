@@ -7,7 +7,6 @@ import { payloadNode } from './payload-node.mjs'
 import { expectedEngineVersion, expectedNodeVersion } from './source-cli.mjs'
 import { inspectNativeExternalPatch } from './native-external-patch.mjs'
 import { assertExternalProviderAssets } from './external-provider-assets.mjs'
-import { inspectTerminalClientAssets } from './terminal-client-assets.mjs'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const inside = (parent, child) => { const path = relative(parent, child); return path === '' || (path !== '..' && !path.startsWith('..' + sep) && !isAbsolute(path)) }
@@ -49,11 +48,6 @@ export async function prepareScenario(options) {
     const external = await inspectNativeExternalPatch(modules)
     if (!external.compatible || !external.alreadyApplied) throw new Error('隔离验证的已准备运行包缺少精确外部执行扩展，请先重新 prepare 到新目录。')
     await assertExternalProviderAssets(modules, { engineVersion: engine, nodePath: payloadNode(prepared) })
-  }
-  if (expected.dependencies['@deepseek-ai/dsh-api-terminal-controller']) {
-    const assets = await inspectTerminalClientAssets(join(prepared, 'node_modules'), {
-      directory: join(prepared, 'terminal-client'), entry: join(prepared, 'source/viewer/terminal-native.mjs') })
-    if (!assets.ready) throw new Error('已准备运行包缺少完整终端客户端资源，请先 prepare 到新目录。')
   }
   let destination = options.output
   if (destination) {

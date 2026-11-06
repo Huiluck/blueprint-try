@@ -75,11 +75,11 @@ dsh 的 `/api` SSE 是它**私有的 wire 协议**（`packages/host/apiproxy/src
 
 右栏 Terminal 为当前节点打开交互 Shell，支持多标签、输入、调整尺寸和原生屏幕恢复。新终端使用原生 workingDirectory 的当前目录；之后 Session 换目录不会偷偷改变既有 Shell。输出默认只在终端显示，不送入模型。创建套用 node 的用户终端项目执行域，维持项目、机器文件、认证与管理端口边界；不借用模型预测或审批。
 
-`viewer/terminal-native.mjs` 只导出官方 `ClientTerminals`、`RemoteStream` 及其依赖；`terminal-transport.js` 翻译 HTTP，`terminal.js` 画标签与 xterm。身份、持有、输入排队、输出顺序、断线恢复与关闭意图沿官方客户端。浏览器只额外存标签的会话与出现身份，不保存屏幕、运行状态或 cwd。切节点保留已有 PTY；断线与刷新复用原身份，原进程丢失时明确提示并由用户新建，不静默重启。多窗口共享终端时只有当前原生控制连接能输入。
+终端界面由 dsh 自带的右侧栏终端插件（`@deepseek-ai/dsh-client-ui-sidebar-terminal`）提供：xterm 与 FitAddon 随该包按需加载，Blueprint 不再打包 `viewer/terminal-native.mjs`、`terminal-transport.js`、`terminal.js`。身份、持有、输入排队、输出顺序、断线恢复与关闭意图沿官方客户端。浏览器只额外存标签的会话与出现身份，不保存屏幕、运行状态或 cwd。切节点保留已有 PTY；断线与刷新复用原身份，原进程丢失时明确提示并由用户新建，不静默重启。多窗口共享终端时只有当前原生控制连接能输入。
 
 关闭标签等待原生 `terminalController.close()` 释放进程与最终输出；失败保留官方关闭意图并可跨刷新重试。关闭页面只释放连接，Host／所属 Agent 释放时的资源清理由原生负责。主机重启后不恢复原 PTY。Seatbelt 包装的活动查询可能为 unknown，不承诺固定闲置时限内自动回收。
 
-官方客户端与 xterm 资源由 `app/scripts/terminal-client-assets.mjs` 从选定安装构建并核对版本及摘要。Studio 仅白名单读取 `native-terminal.js`、`xterm.js`、`xterm-fit.js`、`xterm.css`，目录来自 `terminalAssetsDir` 或 `BLUEPRINT_TERMINAL_ASSETS_DIR`。旧服务仍读取新 HTML、终端脚本尚不可用时，仅 Terminal 页显示升级提示，主界面照常使用。核对：`app/tests/studio-terminal.test.mjs`、`app/tests/terminal-view.test.mjs`；真实 PTY 与项目执行域另见 `app/tests/native-terminal.test.mjs`。
+旧页面的终端资源管线（`app/scripts/terminal-client-assets.mjs`、`native-terminal.js`／`xterm.js`／`xterm-fit.js`／`xterm.css`、`terminalAssetsDir`／`BLUEPRINT_TERMINAL_ASSETS_DIR`）已随页面下线删除；xterm 由官方右侧栏终端包自带。`/studio/api/terminal` 接口保留。核对：`app/tests/studio-terminal.test.mjs`；真实 PTY 与项目执行域另见 `app/tests/native-terminal.test.mjs`。
 
 ## `/api/rpc`：一条通道，不是一堆动作
 

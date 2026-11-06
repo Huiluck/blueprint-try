@@ -33,7 +33,6 @@ export async function readDesktopComposition({ resourceRoot, sourceRoot, promptD
         entries: Object.fromEntries(Object.entries({ presentation: '@deepseek-ai/dsh-agent-tool-presentation', workflow: '@deepseek-ai/dsh-workflow-ptc',
           workflowTool: '@deepseek-ai/dsh-tool-workflow', browserRegistry: '@deepseek-ai/dsh-browser-use', browserProvider: '@deepseek-ai/dsh-experimental-browser-use-playwright-mcp',
           office: '@deepseek-ai/dsh-skill-office', dependencies: '@deepseek-ai/dsh-tool-workspace-dependencies' }).map(([key, name]) => [key, resolvePlugin(name)])) }
-      if (row.id === 'blueprint-studio') row.config = { ...row.config, terminalAssetsDir: join(resourceRoot, 'terminal-client') }
       if (row.group && Array.isArray(row.config)) await resolveRows(row.config)
       if (Array.isArray(row.insert)) await resolveRows(row.insert)
     }

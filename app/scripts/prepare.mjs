@@ -11,7 +11,6 @@ import { ensurePreviewReadRecoveryPatch } from './preview-read-recovery-patch.mj
 import { ensureToolJsonRepairPatch } from './tool-json-repair-patch.mjs'
 import { assertPatchCommand } from './patch-command.mjs'
 import { assertExternalProviderAssets } from './external-provider-assets.mjs'
-import { ensureTerminalClientAssets } from './terminal-client-assets.mjs'
 import { prepareHeadlessShell } from './browser-assets.mjs'
 import { preparePreviewMedia } from './preview-media-assets.mjs'
 import { writeWindowsIcon } from './windows-icon.mjs'
@@ -72,8 +71,6 @@ export async function prepareRuntime(options) {
     const external = await inspectNativeExternalPatch(modules)
     if (!external.compatible) throw new Error(`外部执行扩展不兼容：${external.diagnostic}`)
   }
-  const terminalAssets = manifest.dependencies['@deepseek-ai/dsh-api-terminal-controller']
-    ? await ensureTerminalClientAssets(modules, { entry: join(repository, 'viewer/terminal-native.mjs') }) : undefined
   if (isolated) {
     try { await stat(destination); throw new Error('隔离输出已存在，请选择新目录。') }
     catch (error) { if (error.code !== 'ENOENT') throw error }
@@ -109,7 +106,6 @@ export async function prepareRuntime(options) {
   // 执行能力从 native-resources/browser 找无头专用版，节点命令里开 Chrome 时换成它。
   await cp(headlessShell.directory, join(destination, 'native-resources/browser', headlessShell.name), { recursive: true })
   await copySource(repository, join(destination, 'source'))
-  if (terminalAssets) await cp(terminalAssets.directory, join(destination, 'terminal-client'), { recursive: true })
   await mkdir(join(destination, 'node'), { recursive: true })
   await copyFile(executable, join(destination, 'node', nodeBinary))
   if (!windows) await chmod(join(destination, 'node', nodeBinary), 0o755)
@@ -169,7 +165,6 @@ export async function prepareRuntime(options) {
     platform: process.platform, arch: process.arch,
     patchSha256: patch.sha256, externalPatchSha256: externalPatch?.sha256, nativeReadPatchSha256: readPatch.sha256, previewReadRecoveryPatchSha256: previewReadPatch.sha256, toolJsonRepairPatchSha256: toolJsonPatch.sha256,
     externalProviders: externalProviders && JSON.parse(JSON.stringify(externalProviders).replaceAll(destination + sep, '')), packages,
-    terminalClient: terminalAssets?.manifest,
     headlessShell: { path: `native-resources/browser/${headlessShell.name}`, version: headlessShell.version },
     ...(previewMedia ? { previewMedia: {path:'native-resources/media/ffmpeg', ...previewMedia.manifest} } : {}),
   }, null, 2) + '\n')
