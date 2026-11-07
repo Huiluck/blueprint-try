@@ -152,8 +152,8 @@ test('真实 profile、Git 与 Seatbelt：自主工作树跟随当前目录，�
     await git(f.source, 'config', 'filter.blueprint-native-check.clean', `${quote(process.execPath)} ${quote(clean)}`)
     await git(f.source, 'config', 'filter.blueprint-native-check.smudge', `${quote(process.execPath)} ${quote(filter)}`)
     await git(f.source, 'config', 'filter.blueprint-native-check.required', 'true')
+    configuration = await readFile(join(f.root, '作品/.git/config'))
   }
-  configuration = await readFile(join(f.root, '作品/.git/config'))
   const base = await git(f.source, 'rev-parse', 'HEAD')
   await writeFile(join(f.source, '已提交.txt'), '正式空间的未提交修正\n')
   await writeFile(join(f.source, '未跟踪.txt'), '本地草稿\n')
