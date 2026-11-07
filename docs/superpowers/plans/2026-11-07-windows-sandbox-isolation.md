@@ -150,7 +150,7 @@ Expected: PASS（两条用例都过；`runnerStderr` 无 `windows-acl-run:`）�
 - [ ] **Step 3: Re-run the two remaining isolation tests**
 
 Run: `cd app && $env:BLUEPRINT_DATA_HOME = "$env:TEMP\Blueprint 测试数据"; node --import ./scripts/native-node-protocol-check.mjs?register --test tests/native-ralph.test.mjs tests/native-worktree.test.mjs`
-Expected: `native-ralph` 全部 PASS；`native-worktree` 仍可能因命名管道限制失败（Task 3 处理）——记录当前失败签名。
+Expected: `native-ralph` 全部 PASS（Stage B 平台门控后）；`native-worktree` 需先完成 Task 3 平台门控才全部 PASS，否则记录当前失败签名。
 
 - [ ] **Step 4: Update status doc and commit**
 
@@ -232,7 +232,7 @@ test('沙箱工作区不可供给时 PTC 拒绝执行，不得写出边界', asy
       signal: new AbortController().signal })
     return f.ctx.ptcRuntime.run(spec)
   })
-  // 供给失败必须表现为错误（resolve 抛错或 run 返回 isError），而不是成功写出。
+  // 供给失败必须表现为错误（resolve 抛错或 run 返回 result.error），而不是成功写出。
   assert.notEqual(result.value, 'written', JSON.stringify(result))
   await assert.rejects(readFile(目标), { code: 'ENOENT' })
 })
@@ -245,7 +245,7 @@ Expected: PASS（rc.5 的 `sandbox-local` 对无 chain/runner 失败 fail-closed
 
 - [ ] **Step 3: If it fails (fail-open), stop and fix at the product seam**
 
-若 `result.value === 'written'`：不要放宽测试。改为在 `blueprint/packages/node/src/执行能力.js` 的 PTC 调用处做前置校验——当 `sandboxPolicy.mode !== 'danger-full-access'` 且 `ctx.sandbox` 的供给自检不可用（`ctx.sandbox.confine` 对 `workspaceRoot` 抛错）时，直接返回 `{ isError: true, code: 'sandbox-unavailable' }`，不调用 `ptcRuntime.run`；补一条单测覆盖该分支。提交：
+若 `result.value === 'written'`：不要放宽测试。改为在 `blueprint/packages/node/src/执行能力.js` 的 PTC 调用处做前置校验——当 `sandboxPolicy.mode !== 'danger-full-access'` 且 `ctx.sandbox` 的供给自检不可用（`ctx.sandbox.confine` 对 `workspaceRoot` 抛错）时，直接返回按 rc.5 契约的错误结果（`result.error`，而不是 `isError`；当前供给失败分类为 `worker-exit`，专名化列为后续加固项），不调用 `ptcRuntime.run`；补一条单测覆盖该分支。提交：
 
 ```bash
 git add blueprint/packages/node/src/执行能力.js app/tests/native-ralph.test.mjs
