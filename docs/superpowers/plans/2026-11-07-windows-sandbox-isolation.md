@@ -163,14 +163,14 @@ git commit -m "docs: record Windows ACL repair for sandbox isolation"
 
 ---
 
-### Task 2b: native-ralph 机器账本写保护（Decision Gate，Stage B 前置，不自动执行）
+### Task 2b: native-ralph 机器账本写保护（Decision Gate：已决定 B1，2026-11-07）
 
 `native-ralph.test.mjs` 的「PTC 真实 Node 进程…」失败于项目根内机器账本可写（见 Lead 复核记录），不是环境/ACL 供给问题。两个选项需用户拍板后再进入 P0 收口：
 
 - **B1 文档化 + 平台门控（推荐先做，约 1 小时）**：win32 上保留 `own` + `host` 两条边界断言，机器账本断言仅非 win32 执行；状态文档 §3 记录“Windows ACL 后端只限写范围，项目根内机器账本无单文件写保护；PTC 默认关闭”；另开后续 issue 跟踪产品级加固。可达 0 fail。
 - **B2 产品修复（新计划，约 1–2 天）**：为 Windows 隔离增加“受保护机器文件拒绝写”能力（受控 SID + deny ACE + 清理 + fail-closed，安全敏感），需独立计划与复核。
 
-未拍板前 P0 不能以 0 fail 收口（正确目标见 Task 5 修订）。
+> **2026-11-07 决定：采用 B1（用户确认）**。实施：`native-ralph` 在 win32 门控机器账本断言、保留 `own`/`host` 边界；状态文档 §3 记录该平台限制；产品级加固另开 [issue #2](https://github.com/Huiluck/blueprint-try/issues/2)（`ready-for-human`）跟踪。B2 不进入本 P0；Task 5 验收目标仍为 `269 tests / 253 pass / 0 fail / 16 skip`。
 
 ---
 
@@ -302,7 +302,7 @@ git push try r1/rc5
 
 ## P0 执行顺序（Stage A 复核后）
 
-Stage A 已完成（探针与取证见上文 Lead 复核记录）。Task 2（本机 ACL 修复）默认跳过，只有使用非 FullControl 工作区或探针复现 Win32 5 时才执行。完成 Stage B 的 native-ralph 决策（Task 2b）后，按 Task 3 → Task 4 → Task 5 收口；验收目标为 `269 tests / 253 pass / 0 fail / 16 skip`。
+Stage A 已完成（探针与取证见上文 Lead 复核记录）。Task 2（本机 ACL 修复）默认跳过，只有使用非 FullControl 工作区或探针复现 Win32 5 时才执行。Stage B 决策已完成（Task 2b 采用 B1），按 Task 3 → Task 4 → Task 5 收口；验收目标为 `269 tests / 253 pass / 0 fail / 16 skip`。
 
 ---
 
