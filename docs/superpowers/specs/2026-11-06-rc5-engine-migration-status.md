@@ -64,9 +64,8 @@ Blueprint 已启动：http://127.0.0.1:14199/?token=...
 
 ### 2.3 测试
 
-- 迁移完成时基线（受控环境，`npm test`，`BLUEPRINT_DATA_HOME=%TEMP%\Blueprint 测试数据`）：**266 tests / 248 pass / 2 fail / 16 skip**（详见 §3）。
-- Stage A 增补 2 条 Windows ACL 边界探针后：**268 tests / 250 pass / 2 fail / 16 skip**；Stage B 把 `native-ralph` 机器账本断言按平台门控后，定向验证该文件 **6/6 pass**（全量预期 **268 / 251 / 1 / 16**，`native-worktree` 待 P0 Task 3 门控）。
-- P0 收口目标：**269 tests / 253 pass / 0 fail / 16 skip**（新增 fail-closed 回归 1 条；见 `docs/superpowers/plans/2026-11-07-windows-sandbox-isolation.md` Task 5）。
+- 迁移完成时基线：**266 tests / 248 pass / 2 fail / 16 skip**（详见 §3；两项失败已按 P0 收口处理）。
+- P0 收口后（`npm test`，`BLUEPRINT_DATA_HOME=%TEMP%\Blueprint 测试数据`，2026-11-07 本机实测）：**269 tests / 253 pass / 0 fail / 16 skip**（新增 Windows ACL 边界探针 2 条 + fail-closed 回归 1 条；16 skip 为平台专属 + 缺 primary runtime 资产）。发布前建议在普通用户终端复跑一次确认。
 - 每个迁移任务另有独立 implementer + 独立 reviewer 的定向测试与变异验证记录（见各任务提交与 review 消息）
 
 ### 2.4 Windows 安装包
@@ -81,7 +80,7 @@ npm run dist
 1. **Windows ACL 沙箱后端的写边界语义（平台限制）**：
    - 供给本身可用：Stage A 探针（`app/scripts/windows-sandbox-probe.mjs` + `app/tests/windows-sandbox.test.mjs`）在 `%TEMP%` 下用户 FullControl 工作区实测 workspace-write `inside=written / outside=EPERM`、read-only `inside=EPERM`，无 `windows-acl-run:`（证据 `app/.build/windows-sandbox-probe/`）。早先的 `SetNamedSecurityInfoW Win32 5` 只出现在非 FullControl 目录（仓库根 `项目`、仓库树负例），不是“后端不可用”；把这类目录当工作区时仍需按 P0 Task 2 的诊断脚本补 owner FullControl。
    - 根内单文件写保护缺失：**`native-ralph`** 的 PTC 边界在 win32 上只能验证“工作区内可写 + 工作区外不可写”；项目根内的“机器账本”（`系统文档/任务.db`）对 PTC 子进程可写——ACL 后端只表达“可写根”，无法复现 macOS Seatbelt 的 `机器保护` 单文件 deny。按 P0 Task 2b 的 B1 方案：win32 上平台门控该断言（保留 own/host 边界），产品级加固由 [issue #2](https://github.com/Huiluck/blueprint-try/issues/2)（`ready-for-human`）跟踪；PTC 默认关闭（`执行能力设置.ptc=false`），风险面受限。
-   - **`native-worktree`**：真实 Git 外部过滤器经 MSYS `sh` 执行时，受限子进程无法创建命名管道（rc.5 文档化限制）；按 P0 Task 3 平台门控过滤器断言、保留工作树行为断言。
+   - **`native-worktree`**：真实 Git 外部过滤器经 MSYS `sh` 执行时，受限子进程无法创建命名管道（rc.5 文档化限制）；已按 P0 Task 3 平台门控（2026-11-07，保留工作树行为断言与 `-text` 属性以保持 LF 检出）。
 2. **Office / 浏览器 MCP 测试依赖官方 primary runtime 资产**：本仓库当前未准备 `app/.build/native-resources/primary-runtime`（Office sidecar、共享 Python、Playwright MCP 运行环境），测试显式 skip 并提示准备方式；不静默通过。
 3. **Playwright 资产下载**：官方 CDN 极慢，使用镜像 `PLAYWRIGHT_DOWNLOAD_HOST=https://cdn.npmmirror.com/binaries/playwright`（覆盖 `builds/cft/...` 与 `builds/ffmpeg/...`）。本机已预热 `app/.build/native-resources/browser`（headless shell + chromium + ffmpeg + winldd，含 `INSTALLATION_COMPLETE`）；若丢失可镜像重装。
 4. **打包后媒体 API 页只列媒体服务**：聊天 provider 的只读列表仅存在于已下线的旧 `/studio` 页面，打包版不可达；对话模型在系统 DSH 设置中管理（README 已按此描述）。
@@ -112,7 +111,7 @@ npm run dist
 
 ## 5. 下一步建议
 
-1. Windows 沙箱收口（P0）：`native-ralph` 采用 B1 平台门控、`native-worktree` 过滤器按平台门控、fail-closed 回归入库；根内机器账本写保护是产品级加固，见 [issue #2](https://github.com/Huiluck/blueprint-try/issues/2)。
+1. ~~Windows 沙箱收口（P0）~~：已完成（2026-11-07 收口 269/253/0/16；`native-ralph` 采用 B1 平台门控、`native-worktree` 过滤器平台门控、fail-closed 回归入库；根内机器账本写保护是产品级加固，见 [issue #2](https://github.com/Huiluck/blueprint-try/issues/2)）。
 2. 准备官方 primary runtime 资产后启用 Office / Playwright MCP 测试（去掉 skip）。
 3. 清理已无直接消费者的包依赖并同步 `THIRD_PARTY_NOTICES.md`。
 4. 用真机（干净 Windows + 正常用户会话）安装 dist 产物，按计划 Task 14 的 6 条人工验收清单跑一遍。

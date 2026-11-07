@@ -302,7 +302,7 @@ git push try r1/rc5
 
 ## P0 执行顺序（Stage A 复核后）
 
-Stage A 已完成（探针与取证见上文 Lead 复核记录）。Task 2（本机 ACL 修复）默认跳过，只有使用非 FullControl 工作区或探针复现 Win32 5 时才执行。Stage B 决策已完成（Task 2b 采用 B1），按 Task 3 → Task 4 → Task 5 收口；验收目标为 `269 tests / 253 pass / 0 fail / 16 skip`。
+Stage A 已完成（探针与取证见上文 Lead 复核记录）。Task 2（本机 ACL 修复）默认跳过，只有使用非 FullControl 工作区或探针复现 Win32 5 时才执行。Stage B 决策已完成（Task 2b 采用 B1），按 Task 3 → Task 4 → Task 5 收口；2026-11-07 已实测收口：`269 tests / 253 pass / 0 fail / 16 skip`。
 
 ---
 
