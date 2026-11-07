@@ -119,12 +119,15 @@ test('App 和源码 bundle 使用同版官方工作树服务、随进程 Node �
   assert.equal(appWorktree.name, '@deepseek-ai/dsh-experimental-worktree')
   assert.deepEqual(appWorktree.config, { nodeCommand: { __jsExpr: 'process.execPath' } })
   const canonical = parse(await readFile(join(repo, 'blueprint/agent.cordis.yml'), 'utf8'), yamlOptions)
+  // 引擎版本只有一个来源：app manifest 里精确固定的 @deepseek-ai/dsh-llm；官方包必须与它同版。
+  const engine = require('./package.json').dependencies['@deepseek-ai/dsh-llm']
+  assert.match(engine, /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/)
   for (const [id, name] of [['tool-working-directory', '@deepseek-ai/dsh-tool-working-directory'],
     ['tool-worktree', '@deepseek-ai/dsh-experimental-tool-worktree']]) {
     assert.equal(canonical.find(row => row.id === id).name, name)
-    assert.equal(require(`${name}/package.json`).version, '0.2.1-alpha.2')
+    assert.equal(require(`${name}/package.json`).version, engine)
   }
-  assert.equal(require(`${appWorktree.name}/package.json`).version, '0.2.1-alpha.2')
+  assert.equal(require(`${appWorktree.name}/package.json`).version, engine)
 })
 
 test('真实 profile、Git 与 Seatbelt：自主工作树跟随当前目录，正式节点快照和交回保持独立', async t => {
@@ -170,7 +173,10 @@ test('真实 profile、Git 与 Seatbelt：自主工作树跟随当前目录，�
   ]
   const actualRefs = 产物引用(outputEvents, agent.session.id, f.root)
   assert.deepEqual(actualRefs.map(row => row.path), Array(2).fill('作品空间/1/.agents/worktrees/independent-draft/自主产物.txt'), '真实目录事件、绝对写入回执与相对正文指向同一工作树文件')
-  const shell = await f.ok(agent, 'bash', { command: 'pwd', description: '核对当前目录' })
+  // rc.5 的 dsh-base 在 Windows 上换用 pwsh 执行器，`bash` 工具跑的是 PowerShell 命令：
+  // `pwd` 是 Get-Location，表格输出会按控制台宽度截断，所以直接取字符串属性。
+  const 目录命令 = process.platform === 'win32' ? '(Get-Location).ProviderPath' : 'pwd'
+  const shell = await f.ok(agent, 'bash', { command: 目录命令, description: '核对当前目录' })
   assert.equal(shell.value.cwd, created.path)
   assert.match(textOf(shell).replaceAll('\\', '/'), new RegExp(created.path.replaceAll('\\', '/').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
   await f.ok(agent, 'write', { file_path: 'demo.html', content: '<title>原生工作树页面</title><link rel="stylesheet" href="demo.css"><img src="cover.png">' })

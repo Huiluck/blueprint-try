@@ -15,7 +15,8 @@ import { 装后台清理 } from './后台清理.js'
 import { 用自带浏览器, 找无头专用版 } from './后台工具.js'
 
 export const name = 'blueprint-execution-features'
-export const inject = ['agents', 'subagents', 'sessions', 'agentPresets']
+// tools：rc.5 的 cordis 服务代理不再允许未声明的服务访问；startActivation 里要读工具是否在场。
+export const inject = ['agents', 'subagents', 'sessions', 'agentPresets', 'tools']
 
 class 执行能力服务 extends Service {
   constructor(ctx, config, modules) {

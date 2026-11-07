@@ -7,7 +7,7 @@ import { mkdtemp, mkdir, readFile, rm } from 'node:fs/promises'
 import { basename, join } from 'node:path'
 import { createServer } from 'node:http'
 import { execFileSync } from 'node:child_process'
-import { apply as features } from '../../blueprint/packages/node/src/执行能力.js'
+import { apply as features, inject as featuresInject } from '../../blueprint/packages/node/src/执行能力.js'
 import { 写执行能力, 读执行能力 } from '../../blueprint/packages/node/src/执行能力设置.js'
 import { fixtureProjectRoot as 项目路径 } from './project-fixture-root.mjs'
 import { 落新名册, 改名册, 记会话, 写工作文档, 新工作文档, 读名册, 关名册 } from '../../blueprint/packages/roster/src/index.js'
@@ -23,6 +23,8 @@ const names = ['cordis', 'dsh-llm', 'dsh-session', 'dsh-session-projection', 'ds
   'dsh-subagent-spawn-in-process', 'dsh-sandbox-local', 'dsh-sandbox-policy', 'dsh-ptc-runtime-node', 'dsh-tool-fs',
   'dsh-skill', 'dsh-tool-skill', 'dsh-session-persistence-jsonl']
 const sdk = Object.fromEntries(await Promise.all(names.map(async name => [name, await import(url(name))])))
+// rc.5 起部分官方包只给具名 `apply`（模块命名空间就带 apply/inject/Config），不再默认导出。
+const plugin = name => sdk[name].default ?? sdk[name]
 const entries = Object.fromEntries(Object.entries({ presentation: 'dsh-agent-tool-presentation', workflow: 'dsh-workflow-ptc',
   workflowTool: 'dsh-tool-workflow', browserRegistry: 'dsh-browser-use', browserProvider: 'dsh-experimental-browser-use-playwright-mcp',
   office: 'dsh-skill-office', dependencies: 'dsh-tool-workspace-dependencies' }).map(([key, name]) => [key, url(name)]))
@@ -33,19 +35,19 @@ async function fixture(t, options = {}) {
   const root = await mkdtemp(join(项目路径, '官方执行能力核对-')), ctx = new sdk.cordis.Context(), requests = [], children = [], counts = new Map()
   t.after(async () => { await ctx.fiber.dispose(); 关名册(root); await rm(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }) })
   for (const name of ['dsh-llm', 'dsh-session', 'dsh-session-projection', 'dsh-system-prompt', 'dsh-tools', 'dsh-agent',
-    'dsh-subprocess-local', 'dsh-working-directory', 'dsh-skill']) await ctx.plugin(sdk[name].default)
-  await ctx.plugin(sdk['dsh-session-persistence-jsonl'].default, { root: join(root, '会话存储') })
-  await ctx.plugin(sdk['dsh-fs-local'].default, { cwd: root })
-  await ctx.plugin(sdk['dsh-agent-loop'].default, { agents: [] })
-  await ctx.plugin(sdk['dsh-sandbox-local'].default)
-  await ctx.plugin(sdk['dsh-sandbox-policy'].default, { mode: 'workspace-write', workspaceRoot: root })
-  await ctx.plugin(sdk['dsh-subagent'].default)
-  await ctx.plugin(sdk['dsh-subagent-spawn-in-process'], { providerName: 'blueprint-workflow' })
-  await ctx.plugin(sdk['dsh-ptc-runtime-node'].default)
-  await ctx.plugin(sdk['dsh-tool-fs']); await ctx.plugin(sdk['dsh-tool-skill'])
+    'dsh-subprocess-local', 'dsh-working-directory', 'dsh-skill']) await ctx.plugin(plugin(name))
+  await ctx.plugin(plugin('dsh-session-persistence-jsonl'), { root: join(root, '会话存储') })
+  await ctx.plugin(plugin('dsh-fs-local'), { cwd: root })
+  await ctx.plugin(plugin('dsh-agent-loop'), { agents: [] })
+  await ctx.plugin(plugin('dsh-sandbox-local'))
+  await ctx.plugin(plugin('dsh-sandbox-policy'), { mode: 'workspace-write', workspaceRoot: root })
+  await ctx.plugin(plugin('dsh-subagent'))
+  await ctx.plugin(plugin('dsh-subagent-spawn-in-process'), { providerName: 'blueprint-workflow' })
+  await ctx.plugin(plugin('dsh-ptc-runtime-node'))
+  await ctx.plugin(plugin('dsh-tool-fs')); await ctx.plugin(plugin('dsh-tool-skill'))
   // 只代替 preset 的 Loader 文件层；原生未发布 setup、子会话组合与工具作用域保持真实。
   ctx.provide('agentPresets', { composedPreset: () => 'blueprint', mount() {}, composeFrom() {} })
-  await ctx.plugin({ name: 'execution-features-fixture', inject: ['agents', 'subagents', 'sessions', 'agentPresets'], apply: features }, { resourceRoot: resources, entries })
+  await ctx.plugin({ name: 'execution-features-fixture', inject: [...featuresInject], apply: features }, { resourceRoot: resources, entries })
   装项目隔离(ctx, { 检查预测: 检查行动预测,
     只读代码目录: [...原生提供方代码目录([url('dsh-ptc-runtime-node')]), ...ctx.blueprintExecutionFeatures.readOnlyRoots] })
   let parent, response
