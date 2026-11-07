@@ -46,15 +46,6 @@ export async function 生成表单() {
       if(!可以 || disposed) return;
     }
     const 技能 = projectSkills.values();`)
-  // 引导接好别家服务商后按它重读目录并选中；目录还没带上这一项时返回 false。
-  wire = replaceOnce(wire, '  window.npLoadModels = 装模型单;', `  window.npLoadModels = 装模型单;
-  window.npSelectModel = async (provider, model) => {
-    await 装模型单();
-    const i = 模型单.findIndex(x => x.provider === provider && x.model === model);
-    if(i < 0) return false;
-    modelSel.value = String(i); mem.set('studio-新项目-模型', provider + '/' + model); projectReasoning.setModel(模型单[i]);
-    return true;
-  };`)
   wire = replaceOnce(wire, "    if(!名字){ npMsg(译('先给它起个名字 —— 这个名字就是文件夹名'), true); name.focus(); return; }", '')
   wire = replaceOnce(wire, "译('项目名称也是文件夹名，项目文件会保存在这个目录中。')", "译('名称留空时自动取名，之后改名不影响项目文件夹。')")
   wire = replaceOnce(wire, "译('描述不能空 —— 空描述等于又开了一个空对话,那正是这一版要去掉的')", "译('写下你想完成的事，再开始项目。')")
@@ -103,8 +94,7 @@ export async function 生成表单() {
       await Promise.all([window.npLoadSkills?.(), window.npLoadModels?.(), fetch('api/history?%E8%A6%81=%E6%A0%91').then(r=>r.json()).then(data=>{S.projRoot=data.项目根||'';window.npShowPath?.();})]);
     };
     const offModels = modelSettings.subscribe(() => { if (!host.hidden) void window.npLoadModels?.(); });
-    const selectModel = async (provider, model) => { await ready; return !disposed && !!(await window.npSelectModel?.(provider, model)); };
-    return { refresh, selectModel, dispose() { disposed = true; offModels(); for (const off of listeners) off(); } };
+    return { refresh, dispose() { disposed = true; offModels(); for (const off of listeners) off(); } };
   }`
   // 旧阅读样式的全体零圆角会盖过输入控件；只撤掉这条视觉重置。
   const readingCss = replaceOnce(await read('viewer/stream.css'), 'border-radius: 0 !important;', '')

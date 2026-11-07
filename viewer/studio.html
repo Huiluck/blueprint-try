@@ -5433,18 +5433,20 @@ function 造条(宿主, 条, 随){
     }
     /* 没有「默认」这一项(2026-08-30 用户撤的):表上站着的就是要用的那一个。 */
     const 记 = mem.get('studio-新项目-模型');
+    /* 名单不齐要说出来 —— 少一家供应商不报,用户会以为它不存在 */
+    const bad = (r.value.failures || []).map(f => f.name || f.id);
+    const 名单不齐 = bad.length ? 译('这几家的名单读不出来:{list}', {list: bad.join(译('、'))}) : '';
     const 选 = 挑新项目模型(r.value, 记);
     if(选 < 0){
-      /* 一个能跑的都没有 ＝ 系统 DSH 里还没配 provider：说清楚去哪儿配，不拦创建。 */
+      /* 一个能跑的都没有 ＝ 系统 DSH 里还没配 provider：说清楚去哪儿配，不拦创建。
+         名单读失败时一并说出来 —— 只报「还没配」会把「读不出来」藏掉。 */
       projectReasoning.setModel(null);
-      modelHint.textContent = 译('请先在系统 DSH 中配置模型 provider');
+      modelHint.textContent = [名单不齐, 译('请先在系统 DSH 中配置模型 provider')].filter(Boolean).join(' ');
       return;
     }
     modelSel.value = String(选);
     projectReasoning.setModel(模型单[选]);
-    /* 名单不齐要说出来 —— 少一家供应商不报,用户会以为它不存在 */
-    const bad = (r.value.failures || []).map(f => f.name || f.id);
-    if(bad.length) modelHint.textContent = 译('这几家的名单读不出来:{list}', {list: bad.join(译('、'))});
+    if(名单不齐) modelHint.textContent = 名单不齐;
   }
   /* 左边那个预览节点读这张表的名字（模型和档位不读 —— 那一行只摆默认文字） */
   window.npPreview = () => ({ 名字: name.value.trim(), 描述: (desc.value.trim().split('\n')[0] || '').slice(0, 40) });

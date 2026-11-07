@@ -126,6 +126,20 @@ test('系统 DSH 里没有 provider 时显示空态，节点共用的旧目录�
   assert.match(f.modelHint.textContent, /请先在系统 DSH 中配置模型 provider/)
 })
 
+test('groups 为空但名单读不出来时，同时显示读取失败与空态原因', async () => {
+  const f = fixture(() => ({ ok: true, value: {
+    groups: [], routableProviders: [],
+    failures: [{ id: 'deepseek', name: 'DeepSeek', message: '没有 adapter' }],
+  } }))
+  await f.loadProject()
+  assert.equal(f.modelSel.children.length, 0)
+  assert.equal(f.reasoningModel(), null)
+  // 空名单不能把「名单读不出来」盖成「还没配 provider」：两句话都要在。
+  assert.match(f.modelHint.textContent, /这几家的名单读不出来/)
+  assert.match(f.modelHint.textContent, /DeepSeek/)
+  assert.match(f.modelHint.textContent, /请先在系统 DSH 中配置模型 provider/)
+})
+
 test('读取失败保留已有模型选择；成功目录到期后可重读', async () => {
   const f = fixture(n => n === 1 ? { ok: true, value: updated } : { ok: false, message: '读取失败' })
   await f.loadProject()
@@ -151,6 +165,11 @@ test('新项目默认模型只来自系统目录：不写连接配置，也没�
   assert.ok(!html.includes('connections/default'))
   assert.ok(!html.includes('设为新项目默认'))
   assert.ok(!html.includes('rememberDefault'))
+  assert.ok(!html.includes('BlueprintAPI'))
+  // 旧连接引导接好后「刷新并选中新服务商」的接缝也随引导一起撤下。
+  const form = await readFile(new URL('../../blueprint/packages/layout/表单生成.mjs', import.meta.url), 'utf8')
+  assert.ok(!form.includes('npSelectModel'))
+  assert.ok(!form.includes('selectModel'))
   // 默认模型不再按名字猜（旧的 flash+vision 预选）：只认目录的 default 与 routableProviders。
   assert.ok(!/vision/i.test(projectLoader))
   const studio = await readFile(new URL('../../blueprint/packages/studio/src/index.js', import.meta.url), 'utf8')
