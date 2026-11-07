@@ -169,7 +169,10 @@ test('子轮不能直接交回正式责任或递归 Ralph；母节点责任结�
   await assert.rejects(readFile(join(closed.work, '责任结束后不得写.txt')), { code: 'ENOENT' })
 })
 
-test('PTC 真实 Node 进程保留项目写入；机器账本、宿主与邻居文件都不可写', async t => {
+// rc.5 文档化限制：Windows 的 ACL 后端只限制“可写根”，无法像 macOS Seatbelt 那样
+// 在根内再排除机器账本等单文件；win32 上保留“工作区内可写 + 工作区外不可写”的断言，
+// 机器账本断言只在非 win32 执行（见 docs/superpowers/specs/2026-11-06-rc5-engine-migration-status.md §3）。
+test('PTC 真实 Node 进程保留项目写入；项目外文件不可写（win32 机器账本受 ACL 后端限制）', async t => {
   const f = await fixture(t)
   const files = { own: join(f.work, 'PTC验证.txt'), machine: 名册路径(f.root),
     host: join(项目路径, 'PTC越界验证.txt') }
@@ -180,6 +183,7 @@ test('PTC 真实 Node 进程保留项目写入；机器账本、宿主与邻居�
     return f.ctx.ptcRuntime.run(spec)
   })
   assert.equal(result.value?.own, 'written', JSON.stringify(result))
-  assert.notEqual(result.value.machine, 'written'); assert.notEqual(result.value.host, 'written')
+  if (process.platform !== 'win32') assert.notEqual(result.value.machine, 'written')
+  assert.notEqual(result.value.host, 'written')
   assert.equal(f.requests.length, 0)
 })
