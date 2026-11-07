@@ -62,9 +62,11 @@ async function fixture(t) {
   return { ctx, agent, handle, root, requests, respond: fn => { response = fn }, operation: args => 操作持续目标(ctx, agent, args) }
 }
 
-// 选 20：有 Goal 的节点和没有的一样，开头（职责与纸条原文）接在每个 Goal 轮第一步的末尾，系统提示不加持续工作段；
-// 叫醒话原样送，一轮中途到的不插第二份；技能结果不接开头；文档重建照常带开头。清除 Goal 后的普通输入也照样接开头。
-test('Goal 每轮第一步末尾接开头、系统提示不变；中途到的叫醒话原样进、不重复插；技能结果不接开头；清除后照旧', async t => {
+// 选 20/选 27：有 Goal 的节点和没有的一样，开头（职责与纸条原文）接在每个 Goal 轮第一步的末尾，系统提示不加持续工作段；
+// 轮开始时排队中的叫醒话原样并进来，一轮中途到的不插第二份；技能结果不接开头；文档重建照常带开头。
+// rc.5：Goal 轮自己开的一轮不再把 Goal 提示算成「新事」（选 27），开头只在第一步确实带来新输入时插——
+// 所以这里照生产的样子，让每轮开始都有叫醒话带着走；纯自转的轮只接选择机选出的阶段页（本 fixture 没有模型表，选择机选不出）。
+test('Goal 轮第一步带新事时末尾接开头、纯自转轮不重复插；系统提示不变；中途到的叫醒话原样进；技能结果不接开头；清除后照旧', async t => {
   const f = await fixture(t), gate = Promise.withResolvers()
   t.after(() => gate.resolve())
   const row = 行Of(await 读名册(f.root), '0'), responsibility = '职责原文：核对 {{字面标记}} 与文件入口。'
@@ -80,11 +82,19 @@ test('Goal 每轮第一步末尾接开头、系统提示不变；中途到的叫
       await 写工作文档(f.root, row, 新工作文档(row, '完成核对', { responsibility: '最新职责：保留 {{新的字面标记}}。' }))
       return { 文: '技能页原文' }
     } })
+  // 选择机探问也是模型调用：按「这一问是不是选择机」分开数，节点自己的步骤才算轮里的步。
+  const 选择机探问 = request => request.messages.at(-1)?.source?.kind === 'plugin:blueprint-selector'
+  const 节点请求 = () => f.requests.filter(request => !选择机探问(request))
+  const 叫醒话 = text => sdk['dsh-llm'].createUserMessage({ source: { kind: 'plugin:blueprint-node' }, content: [{ type: 'text', text }] })
   f.respond(async () => {
-    if (f.requests.length !== 1) return
-    await gate.promise
-    return [{ type: 'tool-call', id: sdk['dsh-llm'].ToolCallId('goal-opening-skill'), name: 'skill', arguments: JSON.stringify({ name: 'orient' }) }]
+    const nodes = 节点请求()
+    if (nodes.length === 1) {
+      await gate.promise
+      return [{ type: 'tool-call', id: sdk['dsh-llm'].ToolCallId('goal-opening-skill'), name: 'skill', arguments: JSON.stringify({ name: 'orient' }) }]
+    }
   })
+  // Goal 轮由叫醒带着开：排队中的叫醒在 pre-step 并进这一轮第一步，所以第一步算「有新事」，开头接在末尾。
+  f.agent.inbox.prepend('next-step', { ...叫醒话('开工时的叫醒话'), id: 'goal-first-round-wake' })
   await f.operation({ action: 'create', objective: '核对 Goal 情境', maxGoalRounds: 2 })
   await wait(() => f.requests.length === 1)
   // Goal 第一轮正在跑：叫醒话原样排进 inbox，不在投递时插页。
@@ -96,44 +106,50 @@ test('Goal 每轮第一步末尾接开头、系统提示不变；中途到的叫
   assert.ok(rebuilt.includes(fixed), '文档重建照常带开头（不再由系统提示接管）')
   gate.resolve()
   await wait(() => f.agent.status === 'idle' && 当前持续目标(f.ctx, f.agent).blockedReason?.code === 'round-limit')
-  assert.equal(f.requests.length, 3, 'Goal 第一轮两步（技能结果之后一步）＋第二轮一步')
+  const steps = 节点请求()
+  assert.equal(steps.length, 3, 'Goal 第一轮两步（技能结果之后一步）＋第二轮一步')
+  // 第一轮第一步没有请求头、项目也没有模型表 → 选择机记一条「没有可用的模型」；第二轮照重问一次，两次探问各占一次模型调用。
+  assert.equal(f.requests.length - steps.length, 2, '选择机探问不进节点对话，只占模型调用')
   assert.equal(当前持续目标(f.ctx, f.agent).roundsStarted, 2)
   const openings = request => request.messages.filter(message => message.source?.kind === `plugin:${思考开头来路}`)
   const added = (request, previous) => { const seen = new Set(previous.messages.map(m => m.id)); return request.messages.filter(m => !seen.has(m.id)) }
   for (const request of f.requests) assert.ok(!request.messages.some(message => message.role === 'system'
     && message.content.some(block => block.text?.includes(fixed))), '系统提示里不再有持续工作判断')
-  // 第一轮第一步：Goal 那一轮的提示后面接一份开头，职责与来信原文里的花括号原样保留。
-  const [first] = openings(f.requests[0])
+  // 第一轮第一步：叫醒话与 Goal 那一轮的提示一起进，末尾接一份开头，职责与来信原文里的花括号原样保留。
+  const [first] = openings(steps[0])
   assert.ok(first, 'Goal 第一轮第一步接开头')
   assert.match(JSON.stringify(first), /职责原文：核对 \{\{字面标记\}\}/)
   assert.match(JSON.stringify(first), /待处理来信的 \{\{字面原文\}\}/)
-  assert.ok(f.requests[0].messages.some(message => message.source?.kind === 'goal' && message.source.round === 1))
+  assert.ok(steps[0].messages.some(message => message.source?.kind === 'goal' && message.source.round === 1))
+  assert.ok(steps[0].messages.some(message => message.id === 'goal-first-round-wake'), '开工叫醒话并进这一轮')
   // 第一轮第二步：中途到的叫醒话（和叫醒时顺带送的那张来信）原样进来，不再插第二份开头；它们记进中途，给下一次选择机。
-  const middle = added(f.requests[1], f.requests[0])
+  const middle = added(steps[1], steps[0])
   assert.equal(middle.filter(message => JSON.stringify(message.content).includes('本次变化的业务原文')).length, 1)
   assert.equal(middle.filter(message => JSON.stringify(message.content).includes('待处理来信的 {{字面原文}}')).length, 1)
   assert.deepEqual(openings({ messages: middle }), [])
-  // 第二轮：开头按最新职责重新取。
-  const second = added(f.requests[2], f.requests[1])
+  // 第二轮：纯自转的一轮没有新事，只接选择机选出的阶段页，不重复插开头（选 27）；交接与职责由下一轮开头重取。
+  const second = added(steps[2], steps[1])
   assert.ok(second.some(message => message.source?.kind === 'goal' && message.source.round === 2))
-  const [secondOpening, ...extra] = openings({ messages: second })
-  assert.equal(extra.length, 0)
-  assert.match(JSON.stringify(secondOpening), /最新职责：保留 \{\{新的字面标记\}\}/)
-  assert.equal(f.agent.session.ownEvents().filter(event => event.type === 'user/message' && event.data?.source?.kind === `plugin:${思考开头来路}`).length, 2, '两轮各插一次')
+  assert.deepEqual(openings({ messages: second }), [], '没有新事的一轮不重复插开头')
+  assert.equal(f.agent.session.ownEvents().filter(event => event.type === 'user/message' && event.data?.source?.kind === `plugin:${思考开头来路}`).length, 1, 'Goal 轮里只插一次：第一轮带着开工叫醒')
   assert.equal((await 读名册(f.root)).rows[0].selector?.pending, undefined, '中途记下的事在第二轮过选择机时清掉')
   const skill = f.agent.session.ownEvents().find(event => event.type === 'tool/result' && event.data.message.toolCallId === 'goal-opening-skill')
   assert.deepEqual(skill.data.message.content, [{ type: 'text', text: '技能页原文' }])
   // 清除 Goal 后用户再说话：照常接一份开头；用户清除过的 Goal 不替他重建，答完就停。
   await f.operation({ action: 'clear', ref: ref(当前持续目标(f.ctx, f.agent)) })
   assert.equal(当前持续目标(f.ctx, f.agent), undefined)
-  const 清除前请求 = f.requests.length
+  const 清除前请求 = f.requests.length, 清除前步骤 = 节点请求().length
   f.agent.followup(sdk['dsh-llm'].createUserMessage({ source: { kind: 'user' }, content: [{ type: 'text', text: '清除目标后的用户输入' }] }))
-  await wait(() => f.requests.length > 清除前请求 && f.agent.status === 'idle')
+  await wait(() => 节点请求().length > 清除前步骤 && f.agent.status === 'idle')
   await new Promise(resolve => setTimeout(resolve, 100))
-  assert.equal(f.requests.length, 清除前请求 + 1, '没有重建 Goal，答完不再开轮')
-  const afterClear = added(f.requests.at(-1), f.requests.at(-2))
+  assert.equal(节点请求().length, 清除前步骤 + 1, '没有重建 Goal，答完不再开轮')
+  assert.ok(f.requests.length >= 清除前请求 + 1)
+  const 清除后节点请求 = 节点请求()
+  const afterClear = added(清除后节点请求.at(-1), 清除后节点请求.at(-2))
   assert.ok(afterClear.some(message => JSON.stringify(message.content).includes('清除目标后的用户输入')))
   assert.equal(openings({ messages: afterClear }).length, 1)
+  // 清除后这一轮的开头按此刻的节点文档重新取：技能那一步已经把职责改成最新。
+  assert.match(JSON.stringify(openings({ messages: afterClear })[0]), /最新职责：保留 \{\{新的字面标记\}\}/)
   assert.equal(当前持续目标(f.ctx, f.agent), undefined, '用户清除过的 Goal 不重建')
 })
 
@@ -327,6 +343,12 @@ test('官方自主 complete 结束 Goal，正式责任仍须沿 Blueprint 交回
       arguments: JSON.stringify({ goal_id: goal.id, revision: goal.revision, action: 'complete' }) }]
   })
   await f.operation({ action: 'create', objective: '自主收尾核对', maxGoalRounds: 2 })
+  await new Promise(resolve => setTimeout(resolve, 500))
+  console.error('DEBUG-COMPLETE', JSON.stringify({
+    requests: f.requests.length,
+    goal: 当前持续目标(f.ctx, f.agent),
+    tools: f.agent.session.ownEvents().filter(event => event.type === 'tool/result').map(event => event.data.message),
+  }, null, 1))
   await wait(() => 当前持续目标(f.ctx, f.agent).phase === 'complete' && f.agent.status === 'idle')
   assert.equal(当前持续目标(f.ctx, f.agent).roundsStarted, 1)
   assert.equal(f.requests.length, 2, '第二步只承接官方收尾提示')

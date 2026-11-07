@@ -96,7 +96,9 @@ test('创建时锁定思考等级，目录更新也保持锁定；失败后恢�
 })
 
 
-test('首次打开新项目默认为 max 和协作，已有用户的强度与协作选择继续保留', async () => {
+// 十 55 起协作目录是 spark、build、solo，新建项目默认取目录第一项（spark，见 studio.html 坐标表的 Mode 默认 0）；
+// 旧的 co-create 只是 build 的别名，不再是最初的默认。已有用户记住的强度与协作方式仍按原值读取。
+test('首次打开新项目默认为 max 与协作目录第一项，已有用户的强度与协作选择继续保留', async () => {
   const html = await readFile(new URL('../../viewer/studio.html', import.meta.url), 'utf8')
   const coordinate = html.slice(html.indexOf('const 坐标表 = ['), html.indexOf('(async function wireNewProject(){'))
   const modes = JSON.parse(await readFile(new URL('../../blueprint/packages/prompt/shells/协作模式/名单.json', import.meta.url), 'utf8'))
@@ -106,6 +108,11 @@ test('首次打开新项目默认为 max 和协作，已有用户的强度与协
     vm.runInContext(coordinate + ';globalThis.rows=坐标表;globalThis.mount=造条;', context)
     const mode = context.rows.find(row => row.名 === 'Mode')
     mode.挡 = modes.map(row => ({ 名: row.id, 显示名: row.label, 说: row.description }))
+    // 和 wireNewProject 同一条迁移（那段在异步 IIFE 里，切片拿不到）：别名、旧下标与 solo 都按含义迁到新 id。
+    const 旧模式 = Object.fromEntries(modes.flatMap(row => (row.aliases || []).map(alias => [alias, row.id])))
+    旧模式.solo = 'solo'
+    for (const [index, name] of ['execute', 'co-create', 'solo'].entries()) 旧模式[index] = 旧模式[name]
+    mode.迁移 = [{ key: 'studio-mode-4', 挡: 旧模式 }, { key: 'studio-mode-3', 挡: 旧模式 }]
     const chosen = []
     for (const row of context.rows) {
       let inputs = []
@@ -117,6 +124,6 @@ test('首次打开新项目默认为 max 和协作，已有用户的强度与协
       }
       chosen.push(context.mount(host, row)().名)
     }
-    assert.deepEqual(chosen, remembered ? ['ultra', 'solo'] : ['max', 'co-create'])
+    assert.deepEqual(chosen, remembered ? ['ultra', 'solo'] : ['max', modes[0].id])
   }
 })

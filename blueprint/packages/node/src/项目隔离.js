@@ -52,6 +52,11 @@ export function 原生提供方代码目录(entries = []) {
       const root = realpathSync(dirname(from.resolve(asEntry ? name : `${name}/package.json`)))
       return { root, metadata: JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')), require: createRequire(join(root, 'package.json')) }
     }
+    // 官方运行时版本只有一个来源：同一份依赖树里的 @deepseek-ai/dsh-llm（app manifest 的精确固定版本）。
+    // 不写死版本号：引擎升级时执行提供方与引擎同版，入口仍只认部署固定的那一份。
+    const 引擎版本 = () => {
+      try { return packageRoot('@deepseek-ai/dsh-llm').metadata.version } catch { return undefined }
+    }
     if (provider.name === '@deepseek-ai/dsh-subagent-codex') {
       // Codex 的精确版本由 App 定（package.json 的 overrides，2026-10-18 起 0.163.0，提供方钉的 0.153.4 拿不到新模型），打包时 external-provider-assets 核对；
       // 这里只认从提供方解析到的那一份官方包，和它的平台载荷对得上。
@@ -66,7 +71,7 @@ export function 原生提供方代码目录(entries = []) {
       const platform = packageRoot(`@anthropic-ai/claude-agent-sdk-${process.platform}-${process.arch}`, sdk.require)
       if (platform.metadata.version !== sdk.metadata.version) throw new Error('PROJECT_ISOLATION: Claude 平台载荷版本不一致。')
       roots.add(sdk.root); roots.add(platform.root)
-    } else if (provider.name === '@deepseek-ai/dsh-ptc-runtime-node' && provider.version === '0.2.1-alpha.2') {
+    } else if (provider.name === '@deepseek-ai/dsh-ptc-runtime-node' && provider.version === 引擎版本()) {
       roots.add(dirname(dirname(entry)))
     } else throw new Error('PROJECT_ISOLATION: 只接纳部署固定的官方执行提供方入口。')
   }
