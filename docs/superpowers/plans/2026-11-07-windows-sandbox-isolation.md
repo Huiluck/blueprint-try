@@ -2,13 +2,23 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 让 Blueprint 在 Windows 上的受限写边界可复现、可验证，并且在沙箱供给失败时绝不退化为不受限执行；修掉剩余两个隔离测试的失败，使全量套件达到 250 pass / 0 隔离失败 / 16 skip。
+**Goal:** 让 Blueprint 在 Windows 上的受限写边界可复现、可验证，并且在沙箱供给失败时绝不退化为不受限执行；修掉剩余两个隔离测试的失败，使全量套件达到 253 pass / 0 fail / 16 skip（269 tests）。
 
-**Architecture:** 以 `@deepseek-ai/dsh-sandbox-windows-acl` 的 runner 契约（`--workspace/--temp/--mode/--` + 退出码 127 与 `windows-acl-run:` 失败签名）为一个新接缝，先写一个探针脚本 + 测试把“工作区内可写 / 外不可写 / 只读不可写 / 供给失败必须 fail-closed”固化成可重复证据；再按证据分两路收口：(a) 本机工作区与测试数据目录的 DACL 缺少 `WRITE_OWNER` 导致 `SetNamedSecurityInfoW Win32 5`，用 rc.5 随包诊断脚本在**非受限** PowerShell 中修复；(b) 受限子进程无法创建命名管道，而 Git 外部过滤器必须经 MSYS `sh` 执行，属 rc.5 文档化限制，按平台拆分 `native-worktree` 中的过滤器断言。最后加一条 fail-closed 回归测试并更新验收记录。
+**Architecture:** 以 `@deepseek-ai/dsh-sandbox-windows-acl` 的 runner 契约（`--workspace/--temp/--mode/--` + 退出码 127 与 `windows-acl-run:` 失败签名）为一个新接缝，先写一个探针脚本 + 测试把“工作区内可写 / 外不可写 / 只读不可写 / 供给失败必须 fail-closed”固化成可重复证据；再按证据分两路收口：(a) 使用仓库树等非 FullControl 目录当工作区时，目录继承的 DACL 缺少 `WRITE_OWNER` 导致 `SetNamedSecurityInfoW Win32 5`，用 rc.5 随包诊断脚本在**非受限** PowerShell 中修复（当前全量测试数据根在 `%TEMP%` 下不需要）；(b) 受限子进程无法创建命名管道，而 Git 外部过滤器必须经 MSYS `sh` 执行，属 rc.5 文档化限制，按平台拆分 `native-worktree` 中的过滤器断言。最后加一条 fail-closed 回归测试并更新验收记录。
 
 **Tech Stack:** Node.js 22.23.3（`node --test`、`node --import ./scripts/native-node-protocol-check.mjs?register`）、`@deepseek-ai/dsh-sandbox-windows-acl@0.2.1-rc.5`、`dsh-sandbox-local`、`dsh-ptc-runtime-node`、PowerShell 5.1+、Git for Windows。
 
 **Spec:** `docs/superpowers/specs/2026-11-06-rc5-engine-migration.md`（设计）与 `docs/superpowers/specs/2026-11-07-rc5-migration-spec.md`（Out of Scope / Further Notes）、`docs/superpowers/specs/2026-11-06-rc5-engine-migration-status.md` §3（已知限制 1）与 §5（下一步建议 1）。
+
+## Lead 复核记录（2026-11-07，Stage A）
+
+- 起点：`r1/rc5` / `b6d1144`；宿主 Node v24.15.0；测试数据根 `%TEMP%\Blueprint 测试数据`（`app/scripts/test-runner.mjs` 与 `app/tests/project-fixture-root.mjs` 已统一）。
+- Task 1 探针证据（`app/.build/windows-sandbox-probe/`）：workspace-write 下 `inside=written`、`outside=EPERM`、`runnerExit=0`、stderr 无 `windows-acl-run:`；read-only 下 `inside` 非 `written`。结论：ACL 供给与工作区/外部边界在本机（`%TEMP%` 下用户 FullControl 工作区）可用。
+- 仓库树工作区负例：同一探针对 `app/.build/windows-sandbox-probe/sandbox/workspace` 复现 `windows-acl-run: SetNamedSecurityInfoW failed (Win32 5): grantWrite(...)`（`repo-tree-workspace-write.log`）；受控给该临时目录补 `LHUILAPTOP\Lhui:(OI)(CI)F` 后同一探针通过（`repo-tree-with-fullcontrol.log`，随后删除该目录，检出 ACL 未改）。成因：仓库树目录继承 `Authenticated Users:(M)`、缺 WRITE_OWNER。结论：`%TEMP%` 数据根不受影响；把仓库树目录当工作区时仍需 Task 2 的 ACL 修复。
+- `native-ralph` 真实签名（临时插桩副本实测，副本已删除不提交）：`{"own":"written","machine":"written","host":"EPERM"}`。结论：失败点不是供给失败，而是项目根内“机器账本”（`系统文档/任务.db`）对 PTC 子进程可写——Windows ACL runner 只表达“可写根”，无法复现 macOS Seatbelt 的 `机器保护` 单文件 deny（`blueprint/packages/node/src/项目隔离.js` 的 `隔离规则`/`窗口隔离`；rc.5 sandbox README Known Limitations）。
+- `SetNamedSecurityInfoW Win32 5` 的含义：只发生在缺 WRITE_OWNER 的非 FullControl 目录（历史上的仓库根 `项目`、以及上面的仓库树负例）；当前全量测试数据根在 `%TEMP%` 下供给正常，故 Task 2 对测试基线默认不需要执行，但若把仓库树/其他非 FullControl 目录当工作区使用，仍按 Task 2 执行诊断脚本修复。
+- fail-closed 取证：Task 4 的用例已在 Stage A 用 scratch 副本预跑，结论：fail-closed 实质成立（PTC 未执行、目标文件不存在、错误以 result.error 暴露）；当前通道是 result.error.kind="worker-exit"（坏 workspaceRoot 在 realpath 处 ENOENT），不是 "sandbox-unavailable"。（证据 `app/.build/windows-sandbox-probe/fail-closed.log`）
+- 交接清单 `docs/agents/lead-handoff-2026-11-07-rc5-migration.md` §3.4 对 `native-ralph` 的“ACL 供给失败”归因已被本记录取代。
 
 ## Global Constraints
 
@@ -30,7 +40,7 @@
 
 ---
 
-### Task 1: 沙箱探针与红测（reproduce the boundary failure deterministically）
+### Task 1: 沙箱探针与边界测试（reproducible boundary evidence）
 
 **Files:**
 - Create: `app/scripts/windows-sandbox-probe.mjs`
@@ -90,25 +100,25 @@ Expected: FAIL —— 探针模块不存在（`ERR_MODULE_NOT_FOUND`），先红
 4. 解析 stdout 的 JSON 为 `child`；`runnerStderr` 取 stderr 前 4KB；`runnerExit = status`。
 5. `export async function runWindowsSandboxProbe(...)`；文件底部 `if (process.argv[1] === fileURLToPath(import.meta.url))` 时执行 CLI 并打印 JSON。
 
-- [ ] **Step 4: Run test to capture the real failure signature**
+- [ ] **Step 4: Run test to confirm the real boundary signature**
 
 Run: `cd app && node --import ./scripts/native-node-protocol-check.mjs?register --test tests/windows-sandbox.test.mjs`
-Expected: FAIL，失败信息里出现本机真实签名之一：
-- `windows-acl-run: SetNamedSecurityInfoW failed (Win32 5): grantWrite(...)`（ACL 供给失败，Task 2 修），或
-- `child.inside !== 'written'`（边界不可用，Task 2 记录证据后修）。
+Expected: PASS（当前环境：ACL 供给成功、边界有效；`workspace-write` 下 `inside=written`、`outside=EPERM`）。若出现 `windows-acl-run:`/Win32 5 或断言失败，保存完整输出并记录签名，不得修改断言修绿。
 
-把两次探针的完整 JSON 与 stderr 保存到 `app/.build/windows-sandbox-probe/`（gitignored）供 Task 2 使用。
+把两次探针的完整 JSON 与 stderr 保存到 `app/.build/windows-sandbox-probe/`（gitignored）供 Task 2 条件执行与 Lead 复核记录使用。
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add app/scripts/windows-sandbox-probe.mjs app/tests/windows-sandbox.test.mjs
-git commit -m "test(windows): add ACL sandbox boundary probe (red until ACL repair)"
+git commit -m "test(windows): add reproducible ACL sandbox boundary probe"
 ```
 
 ---
 
-### Task 2: 修复本机 ACL 供给（`SetNamedSecurityInfoW Win32 5`）
+### Task 2: 修复本机 ACL 供给（仅当使用非 FullControl 工作区、探针复现 Win32 5 时）
+
+> 2026-11-07 Stage A 复核：`%TEMP%` 下的 FullControl 工作区供给正常；仓库树等非 FullControl 目录会复现 `windows-acl-run: ... Win32 5`（见 Lead 复核记录）。全量测试数据根在 `%TEMP%`，故本任务默认不执行；当把仓库树/其他非 FullControl 目录当工作区使用，或 Task 1 探针复现 Win32 5 时才执行 Step 1–2。
 
 **Files:**
 - Modify: `docs/superpowers/specs/2026-11-06-rc5-engine-migration-status.md`（§3 已知限制 1 与 §5 下一步建议 1，修复完成后更新）
@@ -118,6 +128,8 @@ git commit -m "test(windows): add ACL sandbox boundary probe (red until ACL repa
 - Consumes: `@deepseek-ai/dsh-sandbox-windows-acl` 随包诊断脚本 `assets/diagnose-windows-sandbox-acl/scripts/diagnose-windows-sandbox-acl.ps1`，契约：`-Path <failing-path> -AllowRoot <authorized-root> -Out <persistent-recovery-dir>`，一次调用同时诊断与修复，所有改动存入 `-Out` 并打印 `ROLLBACK`。
 
 - [ ] **Step 1: Run the repair in an UNCONFINED PowerShell**
+
+> 仅当复现 Win32 5 时执行本步骤；未复现时本任务整体跳过并把“未复现”写进状态文档，不执行 ACL 修复。
 
 在**普通用户 PowerShell**（非 DSH 受限会话）中执行，一次一个路径，按失败顺序处理：
 
@@ -148,6 +160,17 @@ Expected: `native-ralph` 全部 PASS；`native-worktree` 仍可能因命名管�
 git add docs/superpowers/specs/2026-11-06-rc5-engine-migration-status.md
 git commit -m "docs: record Windows ACL repair for sandbox isolation"
 ```
+
+---
+
+### Task 2b: native-ralph 机器账本写保护（Decision Gate，Stage B 前置，不自动执行）
+
+`native-ralph.test.mjs` 的「PTC 真实 Node 进程…」失败于项目根内机器账本可写（见 Lead 复核记录），不是环境/ACL 供给问题。两个选项需用户拍板后再进入 P0 收口：
+
+- **B1 文档化 + 平台门控（推荐先做，约 1 小时）**：win32 上保留 `own` + `host` 两条边界断言，机器账本断言仅非 win32 执行；状态文档 §3 记录“Windows ACL 后端只限写范围，项目根内机器账本无单文件写保护；PTC 默认关闭”；另开后续 issue 跟踪产品级加固。可达 0 fail。
+- **B2 产品修复（新计划，约 1–2 天）**：为 Windows 隔离增加“受保护机器文件拒绝写”能力（受控 SID + deny ACE + 清理 + fail-closed，安全敏感），需独立计划与复核。
+
+未拍板前 P0 不能以 0 fail 收口（正确目标见 Task 5 修订）。
 
 ---
 
@@ -184,6 +207,8 @@ git commit -m "test(windows): keep worktree behavior assertions, gate git-filter
 ---
 
 ### Task 4: fail-closed 回归：供给失败时 PTC 不得以不受限身份执行
+
+> 2026-11-07 Stage A 已用 scratch 副本预跑本用例（证据见 Lead 复核记录）：fail-closed 实质成立（PTC 未执行、目标文件不存在、错误以结果对象暴露），但当前通道是 `result.error.kind="worker-exit"`（坏 workspaceRoot 在 realpath 处 ENOENT），不是 `"sandbox-unavailable"`。正式回归测试应按 rc.5 契约断言：`result.value` 非 `"written"`、`result.error` 存在、目标文件 ENOENT；错误分类专名化列为可后续加固项，不阻塞 P0。
 
 **Files:**
 - Modify: `app/tests/native-ralph.test.mjs`（在 `PTC 真实 Node 进程保留项目写入…` 用例后新增一条用例）
@@ -255,11 +280,11 @@ Expected: 全部 PASS，0 fail；`native-execution-features` 的 Office/MCP 仍�
 - [ ] **Step 2: Run the full suite in a normal (unconfined) user terminal**
 
 Run: `cd app && $env:BLUEPRINT_DATA_HOME = "$env:TEMP\Blueprint 测试数据"; npm test`
-Expected: `# tests 266`、`# pass 250`、`# fail 0`、`# skipped 16`（skip 为平台专属 + 缺 primary runtime 资产）。
+Expected: `# tests 269`、`# pass 253`、`# fail 0`、`# skipped 16`（skip 为平台专属 + 缺 primary runtime 资产；新增探针 2 条 + fail-closed 1 条，若最终用例数因实现差异不同，以实际总数为准，但必须 `# fail 0`、`# skipped 16`）。
 
 - [ ] **Step 3: Update the status record**
 
-更新 §2.3 为 250/266、§3 删除“Windows ACL 沙箱后端不可用”并把修复命令与证据写入“已修复”段落；§5 勾掉第 1 条，保留 primary runtime 资产、依赖清理、真机验收三条。
+更新 §2.3 为 253/269；§3 已知限制 1 改为“ACL 供给在 `%TEMP%` 数据根正常、仓库树等非 FullControl 工作区仍缺 WRITE_OWNER（附探针证据与条件修复命令）”，并记录 `native-ralph` 机器账本按 Stage B 决策处理；§5 勾掉第 1 条，保留 primary runtime 资产、依赖清理、真机验收三条。
 
 - [ ] **Step 4: Commit and push**
 
@@ -271,7 +296,13 @@ git push try r1/rc5
 
 - [ ] **Step 5: Comment on the published spec issue**
 
-用 `gh issue comment 1 -R Huiluck/blueprint-try --body-file <报告文件>` 记录：探针命令、ACL 修复命令与 `-Out` 报告位置、测试数字（266/250/0/16）、两个原失败用例的处理方式（一个环境修复、一个文档化限制适配）、剩余三项后续计划。
+用 `gh issue comment 1 -R Huiluck/blueprint-try --body-file <报告文件>` 记录：探针命令、ACL 修复命令与 `-Out` 报告位置、测试数字（269/253/0/16）、两个原失败用例的处理方式（一个环境修复、一个文档化限制适配）、剩余三项后续计划。
+
+---
+
+## P0 执行顺序（Stage A 复核后）
+
+Stage A 已完成（探针与取证见上文 Lead 复核记录）。Task 2（本机 ACL 修复）默认跳过，只有使用非 FullControl 工作区或探针复现 Win32 5 时才执行。完成 Stage B 的 native-ralph 决策（Task 2b）后，按 Task 3 → Task 4 → Task 5 收口；验收目标为 `269 tests / 253 pass / 0 fail / 16 skip`。
 
 ---
 
@@ -279,10 +310,10 @@ git push try r1/rc5
 
 **Spec coverage:** 本计划覆盖状态文档 §5 建议 1（Windows 沙箱隔离）及其证据链；建议 2（primary runtime 资产）、3（依赖/许可证清理）、4（干净环境真机验收）分别留给后续独立计划，符合 writing-plans 的 scope check。
 
-**Step scan:** 每个 step 都是单一动作：写测试/跑测试看红/实现探针/跑测试看签名/提交；Task 2 的 step 是需要用户协助的一次性命令且带精确参数与判定标准；Task 3/4 的改动点、条件与断言均已写死；无“处理边缘情况”式空话。
+**Step scan:** 每个 step 都是单一动作：写测试/跑测试看红/实现探针/跑测试看签名/提交；Task 2 的 step 是条件执行的一次性命令（需要用户在非受限终端运行）且带精确参数与判定标准；Task 3/4 的改动点、条件与断言均已写死；无“处理边缘情况”式空话。
 
 **Type consistency:** `runWindowsSandboxProbe` 的 options/ProbeResult 字段在 Task 1 定义、Task 2 直接消费；`windows-acl-run:` 签名、退出码 127、`--workspace/--temp/--mode/--` 契约与 rc.5 包 README/源码一致；`sandboxPolicy.resolve({session})`、`ptcRuntime.resolve/run` 的用法与 `native-ralph` 既有用例一致。
 
 **Review Focus:** 五个最可能咬人的输入/条件已列出，且分别由 `windows-sandbox.test.mjs`（供给失败/边界失败/只读）、`native-worktree.test.mjs`（命名管道限制）、`native-ralph.test.mjs` 新增用例（fail-closed）覆盖。
 
-**Proportion:** 5 个任务、约 3 小时工作量；计划长度约为状态文档对应章节的 3 倍，代码块只保留测试契约和探针输出形状，没有转录实现体。
+**Proportion:** 5 个任务 + 1 个决策门（Task 2b）、约 3–4 小时工作量；计划长度约为状态文档对应章节的 3 倍，代码块只保留测试契约和探针输出形状，没有转录实现体。
