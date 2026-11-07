@@ -187,3 +187,20 @@ test('PTC 真实 Node 进程保留项目写入；项目外文件不可写（win3
   assert.notEqual(result.value.host, 'written')
   assert.equal(f.requests.length, 0)
 })
+
+test('沙箱工作区不可供给时 PTC 拒绝执行，不得写出边界', async t => {
+  const f = await fixture(t)
+  const 目标 = join(f.work, '不应写出.txt')
+  const 坏工作区 = join(f.work, '不存在的沙箱根')
+  const result = await 在项目终端执行域(f.ctx, f.parent, async () => {
+    const spec = await f.ctx.ptcRuntime.resolve({ bindings: [], cwd: f.work,
+      program: `const fs = process.getBuiltinModule('node:fs'); try { fs.writeFileSync(${JSON.stringify(目标)}, '越界'); return 'written' } catch (error) { return error.code }`,
+      sandboxPolicy: { ...f.ctx.sandboxPolicy.resolve({ session: f.parent.session }), workspaceRoot: 坏工作区 },
+      signal: new AbortController().signal })
+    return f.ctx.ptcRuntime.run(spec)
+  })
+  // 供给失败必须表现为错误（rc.5 的 run 结果是 { logs, error?, value? }），而不是成功写出。
+  assert.notEqual(result.value, 'written', JSON.stringify(result))
+  assert.ok(result.error, JSON.stringify(result))
+  await assert.rejects(readFile(目标), { code: 'ENOENT' })
+})
