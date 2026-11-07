@@ -135,19 +135,25 @@ test('真实 profile、Git 与 Seatbelt：自主工作树跟随当前目录，�
   const agent = await f.create('native-worktree-owner')
   const peer = await f.create('native-worktree-peer')
   assert.equal(await git(f.source, 'branch', '--show-current'), 'node-1')
+  // rc.5 文档化限制：受限子进程无法创建命名管道，Git 外部过滤器经 MSYS sh 执行必然失败；
+  // win32 上只验证工作树行为，不验证过滤器语义（保留 -text 属性，保证检出内容仍是 LF）。
+  let marker, configuration
   await writeFile(join(f.source, '.gitattributes'), '*.txt filter=blueprint-native-check -text\n')
   await git(f.source, 'add', '.gitattributes')
   await git(f.source, '-c', 'user.name=Native worktree fixture', '-c', 'user.email=worktree@example.invalid', 'commit', '-m', '记录过滤器属性')
-  const filter = join(f.root, '检出过滤器.cjs'), marker = join(f.root, '过滤器曾执行.txt')
-  await writeFile(filter, `const fs = require('node:fs'); fs.writeFileSync(${JSON.stringify(marker)}, 'ran'); process.stdout.write('filtered');\n`)
-  const quote = value => `'${value.replaceAll("'", "'\\''")}'`
-  // 跨平台：clean 过滤器用同一份 Node 脚本把 stdin 原样写回 stdout（Windows 上没有 /bin/cat）。
-  const clean = join(f.root, '清理过滤器.cjs')
-  await writeFile(clean, 'process.stdin.pipe(process.stdout)\n')
-  await git(f.source, 'config', 'filter.blueprint-native-check.clean', `${quote(process.execPath)} ${quote(clean)}`)
-  await git(f.source, 'config', 'filter.blueprint-native-check.smudge', `${quote(process.execPath)} ${quote(filter)}`)
-  await git(f.source, 'config', 'filter.blueprint-native-check.required', 'true')
-  const configuration = await readFile(join(f.root, '作品/.git/config'))
+  if (process.platform !== 'win32') {
+    const filter = join(f.root, '检出过滤器.cjs')
+    marker = join(f.root, '过滤器曾执行.txt')
+    await writeFile(filter, `const fs = require('node:fs'); fs.writeFileSync(${JSON.stringify(marker)}, 'ran'); process.stdout.write('filtered');\n`)
+    const quote = value => `'${value.replaceAll("'", "'\\''")}'`
+    // 跨平台：clean 过滤器用同一份 Node 脚本把 stdin 原样写回 stdout（Windows 上没有 /bin/cat）。
+    const clean = join(f.root, '清理过滤器.cjs')
+    await writeFile(clean, 'process.stdin.pipe(process.stdout)\n')
+    await git(f.source, 'config', 'filter.blueprint-native-check.clean', `${quote(process.execPath)} ${quote(clean)}`)
+    await git(f.source, 'config', 'filter.blueprint-native-check.smudge', `${quote(process.execPath)} ${quote(filter)}`)
+    await git(f.source, 'config', 'filter.blueprint-native-check.required', 'true')
+  }
+  configuration = await readFile(join(f.root, '作品/.git/config'))
   const base = await git(f.source, 'rev-parse', 'HEAD')
   await writeFile(join(f.source, '已提交.txt'), '正式空间的未提交修正\n')
   await writeFile(join(f.source, '未跟踪.txt'), '本地草稿\n')
@@ -160,8 +166,10 @@ test('真实 profile、Git 与 Seatbelt：自主工作树跟随当前目录，�
   assert.equal(f.ctx.workingDirectory.get(peer.session), f.root, '同项目另一 Session 没有被切目录')
   assert.equal(agent.session.header.cwd, f.root, '项目身份仍是原项目根')
   assert.equal(await readFile(join(created.path, '已提交.txt'), 'utf8'), '来源快照\n')
-  await assert.rejects(access(marker), { code: 'ENOENT' }, '官方检出没有执行仓库 smudge 过滤器')
-  assert.deepEqual(await readFile(join(f.root, '作品/.git/config')), configuration, '检出不改仓库过滤器配置')
+  if (process.platform !== 'win32') {
+    await assert.rejects(access(marker), { code: 'ENOENT' }, '官方检出没有执行仓库 smudge 过滤器')
+    assert.deepEqual(await readFile(join(f.root, '作品/.git/config')), configuration, '检出不改仓库过滤器配置')
+  }
   await assert.rejects(access(join(created.path, '未跟踪.txt')), { code: 'ENOENT' })
   const writeReceipt = await f.ok(agent, 'write', { file_path: '自主产物.txt', content: '自主分支文件\n' })
   assert.match(textOf(await f.ok(agent, 'read', { file_path: '自主产物.txt' })), /自主分支文件/)
