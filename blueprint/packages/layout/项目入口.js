@@ -153,7 +153,7 @@ function BlueprintProjectEntry({ open, state, projects, error, busy, onOpen, onB
                     h('p', { className: 'bp-entry-connect-kicker' }, h('span', { 'aria-hidden': true }), 译('还没有可用的模型')),
                     h('div', { className: 'bp-entry-connect-main' },
                         h('div', {}, h('h2', { id: 'bp-entry-connect-title' }, 译('请先在系统 DSH 中配置模型 provider')),
-                            h('p', { className: 'bp-entry-connect-copy' }, 译('Blueprint 直接使用系统 DSH 里的模型 provider 和模型目录；配好后重新打开这一页就能开始。'))))) : null,
+                            h('p', { className: 'bp-entry-connect-copy' }, 译('Blueprint 直接使用系统 DSH 里的模型 provider 和模型目录；在系统 DSH 配好后重启 Blueprint 生效。'))))) : null,
                 h('div', { className: 'bp-home-form bp-project' }, h(BlueprintProjectFormBody, { open, navigate, close() {}, modelSettings, renderSlot, mode: 'home', onAdvanced, titleId: 'bp-home-title', autoFocus: false }))),
             h(BlueprintRecentProjects, { state, projects, error, busy, onOpen, onBrowse, onRetry })));
 }

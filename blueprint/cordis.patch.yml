@@ -19,7 +19,7 @@
     welcomeNoticeVersion: '2026-09-28.1'
 - id: ui-brand-official
   disabled: true
-# 首次打开不弹 dsh 的 Key 对话框；Blueprint 在创建项目时自己引导（layout/模型引导.js）。
+# 首次打开不弹 dsh 的 Key 对话框；模型 provider 由系统 DSH 的设置管理，Blueprint 只在建项目前检查并提示（layout/模型就绪.js）。
 - id: ui-settings-models
   config:
     credentialOnboarding: false

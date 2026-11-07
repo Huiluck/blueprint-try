@@ -1184,6 +1184,6 @@
  "模型连接目录读不出来。": "The model connection catalog can't be read.",
  "还没有可用的模型": "No model available yet",
  "请先在系统 DSH 中配置模型 provider": "Configure a model provider in system DSH first",
- "Blueprint 直接使用系统 DSH 里的模型 provider 和模型目录；配好后重新打开这一页就能开始。": "Blueprint uses the model providers and catalog from system DSH directly. Once configured, reopen this page to start.",
+ "Blueprint 直接使用系统 DSH 里的模型 provider 和模型目录；在系统 DSH 配好后重启 Blueprint 生效。": "Blueprint uses the model providers and catalog from system DSH directly. After configuring them in system DSH, restart Blueprint for the change to take effect.",
  "请先在系统 DSH 中配置模型 provider，再创建项目。": "Configure a model provider in system DSH first, then create the project."
 }
