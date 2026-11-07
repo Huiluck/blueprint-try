@@ -334,7 +334,7 @@ test('查看冷目标只读官方 projection，不恢复 Agent；取消仍释放
   assert.equal(released, 2); assert.equal(f.requests.length, 0)
 })
 
-test('官方自主 complete 结束 Goal，正式责任仍须沿 Blueprint 交回', async t => {
+test('节点不能用 update_goal 标完成：Goal 拒绝，正式责任仍须沿 Blueprint 交回', async t => {
   const f = await fixture(t)
   f.respond(() => {
     if (f.requests.length !== 1) return
@@ -342,17 +342,15 @@ test('官方自主 complete 结束 Goal，正式责任仍须沿 Blueprint 交回
     return [{ type: 'tool-call', id: sdk['dsh-llm'].ToolCallId('complete-native-goal'), name: 'update_goal',
       arguments: JSON.stringify({ goal_id: goal.id, revision: goal.revision, action: 'complete' }) }]
   })
-  await f.operation({ action: 'create', objective: '自主收尾核对', maxGoalRounds: 2 })
-  await new Promise(resolve => setTimeout(resolve, 500))
-  console.error('DEBUG-COMPLETE', JSON.stringify({
-    requests: f.requests.length,
-    goal: 当前持续目标(f.ctx, f.agent),
-    tools: f.agent.session.ownEvents().filter(event => event.type === 'tool/result').map(event => event.data.message),
-  }, null, 1))
-  await wait(() => 当前持续目标(f.ctx, f.agent).phase === 'complete' && f.agent.status === 'idle')
-  assert.equal(当前持续目标(f.ctx, f.agent).roundsStarted, 1)
-  assert.equal(f.requests.length, 2, '第二步只承接官方收尾提示')
-  assert.match(JSON.stringify(f.requests[1].messages), /goal_complete/)
+  await f.operation({ action: 'create', objective: '自主收尾核对', maxGoalRounds: 1 })
+  const 工具结果 = () => f.agent.session.ownEvents().filter(event => event.type === 'tool/result').map(event => event.data.message)
+  await wait(() => 工具结果().some(message => message.toolCallId === 'complete-native-goal'))
+  const result = 工具结果().find(message => message.toolCallId === 'complete-native-goal')
+  // 节点的完成动作交给 finish 正式交回；update_goal 的 complete 在 Blueprint 节点里被明确拒绝，而不是伪造目标完成。
+  assert.equal(result.isError, true)
+  assert.match(JSON.stringify(result), /节点不用 update_goal 标完成/)
+  assert.match(JSON.stringify(result), /finish/)
+  assert.notEqual(当前持续目标(f.ctx, f.agent).phase, 'complete', 'update_goal 不能把 Goal 标完成')
   const roster = await (await import('../../blueprint/packages/roster/src/index.js')).读名册(f.root)
   assert.equal(roster.rows[0].status, '开工', 'Goal complete 不能伪造正式交回')
 })

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { pathToFileURL, fileURLToPath } from 'node:url'
 import { mkdtemp, mkdir, readFile, rm } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
 import { basename, join } from 'node:path'
 import { createServer } from 'node:http'
 import { execFileSync } from 'node:child_process'
@@ -124,6 +125,9 @@ test('官方 Workflow 并行帮助得到职责情境、有界结果、正式节�
 })
 
 test('Office 官方技能与共享 Python 真正生成并重读 Word、Excel、PowerPoint', async t => {
+  const 资源根 = fileURLToPath(new URL('../.build/native-resources', import.meta.url))
+  const 缺主运行时 = !existsSync(join(资源根, 'primary-runtime'))
+  if (缺主运行时) return t.skip('需要先准备官方 primary runtime（office/python）资源；见 app/README 的 prepare 说明')
   const f = await fixture(t, { workflow: false })
   f.respond((_request, step) => step === 1 ? call('office-deps', 'load_workspace_dependencies', {})
     : step === 2 ? call('office-skill', 'skill', { name: 'office-xlsx' }) : undefined)
@@ -147,6 +151,9 @@ print('verified: three Office formats')`
 })
 
 test('官方浏览器 MCP 本地点击与输入，项目独立状态及资源释放', async t => {
+  const 资源根 = fileURLToPath(new URL('../.build/native-resources', import.meta.url))
+  const 缺主运行时 = !existsSync(join(资源根, 'primary-runtime'))
+  if (缺主运行时) return t.skip('需要先准备官方 primary runtime（Playwright MCP/office）资源；见 app/README 的 prepare 说明')
   const server = createServer((_req, res) => { res.setHeader('Content-Type', 'text/html'); res.end('<input aria-label="数字"><button onclick="document.querySelector(\'output\').textContent=document.querySelector(\'input\').value">核对</button><output></output>') })
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
   t.after(() => new Promise(resolve => server.close(resolve)))

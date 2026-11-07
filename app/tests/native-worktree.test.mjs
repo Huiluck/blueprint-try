@@ -141,7 +141,10 @@ test('真实 profile、Git 与 Seatbelt：自主工作树跟随当前目录，�
   const filter = join(f.root, '检出过滤器.cjs'), marker = join(f.root, '过滤器曾执行.txt')
   await writeFile(filter, `const fs = require('node:fs'); fs.writeFileSync(${JSON.stringify(marker)}, 'ran'); process.stdout.write('filtered');\n`)
   const quote = value => `'${value.replaceAll("'", "'\\''")}'`
-  await git(f.source, 'config', 'filter.blueprint-native-check.clean', '/bin/cat')
+  // 跨平台：clean 过滤器用同一份 Node 脚本把 stdin 原样写回 stdout（Windows 上没有 /bin/cat）。
+  const clean = join(f.root, '清理过滤器.cjs')
+  await writeFile(clean, 'process.stdin.pipe(process.stdout)\n')
+  await git(f.source, 'config', 'filter.blueprint-native-check.clean', `${quote(process.execPath)} ${quote(clean)}`)
   await git(f.source, 'config', 'filter.blueprint-native-check.smudge', `${quote(process.execPath)} ${quote(filter)}`)
   await git(f.source, 'config', 'filter.blueprint-native-check.required', 'true')
   const configuration = await readFile(join(f.root, '作品/.git/config'))
